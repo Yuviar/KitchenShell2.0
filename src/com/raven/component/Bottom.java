@@ -16,8 +16,10 @@ public class Bottom extends javax.swing.JPanel {
 
     public Bottom() {
         initComponents();
+        name.setText("Yuviar");
+        level.setText("Admin");
         setOpaque(false);
-        setBackground(new Color(65, 152, 216));
+        setBackground(new Color(33, 53, 85));
     }
 
     @SuppressWarnings("unchecked")
@@ -25,19 +27,19 @@ public class Bottom extends javax.swing.JPanel {
     private void initComponents() {
 
         imageAvatar1 = new com.raven.swing.ImageAvatar();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        name = new javax.swing.JLabel();
+        level = new javax.swing.JLabel();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         imageAvatar1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/profile.jpg"))); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(237, 237, 237));
-        jLabel1.setText("Raven");
+        name.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
+        name.setForeground(new java.awt.Color(237, 237, 237));
+        name.setText("Yuvi");
 
-        jLabel2.setForeground(new java.awt.Color(237, 237, 237));
-        jLabel2.setText("Programmer");
+        level.setForeground(new java.awt.Color(237, 237, 237));
+        level.setText("Admin");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -48,8 +50,8 @@ public class Bottom extends javax.swing.JPanel {
                 .addComponent(imageAvatar1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(name)
+                    .addComponent(level))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -58,9 +60,9 @@ public class Bottom extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(name)
                         .addGap(3, 3, 3)
-                        .addComponent(jLabel2))
+                        .addComponent(level))
                     .addComponent(imageAvatar1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -78,7 +80,7 @@ public class Bottom extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.swing.ImageAvatar imageAvatar1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel level;
+    private javax.swing.JLabel name;
     // End of variables declaration//GEN-END:variables
 }

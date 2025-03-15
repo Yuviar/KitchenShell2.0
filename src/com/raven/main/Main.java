@@ -1,5 +1,6 @@
 package com.raven.main;
 
+import com.raven.Login.Login;
 import com.raven.component.Menu;
 import com.raven.event.EventMenuSelected;
 import com.raven.form.Form1;
@@ -38,6 +39,8 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 System.out.println("Logout");
+                new Login().setVisible(true);
+                dispose();
             }
         });
         menu.addEventMenu(new ActionListener() {
@@ -58,11 +61,12 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
-        menu.addMenu(new ModelMenu("Profile", new ImageIcon(getClass().getResource("/com/raven/icon/user.png"))));
-        menu.addMenu(new ModelMenu("Message", new ImageIcon(getClass().getResource("/com/raven/icon/message.png"))));
-        menu.addMenu(new ModelMenu("Report", new ImageIcon(getClass().getResource("/com/raven/icon/report.png"))));
-        menu.addMenu(new ModelMenu("Setting", new ImageIcon(getClass().getResource("/com/raven/icon/setting.png"))));
-        menu.addMenu(new ModelMenu("Key", new ImageIcon(getClass().getResource("/com/raven/icon/key.png"))));
+        menu.addMenu(new ModelMenu("Dashboard", new ImageIcon(getClass().getResource("/com/raven/icon/dashboard.png"))));
+        menu.addMenu(new ModelMenu("Transaksi", new ImageIcon(getClass().getResource("/com/raven/icon/receipt.png"))));
+        menu.addMenu(new ModelMenu("Menu", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
+        menu.addMenu(new ModelMenu("Akun", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
+        menu.addMenu(new ModelMenu("Laporan", new ImageIcon(getClass().getResource("/com/raven/icon/problem.png"))));
+        menu.addMenu(new ModelMenu("Absensi", new ImageIcon(getClass().getResource("/com/raven/icon/calendar.png"))));
         body.add(menu, "w 50!");
         body.add(main, "w 100%");
         TimingTarget target = new TimingTargetAdapter() {
@@ -106,9 +110,10 @@ public class Main extends javax.swing.JFrame {
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(223, 242, 235));
         setUndecorated(true);
 
-        body.setBackground(new java.awt.Color(245, 245, 245));
+        body.setBackground(new java.awt.Color(223, 242, 235));
 
         javax.swing.GroupLayout bodyLayout = new javax.swing.GroupLayout(body);
         body.setLayout(bodyLayout);

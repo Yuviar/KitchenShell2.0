@@ -12,7 +12,7 @@ public class ButtonCustom extends JButton {
     public ButtonCustom() {
         setContentAreaFilled(false);
         setCursor(new Cursor(Cursor.HAND_CURSOR));
-        setBackground(new Color(65, 152, 216));
+        setBackground(new Color(33, 53, 85));
     }
 
     @Override
