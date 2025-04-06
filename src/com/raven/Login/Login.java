@@ -5,6 +5,8 @@
 package com.raven.Login;
 
 import com.raven.main.Main;
+import java.sql.*;
+import config.DatabaseConfig;
 
 /**
  *
@@ -15,10 +17,19 @@ public class Login extends javax.swing.JFrame {
     /**
      * Creates new form Login
      */
+    
+    Connection con = null;
     public Login() {
+        getCon();
         initComponents();
     }
 
+    private void getCon(){
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
