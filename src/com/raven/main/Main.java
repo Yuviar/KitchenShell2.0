@@ -3,8 +3,12 @@ package com.raven.main;
 import com.raven.Login.Login;
 import com.raven.component.Menu;
 import com.raven.event.EventMenuSelected;
-import com.raven.form.Form1;
-import com.raven.form.Form2;
+import com.raven.form.Form_Absensi;
+import com.raven.form.Form_Akun;
+import com.raven.form.Form_Dashboard;
+import com.raven.form.Form_Laporan;
+import com.raven.form.Form_Menu;
+import com.raven.form.Form_Transaksi;
 import com.raven.model.ModelMenu;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -55,9 +59,17 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 if (index == 0) {
-                    showForm(new Form1());
-                } else if (index == 1) {
-                    showForm(new Form2());
+                    showForm(new Form_Dashboard());
+                }else if (index == 1) {
+                    showForm(new Form_Transaksi());
+                }else if (index == 2) {
+                    showForm(new Form_Menu());
+                }else if (index == 3) {
+                    showForm(new Form_Akun());
+                }else if (index == 4) {
+                    showForm(new Form_Laporan());
+                }else if (index == 5) {
+                    showForm(new Form_Absensi());
                 }
             }
         });
@@ -93,7 +105,7 @@ public class Main extends javax.swing.JFrame {
         animator.setResolution(0);
         animator.setAcceleration(0.5f);
         animator.setDeceleration(0.5f);
-        showForm(new Form1());
+        showForm(new Form_Dashboard());
     }
 
     private void showForm(Component com) {
