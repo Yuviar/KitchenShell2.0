@@ -182,7 +182,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("QTY");
 
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setLabelFor(jCheckBox1);
