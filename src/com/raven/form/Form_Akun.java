@@ -4,6 +4,13 @@
  */
 package com.raven.form;
 
+import com.raven.popup.AkunPopup;
+import java.sql.*;
+import config.DatabaseConfig;
+import java.sql.Connection;
+import javax.swing.table.DefaultTableModel;
+import raven.glasspanepopup.GlassPanePopup;
+
 /**
  *
  * @author Fazaa
@@ -13,9 +20,48 @@ public class Form_Akun extends javax.swing.JPanel {
     /**
      * Creates new form Form_Akun
      */
+    Connection con = null;
+    DefaultTableModel tableModel;
+
     public Form_Akun() {
         initComponents();
         setOpaque(false);
+        getCon();
+        String[] judul = {"uid", "nama", "username", "password"};
+        tableModel = new DefaultTableModel(judul, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        loadAkunKaryawan();
+        tblAkun.setModel(tableModel);
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+        }
+    }
+
+    private void loadAkunKaryawan() {
+        if (con != null) {
+            try {
+                String query = "SELECT * FROM user";
+                PreparedStatement ps = con.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();
+                tableModel.setRowCount(0);
+                while (rs.next()) {
+                    String[] data = {rs.getString("uid"), rs.getString(2), rs.getString(3), rs.getString(4)};
+                    tableModel.addRow(data);
+                }
+                rs.close();
+                ps.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -27,19 +73,155 @@ public class Form_Akun extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+        jLabel1 = new javax.swing.JLabel();
+        panelRound1 = new com.raven.swing.PanelRound();
+        button1 = new com.raven.util.Button();
+        button2 = new com.raven.util.Button();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblAkun = new javax.swing.JTable();
+        button3 = new com.raven.util.Button();
+        button4 = new com.raven.util.Button();
+        button5 = new com.raven.util.Button();
+
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(33, 53, 85));
+        jLabel1.setText("AKUN");
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
+        jLabel1.setFocusable(false);
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        panelRound1.setBackground(new java.awt.Color(33, 53, 85));
+
+        button1.setForeground(new java.awt.Color(0, 0, 0));
+        button1.setText("Daftar Akun");
+        button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button1ActionPerformed(evt);
+            }
+        });
+
+        button2.setBackground(new java.awt.Color(144, 154, 170));
+        button2.setForeground(new java.awt.Color(33, 53, 85));
+        button2.setText("Daftar Member");
+        button2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+
+        tblAkun.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(tblAkun);
+
+        button3.setBackground(new java.awt.Color(255, 157, 35));
+        button3.setForeground(new java.awt.Color(255, 255, 255));
+        button3.setText("Update");
+        button3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button3ActionPerformed(evt);
+            }
+        });
+
+        button4.setBackground(new java.awt.Color(208, 90, 90));
+        button4.setForeground(new java.awt.Color(255, 255, 255));
+        button4.setText("Delete");
+        button4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button4ActionPerformed(evt);
+            }
+        });
+
+        button5.setBackground(new java.awt.Color(97, 131, 175));
+        button5.setForeground(new java.awt.Color(255, 255, 255));
+        button5.setText("Add");
+        button5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button5ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
+        panelRound1.setLayout(panelRound1Layout);
+        panelRound1Layout.setHorizontalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelRound1Layout.createSequentialGroup()
+                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
+                        .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(panelRound1Layout.createSequentialGroup()
+                                .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 796, Short.MAX_VALUE))
+                        .addGap(20, 20, 20))))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+        panelRound1Layout.setVerticalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
+
+        add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 78, -1, 430));
     }// </editor-fold>//GEN-END:initComponents
+
+    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button1ActionPerformed
+
+    private void button3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button3ActionPerformed
+
+    private void button4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_button4ActionPerformed
+
+    private void button5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5ActionPerformed
+        // TODO add your handling code here:
+        GlassPanePopup.showPopup(new AkunPopup());
+    }//GEN-LAST:event_button5ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button button1;
+    private com.raven.util.Button button2;
+    private com.raven.util.Button button3;
+    private com.raven.util.Button button4;
+    private com.raven.util.Button button5;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private com.raven.swing.PanelRound panelRound1;
+    private javax.swing.JTable tblAkun;
     // End of variables declaration//GEN-END:variables
 }

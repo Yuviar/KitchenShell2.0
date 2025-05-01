@@ -20,6 +20,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
+import raven.glasspanepopup.GlassPanePopup;
 
 public class Main extends javax.swing.JFrame {
 
@@ -32,6 +33,7 @@ public class Main extends javax.swing.JFrame {
     public Main() {
         initComponents();
         init();
+        GlassPanePopup.install(this);
     }
 
     private void init() {

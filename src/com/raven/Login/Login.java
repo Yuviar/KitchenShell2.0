@@ -7,6 +7,7 @@ package com.raven.Login;
 import com.raven.main.Main;
 import java.sql.*;
 import config.DatabaseConfig;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -17,19 +18,44 @@ public class Login extends javax.swing.JFrame {
     /**
      * Creates new form Login
      */
-    
     Connection con = null;
+
     public Login() {
-        getCon();
         initComponents();
+        getCon();
     }
 
-    private void getCon(){
+    private void getCon() {
         try {
             con = DatabaseConfig.getConnection();
         } catch (Exception e) {
         }
     }
+
+    public void loginAction() {
+        try {
+            String usn = userInput.getText();
+            String pass = passInput.getText();
+            String query = "SELECT * FROM user WHERE username = ? AND password = ?LIMIT 1";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ps.setString(1, usn);
+                ps.setString(2, pass);
+                ResultSet hasil = ps.executeQuery();
+                if (hasil.next()) {
+                    JOptionPane.showMessageDialog(this, "Login berhasil!");
+                    new Main().setVisible(true);
+                    this.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Username atau Password salah!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -39,27 +65,28 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        loginBtn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        passInput = new javax.swing.JTextField();
+        userInput = new javax.swing.JTextField();
+        shutdownBtn = new com.raven.util.Button();
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButton1.setBackground(new java.awt.Color(163, 180, 202));
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("LOGIN");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        loginBtn.setBackground(new java.awt.Color(163, 180, 202));
+        loginBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        loginBtn.setForeground(new java.awt.Color(255, 255, 255));
+        loginBtn.setText("LOGIN");
+        loginBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                loginBtnActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 300, 190, 30));
+        getContentPane().add(loginBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 300, 190, 30));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -70,14 +97,27 @@ public class Login extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("USERNAME");
         getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 196, -1, 10));
+        getContentPane().add(passInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 190, 30));
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        userInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                userInputActionPerformed(evt);
             }
         });
-        getContentPane().add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 190, 30));
-        getContentPane().add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 190, 30));
+        getContentPane().add(userInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 190, 30));
+
+        shutdownBtn.setBackground(new java.awt.Color(200, 10, 10));
+        shutdownBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/power.png"))); // NOI18N
+        shutdownBtn.setAlignmentY(0.0F);
+        shutdownBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        shutdownBtn.setIconTextGap(0);
+        shutdownBtn.setShadowColor(new java.awt.Color(120, 120, 120));
+        shutdownBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shutdownBtnActionPerformed(evt);
+            }
+        });
+        getContentPane().add(shutdownBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, 40, 40));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/Login/LOGIN (4).jpg"))); // NOI18N
         jLabel4.setText("jLabel1");
@@ -87,14 +127,17 @@ public class Login extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        new Main().setVisible(true);
-        dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
+        loginAction();
+    }//GEN-LAST:event_loginBtnActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void userInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userInputActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_userInputActionPerformed
+
+    private void shutdownBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shutdownBtnActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_shutdownBtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -132,11 +175,12 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JButton loginBtn;
+    private javax.swing.JTextField passInput;
+    private com.raven.util.Button shutdownBtn;
+    private javax.swing.JTextField userInput;
     // End of variables declaration//GEN-END:variables
 }
