@@ -8,8 +8,11 @@ import com.raven.popup.AkunPopup;
 import java.sql.*;
 import config.DatabaseConfig;
 import java.sql.Connection;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
+import com.raven.event.DataChangeListener;
+import com.raven.popup.HapusDataPopup;
 
 /**
  *
@@ -22,12 +25,15 @@ public class Form_Akun extends javax.swing.JPanel {
      */
     Connection con = null;
     DefaultTableModel tableModel;
+    private DataChangeListener dataChangeListener;
+    AkunPopup popup = new AkunPopup();
+    HapusDataPopup hapusPopup = new HapusDataPopup();
 
     public Form_Akun() {
         initComponents();
         setOpaque(false);
         getCon();
-        String[] judul = {"uid", "nama", "username", "password"};
+        String[] judul = {"Uid", "Nama", "Username", "Password", "Role"};
         tableModel = new DefaultTableModel(judul, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -36,24 +42,37 @@ public class Form_Akun extends javax.swing.JPanel {
         };
         loadAkunKaryawan();
         tblAkun.setModel(tableModel);
+        popup.setAkunListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadAkunKaryawan();
+            }
+        });
     }
 
     private void getCon() {
         try {
             con = DatabaseConfig.getConnection();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void loadAkunKaryawan() {
         if (con != null) {
             try {
-                String query = "SELECT * FROM user";
+                String query = "SELECT * FROM user ORDER BY level DESC";
                 PreparedStatement ps = con.prepareStatement(query);
                 ResultSet rs = ps.executeQuery();
                 tableModel.setRowCount(0);
                 while (rs.next()) {
-                    String[] data = {rs.getString("uid"), rs.getString(2), rs.getString(3), rs.getString(4)};
+                    String role = null;
+                    if (rs.getInt(6) == 1) {
+                        role = "Admin";
+                    } else {
+                        role = "Karyawan";
+                    }
+                    String[] data = {rs.getString("uid"), rs.getString(3), rs.getString(4), rs.getString(5), role};
                     tableModel.addRow(data);
                 }
                 rs.close();
@@ -73,115 +92,17 @@ public class Form_Akun extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        judul = new javax.swing.JLabel();
         panelRound1 = new com.raven.swing.PanelRound();
         button1 = new com.raven.util.Button();
         button2 = new com.raven.util.Button();
-        button3 = new com.raven.util.Button();
-        button4 = new com.raven.util.Button();
-        button5 = new com.raven.util.Button();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new com.raven.swing.TableColumn();
-        judul = new javax.swing.JLabel();
+        tblAkun = new javax.swing.JTable();
+        btnUpdate = new com.raven.util.Button();
+        btnDelete = new com.raven.util.Button();
+        button5 = new com.raven.util.Button();
 
-        panelRound1.setBackground(new java.awt.Color(33, 53, 85));
-        panelRound1.setForeground(new java.awt.Color(255, 255, 255));
-
-        button1.setText("AKUN");
-        button1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-
-        button2.setText("MEMBER");
-        button2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button2ActionPerformed(evt);
-            }
-        });
-
-        button3.setBackground(new java.awt.Color(255, 157, 35));
-        button3.setForeground(new java.awt.Color(255, 255, 255));
-        button3.setText("UPDATE");
-        button3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button3.setShadowColor(new java.awt.Color(102, 102, 102));
-        button3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button3ActionPerformed(evt);
-            }
-        });
-
-        button4.setBackground(new java.awt.Color(208, 90, 90));
-        button4.setForeground(new java.awt.Color(255, 255, 255));
-        button4.setText("DELETE");
-        button4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button4.setShadowColor(new java.awt.Color(102, 102, 102));
-
-        button5.setBackground(new java.awt.Color(97, 131, 175));
-        button5.setForeground(new java.awt.Color(255, 255, 255));
-        button5.setText("ADD");
-        button5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button5.setShadowColor(new java.awt.Color(102, 102, 102));
-        button5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button5ActionPerformed(evt);
-            }
-        });
-
-        jScrollPane1.setBorder(null);
-
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "KODE", "NAMA", "NO TELP", "LEVEL"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        table.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(table);
-
-        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
-        panelRound1.setLayout(panelRound1Layout);
-        panelRound1Layout.setHorizontalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 785, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(535, 535, 535)
-                        .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(25, Short.MAX_VALUE))
-        );
-        panelRound1Layout.setVerticalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         judul.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         judul.setForeground(new java.awt.Color(33, 53, 85));
@@ -189,26 +110,7 @@ public class Form_Akun extends javax.swing.JPanel {
         judul.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         judul.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
         judul.setFocusable(false);
-
-        jLabel1 = new javax.swing.JLabel();
-        panelRound1 = new com.raven.swing.PanelRound();
-        button1 = new com.raven.util.Button();
-        button2 = new com.raven.util.Button();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblAkun = new javax.swing.JTable();
-        button3 = new com.raven.util.Button();
-        button4 = new com.raven.util.Button();
-        button5 = new com.raven.util.Button();
-
-        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(33, 53, 85));
-        jLabel1.setText("AKUN");
-        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
-        jLabel1.setFocusable(false);
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        add(judul, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
 
@@ -239,23 +141,23 @@ public class Form_Akun extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tblAkun);
 
-        button3.setBackground(new java.awt.Color(255, 157, 35));
-        button3.setForeground(new java.awt.Color(255, 255, 255));
-        button3.setText("Update");
-        button3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        button3.addActionListener(new java.awt.event.ActionListener() {
+        btnUpdate.setBackground(new java.awt.Color(255, 157, 35));
+        btnUpdate.setForeground(new java.awt.Color(255, 255, 255));
+        btnUpdate.setText("Update");
+        btnUpdate.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button3ActionPerformed(evt);
+                btnUpdateActionPerformed(evt);
             }
         });
 
-        button4.setBackground(new java.awt.Color(208, 90, 90));
-        button4.setForeground(new java.awt.Color(255, 255, 255));
-        button4.setText("Delete");
-        button4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        button4.addActionListener(new java.awt.event.ActionListener() {
+        btnDelete.setBackground(new java.awt.Color(208, 90, 90));
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
+        btnDelete.setText("Delete");
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button4ActionPerformed(evt);
+                btnDeleteActionPerformed(evt);
             }
         });
 
@@ -284,9 +186,9 @@ public class Form_Akun extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                         .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(panelRound1Layout.createSequentialGroup()
-                                .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 796, Short.MAX_VALUE))
@@ -301,8 +203,8 @@ public class Form_Akun extends javax.swing.JPanel {
                     .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(15, 15, 15)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -316,13 +218,40 @@ public class Form_Akun extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_button1ActionPerformed
 
-    private void button3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button3ActionPerformed
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_button3ActionPerformed
+        int selectedRow = tblAkun.getSelectedRow();
+        String getRole = tblAkun.getValueAt(selectedRow, 4).toString();
+        int role = -1;
+        if (getRole == "Admin") {
+            role = 1;
+        } else {
+            role = 0;
+        }
+        if (selectedRow != -1) { 
+            String uid = tblAkun.getValueAt(selectedRow, 0).toString(); 
+            String nama = tblAkun.getValueAt(selectedRow, 1).toString(); 
+            String username = tblAkun.getValueAt(selectedRow, 2).toString(); 
+            String password = tblAkun.getValueAt(selectedRow, 3).toString();
 
-    private void button4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_button4ActionPerformed
+            popup.setEditMode(uid, nama, username, password, role); 
+            GlassPanePopup.showPopup(popup);
+        } else {
+            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int selectedRow = tblAkun.getSelectedRow();
+        if (selectedRow != -1) {
+            String uid = tblAkun.getValueAt(selectedRow, 0).toString();
+            hapusPopup.setData("user", "uid", uid); 
+            hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
+            GlassPanePopup.showPopup(hapusPopup);
+        } else {
+            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin dihapus!");
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void button5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5ActionPerformed
         // TODO add your handling code here:
@@ -331,13 +260,13 @@ public class Form_Akun extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button btnDelete;
+    private com.raven.util.Button btnUpdate;
     private com.raven.util.Button button1;
     private com.raven.util.Button button2;
-    private com.raven.util.Button button3;
-    private com.raven.util.Button button4;
     private com.raven.util.Button button5;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel judul;
     private com.raven.swing.PanelRound panelRound1;
     private javax.swing.JTable tblAkun;
     // End of variables declaration//GEN-END:variables

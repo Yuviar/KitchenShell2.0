@@ -8,6 +8,7 @@ import config.DatabaseConfig;
 import java.sql.*;
 import javax.swing.JOptionPane;
 import raven.glasspanepopup.GlassPanePopup;
+import com.raven.event.DataChangeListener;
 
 /**
  *
@@ -16,6 +17,9 @@ import raven.glasspanepopup.GlassPanePopup;
 public class AkunPopup extends javax.swing.JPanel {
 
     private Connection con = null;
+    private boolean isEditMode = false;
+    private String editUID = null;
+    private DataChangeListener dataChangeListener;
 
     /**
      * Creates new form AkunPopup
@@ -23,6 +27,10 @@ public class AkunPopup extends javax.swing.JPanel {
     public AkunPopup() {
         getCon();
         initComponents();
+    }
+
+    public void setAkunListener(DataChangeListener listener) {
+        this.dataChangeListener = listener;
     }
 
     private void getCon() {
@@ -33,33 +41,76 @@ public class AkunPopup extends javax.swing.JPanel {
         }
     }
 
-    private void createData() {
+    private void saveData() {
         try {
-            System.out.println("halooo");
             int hak = -1;
             if (radioAdmin.isSelected()) {
                 hak = 1;
-            } else {
+            } else if (radioKaryawan.isSelected()) {
                 hak = 0;
             }
-            if (!txtNama.getText().equals("") && !txtUsername.getText().equals("") && !txtPassword.getText().equals("") && hak != -1 && !txtRFID.getText().equals("")) {
-                Statement statement = con.createStatement();
-                String query = "INSERT INTO user (uid,nama, username, password, level) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement ps = con.prepareStatement(query);
-                ps.setString(1, txtRFID.getText());
-                ps.setString(2, txtNama.getText());
-                ps.setString(3, txtUsername.getText());
-                ps.setString(4, txtPassword.getText());
-                ps.setInt(5, hak);
-                ps.execute();
-                JOptionPane.showMessageDialog(null, "Data Berhasil ditambahkan!");
+
+            if (!txtNama.getText().equals("") && !txtUsername.getText().equals("")
+                    && !txtPassword.getText().equals("") && hak != -1 && !txtRFID.getText().equals("")) {
+                if (isEditMode) {
+                    // UPDATE data
+                    String query = "UPDATE user SET nama = ?, username = ?, password = ?, level = ? WHERE uid = ?";
+                    PreparedStatement ps = con.prepareStatement(query);
+                    ps.setString(1, txtNama.getText());
+                    ps.setString(2, txtUsername.getText());
+                    ps.setString(3, txtPassword.getText());
+                    ps.setInt(4, hak);
+                    ps.setString(5, editUID);
+                    ps.executeUpdate();
+                    JOptionPane.showMessageDialog(null, "Data berhasil diupdate!");
+                    if (dataChangeListener != null) {
+                        dataChangeListener.onDataChanged();
+                    }
+                } else {
+                    // INSERT data
+                    String query = "INSERT INTO user (uid, nama, username, password, level) VALUES (?, ?, ?, ?, ?)";
+                    PreparedStatement ps = con.prepareStatement(query);
+                    ps.setString(1, txtRFID.getText());
+                    ps.setString(2, txtNama.getText());
+                    ps.setString(3, txtUsername.getText());
+                    ps.setString(4, txtPassword.getText());
+                    ps.setInt(5, hak);
+                    ps.execute();
+                    JOptionPane.showMessageDialog(null, "Data berhasil ditambahkan!");
+                    if (dataChangeListener != null) {
+                        dataChangeListener.onDataChanged();
+                    }
+                }
                 GlassPanePopup.closePopupLast();
+
             } else {
-                throw new Exception("Data tidak boleh kosong");
+                throw new Exception("Semua data harus diisi!");
             }
+
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
         }
+    }
+
+    public void setEditMode(String uid, String nama, String username, String password, int level) {
+        isEditMode = true;
+        editUID = uid;
+
+        txtNama.setText(nama);
+        txtUsername.setText(username);
+        txtPassword.setText(password);
+        txtRFID.setText(uid);
+        txtRFID.setEditable(false);
+
+        if (level == 1) {
+            radioAdmin.setSelected(true);
+        } else {
+            radioKaryawan.setSelected(true);
+        }
+
+        jLabel1.setText("EDIT AKUN");
+        btnSubmit.setText("Update");
     }
 
     /**
@@ -149,6 +200,11 @@ public class AkunPopup extends javax.swing.JPanel {
         button1.setForeground(new java.awt.Color(255, 255, 255));
         button1.setText("Batal");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button1ActionPerformed(evt);
+            }
+        });
 
         btnSubmit.setBackground(new java.awt.Color(97, 131, 175));
         btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
@@ -242,9 +298,12 @@ public class AkunPopup extends javax.swing.JPanel {
     }//GEN-LAST:event_radioKaryawanActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        createData();   
-        System.out.println("tamabh");
+        saveData();
     }//GEN-LAST:event_btnSubmitActionPerformed
+
+    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
+        GlassPanePopup.closePopupAll();
+    }//GEN-LAST:event_button1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
