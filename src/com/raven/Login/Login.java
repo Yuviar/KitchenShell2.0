@@ -36,7 +36,7 @@ public class Login extends javax.swing.JFrame {
         try {
             String usn = userInput.getText();
             String pass = passInput.getText();
-            String query = "SELECT * FROM user WHERE username = ? AND password = ?LIMIT 1";
+            String query = "SELECT * FROM user WHERE username = ? AND password = ? LIMIT 1";
             try (PreparedStatement ps = con.prepareStatement(query)) {
                 ps.setString(1, usn);
                 ps.setString(2, pass);
@@ -65,11 +65,11 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        loginBtn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        passInput = new javax.swing.JTextField();
-        userInput = new javax.swing.JTextField();
+        button1 = new com.raven.util.Button();
+        userInput = new com.raven.util.TextField();
+        passInput = new com.raven.util.PasswordField();
         shutdownBtn = new com.raven.util.Button();
         jLabel4 = new javax.swing.JLabel();
 
@@ -77,34 +77,28 @@ public class Login extends javax.swing.JFrame {
         setUndecorated(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        loginBtn.setBackground(new java.awt.Color(163, 180, 202));
-        loginBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        loginBtn.setForeground(new java.awt.Color(255, 255, 255));
-        loginBtn.setText("LOGIN");
-        loginBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loginBtnActionPerformed(evt);
-            }
-        });
-        getContentPane().add(loginBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 300, 190, 30));
-
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("PASSWORD");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 250, -1, 10));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 250, -1, 10));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("USERNAME");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 196, -1, 10));
-        getContentPane().add(passInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 190, 30));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 200, -1, 10));
 
-        userInput.addActionListener(new java.awt.event.ActionListener() {
+        button1.setBackground(new java.awt.Color(163, 180, 202));
+        button1.setForeground(new java.awt.Color(255, 255, 255));
+        button1.setText("LOGIN");
+        button1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        button1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                userInputActionPerformed(evt);
+                button1ActionPerformed(evt);
             }
         });
-        getContentPane().add(userInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 190, 30));
+        getContentPane().add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 310, 190, -1));
+        getContentPane().add(userInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 190, -1));
+        getContentPane().add(passInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 190, -1));
 
         shutdownBtn.setBackground(new java.awt.Color(200, 10, 10));
         shutdownBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/power.png"))); // NOI18N
@@ -127,17 +121,14 @@ public class Login extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
-        loginAction();
-    }//GEN-LAST:event_loginBtnActionPerformed
-
-    private void userInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userInputActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_userInputActionPerformed
-
     private void shutdownBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shutdownBtnActionPerformed
         this.dispose();
     }//GEN-LAST:event_shutdownBtnActionPerformed
+
+    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
+        loginAction();
+//        new Main().setVisible(true);
+    }//GEN-LAST:event_button1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -175,12 +166,12 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button button1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JButton loginBtn;
-    private javax.swing.JTextField passInput;
+    private com.raven.util.PasswordField passInput;
     private com.raven.util.Button shutdownBtn;
-    private javax.swing.JTextField userInput;
+    private com.raven.util.TextField userInput;
     // End of variables declaration//GEN-END:variables
 }

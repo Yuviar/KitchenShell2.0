@@ -1,10 +1,39 @@
 package com.raven.form;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
 public class Form_Transaksi extends javax.swing.JPanel {
 
     public Form_Transaksi() {
         initComponents();
         setOpaque(false);
+        SwingUtilities.invokeLater(() -> {
+
+            String[] items = {"Apple", "Banana", "Cherry", "Date", "Grape", "Lemon", "Orange", "Peach", "Strawberry", "Watermelon"};
+            comboBox.setEditable(true);
+
+            JTextField editor = (JTextField) comboBox.getEditor().getEditorComponent();
+
+            editor.addKeyListener(new KeyAdapter() {
+                public void keyReleased(KeyEvent e) {
+                    String input = editor.getText();
+                    comboBox.hidePopup();
+                    comboBox.removeAllItems();
+
+                    for (String item : items) {
+                        if (item.toLowerCase().contains(input.toLowerCase())) {
+                            comboBox.addItem(item);
+                        }
+                    }
+
+                    editor.setText(input); // keep the text
+                    comboBox.showPopup();
+                }
+            });
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -22,7 +51,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
         inputMenu = new com.raven.util.TextField();
         inputNama = new com.raven.util.TextField();
         inputSub = new com.raven.util.TextField();
-        inputMember = new com.raven.util.TextField();
         inputQty = new com.raven.util.TextField();
         jLabel14 = new javax.swing.JLabel();
         checkPoint = new javax.swing.JCheckBox();
@@ -37,6 +65,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         tblMenu = new com.raven.swing.TableColumn();
         jScrollPane2 = new javax.swing.JScrollPane();
         table = new com.raven.swing.TableColumn();
+        comboBox = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
@@ -119,13 +148,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
         });
         panelRound1.add(inputSub, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 200, -1));
 
-        inputMember.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputMemberActionPerformed(evt);
-            }
-        });
-        panelRound1.add(inputMember, new org.netbeans.lib.awtextra.AbsoluteConstraints(278, 151, 270, -1));
-
         inputQty.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inputQtyActionPerformed(evt);
@@ -147,7 +169,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 checkPointActionPerformed(evt);
             }
         });
-        panelRound1.add(checkPoint, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 130, 100, -1));
+        panelRound1.add(checkPoint, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 130, 100, -1));
 
         inputBayar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -252,6 +274,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
         panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 198, 530, 270));
 
+        comboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboBox.setBorder(null);
+        comboBox.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        panelRound1.add(comboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(282, 152, 260, 30));
+
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));
         jLabel1.setText("TRANSAKSI");
@@ -268,7 +295,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 780, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
                 .addComponent(jLabel1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -289,10 +315,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
     private void inputQtyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputQtyActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_inputQtyActionPerformed
-
-    private void inputMemberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputMemberActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputMemberActionPerformed
 
     private void inputNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputNamaActionPerformed
         // TODO add your handling code here:
@@ -319,11 +341,12 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }//GEN-LAST:event_inputKembalianActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> cbox_member;
     private javax.swing.JCheckBox checkPoint;
+    private javax.swing.JComboBox<String> comboBox;
     private com.raven.util.TextField inputBayar;
     private com.raven.util.TextField inputKembalian;
     private com.raven.util.TextField inputKode;
-    private com.raven.util.TextField inputMember;
     private com.raven.util.TextField inputMenu;
     private com.raven.util.TextField inputNama;
     private com.raven.util.TextField inputQty;
