@@ -13,6 +13,7 @@ import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;
 import com.raven.popup.HapusDataPopup;
+import java.awt.Color;
 
 /**
  *
@@ -28,26 +29,61 @@ public class Form_Akun extends javax.swing.JPanel {
     private DataChangeListener dataChangeListener;
     AkunPopup popup = new AkunPopup();
     HapusDataPopup hapusPopup = new HapusDataPopup();
+    int indexTable = 0; // 0 = Akun, 1 = Member
 
     public Form_Akun() {
         initComponents();
         setOpaque(false);
         getCon();
-        String[] judul = {"Uid", "Nama", "Username", "Password", "Role"};
-        tableModel = new DefaultTableModel(judul, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        loadAkunKaryawan();
-        tblAkun.setModel(tableModel);
+        setModel();
         popup.setAkunListener(new DataChangeListener() {
             @Override
             public void onDataChanged() {
                 loadAkunKaryawan();
             }
         });
+    }
+
+    private void setModel() {
+        String[][] judul = {{"UID", "Nama", "Username", "Password", "Role"}, {"Kode Member", "Nama", "No Telp", "Point", "tanggal Bergabung"}};
+        tableModel = new DefaultTableModel(judul[indexTable], 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tblAkun.setModel(tableModel);
+        loadData();
+    }
+
+    private void loadData() {
+        if (con != null) {
+            try {
+                String query = indexTable == 0 ? "SELECT * FROM user ORDER BY level DESC" : "SELECT * FROM member";
+                PreparedStatement ps = con.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();
+                tableModel.setRowCount(0);
+                while (rs.next()) {
+                    if (indexTable == 0) {
+                        String role = null;
+                        if (rs.getInt(6) == 1) {
+                            role = "Admin";
+                        } else {
+                            role = "Karyawan";
+                        }
+                        String[] data = {rs.getString("uid"), rs.getString(3), rs.getString(4), rs.getString(5), role};
+                        tableModel.addRow(data);
+                    } else {
+                        String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
+                        tableModel.addRow(data);
+                    }
+                }
+                rs.close();
+                ps.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void getCon() {
@@ -124,6 +160,11 @@ public class Form_Akun extends javax.swing.JPanel {
         button2.setForeground(new java.awt.Color(33, 53, 85));
         button2.setText("Daftar Member");
         button2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button2ActionPerformed(evt);
+            }
+        });
 
         jScrollPane2.setBorder(null);
 
@@ -246,7 +287,10 @@ public class Form_Akun extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
-        // TODO add your handling code here:
+        indexTable = 0;
+        button1.setBackground(new Color(255, 255, 255));
+        button2.setBackground(new Color(144, 154, 170));
+        setModel();
     }//GEN-LAST:event_button1ActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
@@ -259,13 +303,13 @@ public class Form_Akun extends javax.swing.JPanel {
         } else {
             role = 0;
         }
-        if (selectedRow != -1) { 
-            String uid = tblAkun.getValueAt(selectedRow, 0).toString(); 
-            String nama = tblAkun.getValueAt(selectedRow, 1).toString(); 
-            String username = tblAkun.getValueAt(selectedRow, 2).toString(); 
+        if (selectedRow != -1) {
+            String uid = tblAkun.getValueAt(selectedRow, 0).toString();
+            String nama = tblAkun.getValueAt(selectedRow, 1).toString();
+            String username = tblAkun.getValueAt(selectedRow, 2).toString();
             String password = tblAkun.getValueAt(selectedRow, 3).toString();
 
-            popup.setEditMode(uid, nama, username, password, role); 
+            popup.setEditMode(uid, nama, username, password, role);
             GlassPanePopup.showPopup(popup);
         } else {
             JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
@@ -276,7 +320,7 @@ public class Form_Akun extends javax.swing.JPanel {
         int selectedRow = tblAkun.getSelectedRow();
         if (selectedRow != -1) {
             String uid = tblAkun.getValueAt(selectedRow, 0).toString();
-            hapusPopup.setData("user", "uid", uid); 
+            hapusPopup.setData("user", "uid", uid);
             hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
             GlassPanePopup.showPopup(hapusPopup);
         } else {
@@ -288,6 +332,13 @@ public class Form_Akun extends javax.swing.JPanel {
         // TODO add your handling code here:
         GlassPanePopup.showPopup(new AkunPopup());
     }//GEN-LAST:event_button5ActionPerformed
+
+    private void button2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button2ActionPerformed
+        indexTable = 1;
+        button2.setBackground(new Color(255, 255, 255));
+        button1.setBackground(new Color(144, 154, 170));
+        setModel();
+    }//GEN-LAST:event_button2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

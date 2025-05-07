@@ -4,6 +4,11 @@
  */
 package com.raven.form;
 
+import config.DatabaseConfig;
+import java.awt.Color;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Fazaa
@@ -13,9 +18,65 @@ public class Form_Menu extends javax.swing.JPanel {
     /**
      * Creates new form Form_Menu
      */
+    Connection con = null;
+    DefaultTableModel tableModel;
+    int indexTable = 0; // 0 = Menu, 1 = Bahan Baku
+
     public Form_Menu() {
         initComponents();
+        getCon();
+        setModel();
         setOpaque(false);
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setModel() {
+        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"kode Bahanbaku", "nama", "stok"}};
+        tableModel = new DefaultTableModel(judul[indexTable], 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tbl_Menu.setModel(tableModel);
+//        loadData();
+    }
+
+    private void loadData() {
+        if (con != null) {
+            try {
+                String query = indexTable == 0 ? "SELECT * FROM user ORDER BY level DESC" : "SELECT * FROM member";
+                PreparedStatement ps = con.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();
+                tableModel.setRowCount(0);
+                while (rs.next()) {
+                    if (indexTable == 0) {
+                        String role = null;
+                        if (rs.getInt(6) == 1) {
+                            role = "Admin";
+                        } else {
+                            role = "Karyawan";
+                        }
+                        String[] data = {rs.getString("uid"), rs.getString(3), rs.getString(4), rs.getString(5), role};
+                        tableModel.addRow(data);
+                    } else {
+                        String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
+                        tableModel.addRow(data);
+                    }
+                }
+                rs.close();
+                ps.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -34,7 +95,7 @@ public class Form_Menu extends javax.swing.JPanel {
         button4 = new com.raven.util.Button();
         button5 = new com.raven.util.Button();
         jScrollPane2 = new javax.swing.JScrollPane();
-        table = new com.raven.swing.TableColumn();
+        tbl_Menu = new com.raven.swing.TableColumn();
         jLabel1 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(865, 583));
@@ -42,6 +103,7 @@ public class Form_Menu extends javax.swing.JPanel {
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
         panelRound1.setPreferredSize(new java.awt.Dimension(865, 583));
 
+        button1.setBackground(new java.awt.Color(144, 154, 170));
         button1.setText("DAFTAR MENU");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         button1.addActionListener(new java.awt.event.ActionListener() {
@@ -88,7 +150,7 @@ public class Form_Menu extends javax.swing.JPanel {
 
         jScrollPane2.setBorder(null);
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
+        tbl_Menu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -104,8 +166,8 @@ public class Form_Menu extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        table.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(table);
+        tbl_Menu.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tbl_Menu);
 
         javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
         panelRound1.setLayout(panelRound1Layout);
@@ -159,7 +221,6 @@ public class Form_Menu extends javax.swing.JPanel {
                 .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 839, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
                 .addComponent(jLabel1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -175,10 +236,18 @@ public class Form_Menu extends javax.swing.JPanel {
 
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
         // TODO add your handling code here:
+        indexTable = 0;
+        button1.setBackground(new Color(255, 255, 255));
+        button2.setBackground(new Color(144, 154, 170));
+        setModel();
     }//GEN-LAST:event_button1ActionPerformed
 
     private void button2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button2ActionPerformed
         // TODO add your handling code here:
+        indexTable = 1;
+        button2.setBackground(new Color(255, 255, 255));
+        button1.setBackground(new Color(144, 154, 170));
+        setModel();
     }//GEN-LAST:event_button2ActionPerformed
 
     private void button3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button3ActionPerformed
@@ -199,6 +268,7 @@ public class Form_Menu extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane2;
     private com.raven.swing.PanelRound panelRound1;
-    private com.raven.swing.TableColumn table;
+    private com.raven.swing.TableColumn tbl_Menu;
     // End of variables declaration//GEN-END:variables
+
 }
