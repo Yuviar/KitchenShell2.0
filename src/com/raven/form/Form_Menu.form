@@ -104,12 +104,9 @@
       <SubComponents>
         <Component class="com.raven.util.Button" name="button1">
           <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="aa" green="9a" red="90" type="rgb"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="DAFTAR MENU"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="12" style="1"/>
+              <Font name="Segoe UI" size="14" style="1"/>
             </Property>
           </Properties>
           <Events>
@@ -118,9 +115,12 @@
         </Component>
         <Component class="com.raven.util.Button" name="button2">
           <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="aa" green="9a" red="90" type="rgb"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="BAHAN BAKU"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="12" style="1"/>
+              <Font name="Segoe UI" size="14" style="1"/>
             </Property>
           </Properties>
           <Events>

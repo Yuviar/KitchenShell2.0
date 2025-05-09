@@ -38,7 +38,7 @@ public class Form_Menu extends javax.swing.JPanel {
     }
 
     private void setModel() {
-        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"kode Bahanbaku", "nama", "stok"}};
+        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"Kode Bahan", "Nama", "Stok"}};
         tableModel = new DefaultTableModel(judul[indexTable], 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -46,28 +46,23 @@ public class Form_Menu extends javax.swing.JPanel {
             }
         };
         tbl_Menu.setModel(tableModel);
-//        loadData();
+        loadData();
     }
 
     private void loadData() {
         if (con != null) {
             try {
-                String query = indexTable == 0 ? "SELECT * FROM user ORDER BY level DESC" : "SELECT * FROM member";
+                String query = indexTable == 0 ? "SELECT * FROM menu" : "SELECT * FROM bahanbaku";
                 PreparedStatement ps = con.prepareStatement(query);
                 ResultSet rs = ps.executeQuery();
                 tableModel.setRowCount(0);
                 while (rs.next()) {
                     if (indexTable == 0) {
-                        String role = null;
-                        if (rs.getInt(6) == 1) {
-                            role = "Admin";
-                        } else {
-                            role = "Karyawan";
-                        }
-                        String[] data = {rs.getString("uid"), rs.getString(3), rs.getString(4), rs.getString(5), role};
+                        String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)};
                         tableModel.addRow(data);
                     } else {
-                        String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
+                        String stok = rs.getDouble(3) >= 1000 ? (rs.getDouble(3)/1000)+(rs.getString(4).equals("g") ? "Kg" : "L") :rs.getDouble(3)+rs.getString(4);
+                        String[] data = {rs.getString(1), rs.getString(2), stok};
                         tableModel.addRow(data);
                     }
                 }
@@ -103,17 +98,17 @@ public class Form_Menu extends javax.swing.JPanel {
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
         panelRound1.setPreferredSize(new java.awt.Dimension(865, 583));
 
-        button1.setBackground(new java.awt.Color(144, 154, 170));
         button1.setText("DAFTAR MENU");
-        button1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         button1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button1ActionPerformed(evt);
             }
         });
 
+        button2.setBackground(new java.awt.Color(144, 154, 170));
         button2.setText("BAHAN BAKU");
-        button2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        button2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         button2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button2ActionPerformed(evt);

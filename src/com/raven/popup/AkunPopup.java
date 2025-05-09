@@ -180,6 +180,7 @@ public class AkunPopup extends javax.swing.JPanel {
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Level");
 
+        buttonGroup2.add(radioAdmin);
         radioAdmin.setForeground(new java.awt.Color(255, 255, 255));
         radioAdmin.setText("Admin");
         radioAdmin.addActionListener(new java.awt.event.ActionListener() {
@@ -188,6 +189,7 @@ public class AkunPopup extends javax.swing.JPanel {
             }
         });
 
+        buttonGroup2.add(radioKaryawan);
         radioKaryawan.setForeground(new java.awt.Color(255, 255, 255));
         radioKaryawan.setText("Karyawan");
         radioKaryawan.addActionListener(new java.awt.event.ActionListener() {

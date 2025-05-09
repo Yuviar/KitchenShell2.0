@@ -1,5 +1,6 @@
 package com.raven.component;
 
+import config.Session;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -16,8 +17,8 @@ public class Bottom extends javax.swing.JPanel {
 
     public Bottom() {
         initComponents();
-        name.setText("Yuviar");
-        level.setText("Admin");
+        name.setText(Session.getUsername());
+        level.setText(Session.getRole());
         setOpaque(false);
         setBackground(new Color(33, 53, 85));
     }

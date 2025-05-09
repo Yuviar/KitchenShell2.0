@@ -39,7 +39,7 @@ public class Form_Akun extends javax.swing.JPanel {
         popup.setAkunListener(new DataChangeListener() {
             @Override
             public void onDataChanged() {
-                loadAkunKaryawan();
+                loadData();
             }
         });
     }
@@ -148,7 +148,8 @@ public class Form_Akun extends javax.swing.JPanel {
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
 
         button1.setForeground(new java.awt.Color(0, 0, 0));
-        button1.setText("Daftar Akun");
+        button1.setText("DAFTAR AKUN");
+        button1.setActionCommand("DAFTAR AKUN");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         button1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -158,7 +159,7 @@ public class Form_Akun extends javax.swing.JPanel {
 
         button2.setBackground(new java.awt.Color(144, 154, 170));
         button2.setForeground(new java.awt.Color(33, 53, 85));
-        button2.setText("Daftar Member");
+        button2.setText("DAFTAR MEMBER");
         button2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         button2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -232,10 +233,10 @@ public class Form_Akun extends javax.swing.JPanel {
                 .addGap(20, 20, 20)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(button1, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
                         .addGap(15, 15, 15)
                         .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(353, 353, 353))
+                        .addGap(485, 485, 485))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                         .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
@@ -296,21 +297,25 @@ public class Form_Akun extends javax.swing.JPanel {
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
         int selectedRow = tblAkun.getSelectedRow();
-        String getRole = tblAkun.getValueAt(selectedRow, 4).toString();
-        int role = -1;
-        if (getRole == "Admin") {
-            role = 1;
-        } else {
-            role = 0;
-        }
         if (selectedRow != -1) {
-            String uid = tblAkun.getValueAt(selectedRow, 0).toString();
-            String nama = tblAkun.getValueAt(selectedRow, 1).toString();
-            String username = tblAkun.getValueAt(selectedRow, 2).toString();
-            String password = tblAkun.getValueAt(selectedRow, 3).toString();
+            if (indexTable == 0) {
+                int role = -1;
+                String getRole = tblAkun.getValueAt(selectedRow, 4).toString();
+                if (getRole == "Admin") {
+                    role = 1;
+                } else {
+                    role = 0;
+                }
+                String uid = tblAkun.getValueAt(selectedRow, 0).toString();
+                String nama = tblAkun.getValueAt(selectedRow, 1).toString();
+                String username = tblAkun.getValueAt(selectedRow, 2).toString();
+                String password = tblAkun.getValueAt(selectedRow, 3).toString();
 
-            popup.setEditMode(uid, nama, username, password, role);
-            GlassPanePopup.showPopup(popup);
+                popup.setEditMode(uid, nama, username, password, role);
+                GlassPanePopup.showPopup(popup);
+            } else {
+                System.out.println("#edit Member");
+            }
         } else {
             JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
         }
@@ -319,10 +324,14 @@ public class Form_Akun extends javax.swing.JPanel {
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         int selectedRow = tblAkun.getSelectedRow();
         if (selectedRow != -1) {
-            String uid = tblAkun.getValueAt(selectedRow, 0).toString();
-            hapusPopup.setData("user", "uid", uid);
-            hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
-            GlassPanePopup.showPopup(hapusPopup);
+            if (indexTable == 0) {
+                String uid = tblAkun.getValueAt(selectedRow, 0).toString();
+                hapusPopup.setData("user", "uid", uid);
+                hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
+                GlassPanePopup.showPopup(hapusPopup);
+            } else {
+                System.out.println("#delete Member");
+            }
         } else {
             JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin dihapus!");
         }
@@ -330,7 +339,11 @@ public class Form_Akun extends javax.swing.JPanel {
 
     private void button5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5ActionPerformed
         // TODO add your handling code here:
-        GlassPanePopup.showPopup(new AkunPopup());
+        if (indexTable == 0) {
+            GlassPanePopup.showPopup(new AkunPopup());
+        }else{
+            System.out.println("#add Member");
+        }
     }//GEN-LAST:event_button5ActionPerformed
 
     private void button2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button2ActionPerformed

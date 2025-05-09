@@ -7,6 +7,7 @@ package com.raven.Login;
 import com.raven.main.Main;
 import java.sql.*;
 import config.DatabaseConfig;
+import config.Session;
 import javax.swing.JOptionPane;
 
 /**
@@ -43,6 +44,13 @@ public class Login extends javax.swing.JFrame {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
                     JOptionPane.showMessageDialog(this, "Login berhasil!");
+                    Session.setUsername(hasil.getString("username"));
+                    Session.setId(hasil.getString("id_user"));
+                    if (hasil.getInt("level") == 1) {
+                        Session.setRole("Admin");
+                    } else {
+                        Session.setRole("Karyawan");
+                    }
                     new Main().setVisible(true);
                     this.dispose();
                 } else {
