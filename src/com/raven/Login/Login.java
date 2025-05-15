@@ -8,6 +8,8 @@ import com.raven.main.Main;
 import java.sql.*;
 import config.DatabaseConfig;
 import config.Session;
+import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -20,10 +22,14 @@ public class Login extends javax.swing.JFrame {
      * Creates new form Login
      */
     Connection con = null;
+    URL[] iconURL;
 
     public Login() {
         initComponents();
         getCon();
+        iconURL = new URL[2]; // 0 = eye, 1 = cross
+        iconURL[0] = getClass().getResource("/com/raven/icon/eye.png");
+        iconURL[1] = getClass().getResource("/com/raven/icon/crossed-eye.png");
     }
 
     private void getCon() {
@@ -35,12 +41,14 @@ public class Login extends javax.swing.JFrame {
 
     public void loginAction() {
         try {
+            String query = "SELECT * FROM user WHERE username = ? AND password = ? LIMIT 1";
             String usn = userInput.getText();
             String pass = passInput.getText();
-            String query = "SELECT * FROM user WHERE username = ? AND password = ? LIMIT 1";
             try (PreparedStatement ps = con.prepareStatement(query)) {
+
                 ps.setString(1, usn);
                 ps.setString(2, pass);
+
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
                     JOptionPane.showMessageDialog(this, "Login berhasil!");
@@ -73,6 +81,7 @@ public class Login extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        eye = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         button1 = new com.raven.util.Button();
@@ -82,8 +91,17 @@ public class Login extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("KitchenShell 2.0 [Login Required]");
         setUndecorated(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        eye.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/crossed-eye.png"))); // NOI18N
+        eye.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                eyeMouseClicked(evt);
+            }
+        });
+        getContentPane().add(eye, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 270, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -105,7 +123,22 @@ public class Login extends javax.swing.JFrame {
             }
         });
         getContentPane().add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 310, 190, -1));
+
+        userInput.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                userInputKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                userInputKeyTyped(evt);
+            }
+        });
         getContentPane().add(userInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 190, -1));
+
+        passInput.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                passInputKeyPressed(evt);
+            }
+        });
         getContentPane().add(passInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 190, -1));
 
         shutdownBtn.setBackground(new java.awt.Color(200, 10, 10));
@@ -125,6 +158,8 @@ public class Login extends javax.swing.JFrame {
         jLabel4.setText("jLabel1");
         getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, -1));
 
+        getAccessibleContext().setAccessibleDescription("Login Page for KitchenShell 2.0");
+
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
@@ -137,6 +172,86 @@ public class Login extends javax.swing.JFrame {
         loginAction();
 //        new Main().setVisible(true);
     }//GEN-LAST:event_button1ActionPerformed
+    private String RFIDId = "";
+    private long lastTime = 0;
+    private final long RFID_THRESHOLD = 100;
+    private void userInputKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userInputKeyTyped
+        long currentTime = System.currentTimeMillis();
+        char c = evt.getKeyChar();
+
+        // Reset RFIDId kalau inputnya lambat
+        if (lastTime != 0 && (currentTime - lastTime) > RFID_THRESHOLD) {
+            RFIDId = "";
+        }
+
+        RFIDId += c;
+        lastTime = currentTime;
+
+        if (c == '\n' || c == '\r') {
+            RFIDId = RFIDId.replace("\n", "");
+            RFIDId = RFIDId.replace("\r", "");
+            if (RFIDId.length() >= 9) {
+                System.out.println("Scan RFID Terdeteksi: " + RFIDId);
+                tampilRFID();
+            } else {
+                System.out.println("RFID tidak valid, panjang kurang dari 9 karakter.");
+            }
+            // Kosongkan RFIDId setelah pemrosesan
+            RFIDId = "";
+//            userInput.setText("");
+        }
+    }//GEN-LAST:event_userInputKeyTyped
+
+    private void tampilRFID() {
+        try {
+            String query = "SELECT * FROM user WHERE uid = ? LIMIT 1";
+            String rfid = RFIDId;
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+
+                ps.setString(1, rfid);
+
+                ResultSet hasil = ps.executeQuery();
+                if (hasil.next()) {
+                    userInput.setText(hasil.getString("username")); 
+                    passInput.setText(hasil.getString("password"));
+                    passInput.requestFocus();
+                } else {
+                    JOptionPane.showMessageDialog(this, "RFID Tidak terdaftar!", "Error", JOptionPane.ERROR_MESSAGE);
+                    userInput.setText("");
+                    passInput.setText("");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private int indexEye = 1;
+    private void eyeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eyeMouseClicked
+
+        if (indexEye == 0) {
+            indexEye = 1;
+            passInput.setEchoChar('*');
+        } else {
+            indexEye = 0;
+            passInput.setEchoChar((char) 0);
+
+        }
+        ImageIcon icon = new ImageIcon(iconURL[indexEye]);
+        eye.setIcon(icon);
+    }//GEN-LAST:event_eyeMouseClicked
+
+    private void passInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passInputKeyPressed
+        if(evt.getKeyChar()== '\n'){
+            loginAction();
+        }
+    }//GEN-LAST:event_passInputKeyPressed
+
+    private void userInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_userInputKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_userInputKeyPressed
 
     /**
      * @param args the command line arguments
@@ -175,6 +290,7 @@ public class Login extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.util.Button button1;
+    private javax.swing.JLabel eye;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

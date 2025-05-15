@@ -9,6 +9,7 @@ import com.raven.form.Form_Dashboard;
 import com.raven.form.Form_Laporan;
 import com.raven.form.Form_Menu;
 import com.raven.form.Form_Transaksi;
+import com.raven.form.test;
 import com.raven.model.ModelMenu;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -60,18 +61,15 @@ public class Main extends javax.swing.JFrame {
         menu.setEvent(new EventMenuSelected() {
             @Override
             public void selected(int index) {
-                if (index == 0) {
-                    showForm(new Form_Dashboard());
-                }else if (index == 1) {
-                    showForm(new Form_Transaksi());
-                }else if (index == 2) {
-                    showForm(new Form_Menu());
-                }else if (index == 3) {
-                    showForm(new Form_Akun());
-                }else if (index == 4) {
-                    showForm(new Form_Laporan());
-                }else if (index == 5) {
-                    showForm(new Form_Absensi());
+                switch (index) {
+                    case 0 -> showForm(new Form_Dashboard());
+                    case 1 -> showForm(new Form_Transaksi());
+                    case 2 -> showForm(new Form_Menu());
+                    case 3 -> showForm(new Form_Akun());
+                    case 4 -> showForm(new Form_Laporan());
+                    case 5 -> showForm(new Form_Absensi());
+                    default -> {
+                    }
                 }
             }
         });
@@ -124,10 +122,13 @@ public class Main extends javax.swing.JFrame {
         body = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("KitchenShell 2.0");
         setBackground(new java.awt.Color(223, 242, 235));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setUndecorated(true);
 
         body.setBackground(new java.awt.Color(223, 242, 235));
+        body.setToolTipText("");
 
         javax.swing.GroupLayout bodyLayout = new javax.swing.GroupLayout(body);
         body.setLayout(bodyLayout);
