@@ -1,14 +1,23 @@
 package com.raven.form;
 
+import config.DatabaseConfig;
 import java.awt.event.KeyAdapter;
+import java.sql.*;
 import java.awt.event.KeyEvent;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 
 public class Form_Transaksi extends javax.swing.JPanel {
 
+    Connection con = null;
+    DefaultTableModel tableModel;
+    DefaultTableModel tableModelMenu;
+
     public Form_Transaksi() {
         initComponents();
+        getCon();
+        setModel();
         setOpaque(false);
         SwingUtilities.invokeLater(() -> {
 
@@ -34,6 +43,50 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 }
             });
         });
+        loadData();
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setModel() {
+        String[] judul = {"Kode Menu", "Nama Menu", "Harga", "Jumlah", "Harga Total", "Aksi"};
+        String[] judulMenu = {"Nama Menu", "Stok"};
+        tableModel = new DefaultTableModel(judul, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tableModelMenu = new DefaultTableModel(judulMenu, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tblPesanan.setModel(tableModel);
+        tblMenu.setModel(tableModelMenu);
+    }
+
+    private void loadData() {
+        if (con != null) {
+            try {
+                String q = "SELECT nama_menu, jumlah_porsi FROM v_porsi_menu";
+                PreparedStatement ps = con.prepareStatement(q);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String[] data = {rs.getString(1), rs.getString(2)};
+                    tableModelMenu.addRow(data);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -64,7 +117,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         tblMenu = new com.raven.swing.TableColumn();
         jScrollPane2 = new javax.swing.JScrollPane();
-        table = new com.raven.swing.TableColumn();
+        tblPesanan = new com.raven.swing.TableColumn();
         comboBox = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
 
@@ -242,7 +295,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
         jScrollPane2.setBorder(null);
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
+        tblPesanan.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -265,11 +318,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        table.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(table);
-        if (table.getColumnModel().getColumnCount() > 0) {
-            table.getColumnModel().getColumn(1).setPreferredWidth(135);
-            table.getColumnModel().getColumn(3).setPreferredWidth(40);
+        tblPesanan.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tblPesanan);
+        if (tblPesanan.getColumnModel().getColumnCount() > 0) {
+            tblPesanan.getColumnModel().getColumn(1).setPreferredWidth(135);
+            tblPesanan.getColumnModel().getColumn(3).setPreferredWidth(40);
         }
 
         panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 198, 530, 270));
@@ -341,7 +394,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }//GEN-LAST:event_inputKembalianActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> cbox_member;
     private javax.swing.JCheckBox checkPoint;
     private javax.swing.JComboBox<String> comboBox;
     private com.raven.util.TextField inputBayar;
@@ -367,7 +419,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
     private com.raven.util.Button labelSelesai;
     private com.raven.swing.PanelRound panelRound1;
     private com.raven.swing.PanelRound panelRound2;
-    private com.raven.swing.TableColumn table;
     private com.raven.swing.TableColumn tblMenu;
+    private com.raven.swing.TableColumn tblPesanan;
     // End of variables declaration//GEN-END:variables
 }
