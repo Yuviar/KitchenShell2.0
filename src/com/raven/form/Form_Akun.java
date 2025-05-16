@@ -21,9 +21,6 @@ import java.awt.Color;
  */
 public class Form_Akun extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Form_Akun
-     */
     Connection con = null;
     DefaultTableModel tableModel;
     private DataChangeListener dataChangeListener;
@@ -136,7 +133,7 @@ public class Form_Akun extends javax.swing.JPanel {
         tblAkun = new com.raven.swing.TableColumn();
         btnUpdate = new com.raven.util.Button();
         btnDelete = new com.raven.util.Button();
-        button5 = new com.raven.util.Button();
+        btnAdd = new com.raven.util.Button();
 
         judul.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         judul.setForeground(new java.awt.Color(33, 53, 85));
@@ -149,7 +146,6 @@ public class Form_Akun extends javax.swing.JPanel {
 
         button1.setForeground(new java.awt.Color(0, 0, 0));
         button1.setText("DAFTAR AKUN");
-        button1.setActionCommand("DAFTAR AKUN");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         button1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -197,8 +193,8 @@ public class Form_Akun extends javax.swing.JPanel {
 
         btnUpdate.setBackground(new java.awt.Color(255, 157, 35));
         btnUpdate.setForeground(new java.awt.Color(255, 255, 255));
-        btnUpdate.setText("Update");
-        btnUpdate.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnUpdate.setText("UPDATE");
+        btnUpdate.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnUpdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnUpdateActionPerformed(evt);
@@ -207,21 +203,21 @@ public class Form_Akun extends javax.swing.JPanel {
 
         btnDelete.setBackground(new java.awt.Color(208, 90, 90));
         btnDelete.setForeground(new java.awt.Color(255, 255, 255));
-        btnDelete.setText("Delete");
-        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnDelete.setText("DELETE");
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDeleteActionPerformed(evt);
             }
         });
 
-        button5.setBackground(new java.awt.Color(97, 131, 175));
-        button5.setForeground(new java.awt.Color(255, 255, 255));
-        button5.setText("Add");
-        button5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        button5.addActionListener(new java.awt.event.ActionListener() {
+        btnAdd.setBackground(new java.awt.Color(97, 131, 175));
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
+        btnAdd.setText("ADD");
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button5ActionPerformed(evt);
+                btnAddActionPerformed(evt);
             }
         });
 
@@ -245,7 +241,7 @@ public class Form_Akun extends javax.swing.JPanel {
                                 .addGap(10, 10, 10)
                                 .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(20, 20, 20))))
         );
         panelRound1Layout.setVerticalGroup(
@@ -259,7 +255,7 @@ public class Form_Akun extends javax.swing.JPanel {
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(20, Short.MAX_VALUE))
@@ -337,14 +333,14 @@ public class Form_Akun extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
-    private void button5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5ActionPerformed
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
         if (indexTable == 0) {
             GlassPanePopup.showPopup(new AkunPopup());
         }else{
             System.out.println("#add Member");
         }
-    }//GEN-LAST:event_button5ActionPerformed
+    }//GEN-LAST:event_btnAddActionPerformed
 
     private void button2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button2ActionPerformed
         indexTable = 1;
@@ -355,11 +351,11 @@ public class Form_Akun extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button btnAdd;
     private com.raven.util.Button btnDelete;
     private com.raven.util.Button btnUpdate;
     private com.raven.util.Button button1;
     private com.raven.util.Button button2;
-    private com.raven.util.Button button5;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel judul;
     private com.raven.swing.PanelRound panelRound1;

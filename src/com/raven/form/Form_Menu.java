@@ -4,10 +4,16 @@
  */
 package com.raven.form;
 
-import config.DatabaseConfig;
-import java.awt.Color;
+import com.raven.popup.MenuPopup;
 import java.sql.*;
+import config.DatabaseConfig;
+import java.sql.Connection;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import raven.glasspanepopup.GlassPanePopup;
+import com.raven.event.DataChangeListener;
+import com.raven.popup.HapusDataPopup;
+import java.awt.Color;
 
 /**
  *
@@ -15,17 +21,24 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Form_Menu extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Form_Menu
-     */
     Connection con = null;
     DefaultTableModel tableModel;
+    private DataChangeListener dataChangeListener;
+    MenuPopup popup = new MenuPopup();
+    HapusDataPopup hapusPopup = new HapusDataPopup();
     int indexTable = 0; // 0 = Menu, 1 = Bahan Baku
+    
 
     public Form_Menu() {
-        initComponents();
         getCon();
+        initComponents();
         setModel();
+                popup.setMenuListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadData();
+            }
+        });
         setOpaque(false);
     }
 
@@ -45,7 +58,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 return false;
             }
         };
-        tbl_Menu.setModel(tableModel);
+        tbl_menu.setModel(tableModel);
         loadData();
     }
 
@@ -86,11 +99,11 @@ public class Form_Menu extends javax.swing.JPanel {
         panelRound1 = new com.raven.swing.PanelRound();
         button1 = new com.raven.util.Button();
         button2 = new com.raven.util.Button();
-        button3 = new com.raven.util.Button();
-        button4 = new com.raven.util.Button();
-        button5 = new com.raven.util.Button();
+        editBtn = new com.raven.util.Button();
+        hapusBtn = new com.raven.util.Button();
+        btnAdd = new com.raven.util.Button();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tbl_Menu = new com.raven.swing.TableColumn();
+        tbl_menu = new com.raven.swing.TableColumn();
         jLabel1 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(865, 583));
@@ -115,37 +128,37 @@ public class Form_Menu extends javax.swing.JPanel {
             }
         });
 
-        button3.setBackground(new java.awt.Color(255, 157, 35));
-        button3.setForeground(new java.awt.Color(255, 255, 255));
-        button3.setText("UPDATE");
-        button3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button3.setShadowColor(new java.awt.Color(102, 102, 102));
-        button3.addActionListener(new java.awt.event.ActionListener() {
+        editBtn.setBackground(new java.awt.Color(255, 157, 35));
+        editBtn.setForeground(new java.awt.Color(255, 255, 255));
+        editBtn.setText("UPDATE");
+        editBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        editBtn.setShadowColor(new java.awt.Color(102, 102, 102));
+        editBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button3ActionPerformed(evt);
+                editBtnActionPerformed(evt);
             }
         });
 
-        button4.setBackground(new java.awt.Color(208, 90, 90));
-        button4.setForeground(new java.awt.Color(255, 255, 255));
-        button4.setText("DELETE");
-        button4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button4.setShadowColor(new java.awt.Color(102, 102, 102));
+        hapusBtn.setBackground(new java.awt.Color(208, 90, 90));
+        hapusBtn.setForeground(new java.awt.Color(255, 255, 255));
+        hapusBtn.setText("DELETE");
+        hapusBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        hapusBtn.setShadowColor(new java.awt.Color(102, 102, 102));
 
-        button5.setBackground(new java.awt.Color(97, 131, 175));
-        button5.setForeground(new java.awt.Color(255, 255, 255));
-        button5.setText("ADD");
-        button5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        button5.setShadowColor(new java.awt.Color(102, 102, 102));
-        button5.addActionListener(new java.awt.event.ActionListener() {
+        btnAdd.setBackground(new java.awt.Color(97, 131, 175));
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
+        btnAdd.setText("ADD");
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAdd.setShadowColor(new java.awt.Color(102, 102, 102));
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button5ActionPerformed(evt);
+                btnAddActionPerformed(evt);
             }
         });
 
         jScrollPane2.setBorder(null);
 
-        tbl_Menu.setModel(new javax.swing.table.DefaultTableModel(
+        tbl_menu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -161,8 +174,8 @@ public class Form_Menu extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        tbl_Menu.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(tbl_Menu);
+        tbl_menu.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tbl_menu);
 
         javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
         panelRound1.setLayout(panelRound1Layout);
@@ -176,11 +189,11 @@ public class Form_Menu extends javax.swing.JPanel {
                         .addGap(15, 15, 15)
                         .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(10, 10, 10)
-                        .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
@@ -193,10 +206,10 @@ public class Form_Menu extends javax.swing.JPanel {
                     .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(10, 10, 10)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(button5, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20))
@@ -245,25 +258,29 @@ public class Form_Menu extends javax.swing.JPanel {
         setModel();
     }//GEN-LAST:event_button2ActionPerformed
 
-    private void button3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button3ActionPerformed
+    private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_button3ActionPerformed
+    }//GEN-LAST:event_editBtnActionPerformed
 
-    private void button5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_button5ActionPerformed
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if (indexTable == 0) {
+            GlassPanePopup.showPopup(new MenuPopup());
+        }else{
+            System.out.println("#add Menu");
+        }
+    }//GEN-LAST:event_btnAddActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button btnAdd;
     private com.raven.util.Button button1;
     private com.raven.util.Button button2;
-    private com.raven.util.Button button3;
-    private com.raven.util.Button button4;
-    private com.raven.util.Button button5;
+    private com.raven.util.Button editBtn;
+    private com.raven.util.Button hapusBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane2;
     private com.raven.swing.PanelRound panelRound1;
-    private com.raven.swing.TableColumn tbl_Menu;
+    private com.raven.swing.TableColumn tbl_menu;
     // End of variables declaration//GEN-END:variables
 
 }
