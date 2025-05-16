@@ -89,6 +89,22 @@ public class Form_Transaksi extends javax.swing.JPanel {
         }
     }
 
+    private void searchData(){
+        String kodeMenu = inputKode.getText();
+        if(con != null){
+            try {
+                String qCari = "SELECT * FROM v_porsi_menu WHERE kode_menu = ?";
+                PreparedStatement ps = con.prepareStatement(qCari);
+                ps.setString(1, kodeMenu);
+                ResultSet rs = ps.executeQuery();
+                while(rs.next()){
+                    inputMenu.setText(rs.getString("nama_menu"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -173,39 +189,15 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel6.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 8, 0, 0));
         panelRound1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 130, -1, -1));
 
-        inputKode.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputKodeActionPerformed(evt);
+        inputKode.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                inputKodeKeyPressed(evt);
             }
         });
         panelRound1.add(inputKode, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 31, 244, -1));
-
-        inputMenu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputMenuActionPerformed(evt);
-            }
-        });
         panelRound1.add(inputMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 88, 198, -1));
-
-        inputNama.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputNamaActionPerformed(evt);
-            }
-        });
         panelRound1.add(inputNama, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 151, 244, -1));
-
-        inputSub.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputSubActionPerformed(evt);
-            }
-        });
         panelRound1.add(inputSub, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 200, -1));
-
-        inputQty.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputQtyActionPerformed(evt);
-            }
-        });
         panelRound1.add(inputQty, new org.netbeans.lib.awtextra.AbsoluteConstraints(204, 88, 44, -1));
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -217,25 +209,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
         checkPoint.setForeground(new java.awt.Color(255, 255, 255));
         checkPoint.setText("Gunakan Poin");
         checkPoint.setBorder(null);
-        checkPoint.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkPointActionPerformed(evt);
-            }
-        });
         panelRound1.add(checkPoint, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 130, 100, -1));
-
-        inputBayar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputBayarActionPerformed(evt);
-            }
-        });
         panelRound1.add(inputBayar, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 500, 200, -1));
-
-        inputKembalian.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inputKembalianActionPerformed(evt);
-            }
-        });
         panelRound1.add(inputKembalian, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 500, 200, -1));
 
         labelSelesai.setBackground(new java.awt.Color(97, 131, 175));
@@ -361,37 +336,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void checkPointActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkPointActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_checkPointActionPerformed
-
-    private void inputQtyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputQtyActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputQtyActionPerformed
-
-    private void inputNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputNamaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputNamaActionPerformed
-
-    private void inputMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputMenuActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputMenuActionPerformed
-
-    private void inputKodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKodeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputKodeActionPerformed
-
-    private void inputSubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputSubActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputSubActionPerformed
-
-    private void inputBayarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputBayarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputBayarActionPerformed
-
-    private void inputKembalianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKembalianActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_inputKembalianActionPerformed
+    private void inputKodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputKodeKeyPressed
+         if(evt.getKeyChar()== '\n'){
+            searchData();
+        }
+    }//GEN-LAST:event_inputKodeKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox checkPoint;
