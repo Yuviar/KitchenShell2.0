@@ -15,37 +15,21 @@ public class Form_Transaksi extends javax.swing.JPanel {
     DefaultTableModel tableModel;
     DefaultTableModel tableModelMenu;
     private static double totalBayar = 0;
+    private boolean isMember = false;
+    private String RFIDId = "";
+    private long lastTime = 0;
+    private final long RFID_THRESHOLD = 100;
 
     public Form_Transaksi() {
         initComponents();
         getCon();
         setModel();
         setOpaque(false);
-        SwingUtilities.invokeLater(() -> {
-
-            String[] items = {"Apple", "Banana", "Cherry", "Date", "Grape", "Lemon", "Orange", "Peach", "Strawberry", "Watermelon"};
-            comboBox.setEditable(true);
-
-            JTextField editor = (JTextField) comboBox.getEditor().getEditorComponent();
-
-            editor.addKeyListener(new KeyAdapter() {
-                public void keyReleased(KeyEvent e) {
-                    String input = editor.getText();
-                    comboBox.hidePopup();
-                    comboBox.removeAllItems();
-
-                    for (String item : items) {
-                        if (item.toLowerCase().contains(input.toLowerCase())) {
-                            comboBox.addItem(item);
-                        }
-                    }
-
-                    editor.setText(input); // keep the text
-                    comboBox.showPopup();
-                }
-            });
-        });
         loadData();
+        if (!isMember) {
+            indikatorMember.setVisible(false);
+            poin.setVisible(false);
+        }
     }
 
     private void getCon() {
@@ -124,7 +108,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                                     cekKode = true;
                                     totalBayar += totalHarga;
                                     break;
-                                }else{
+                                } else {
                                     cekStok = true;
                                     JOptionPane.showMessageDialog(null, "Stok Tidak Mencukupi!");
                                 }
@@ -159,14 +143,12 @@ public class Form_Transaksi extends javax.swing.JPanel {
         panelRound2 = new com.raven.swing.PanelRound();
         jLabel3 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        totalHarga = new javax.swing.JLabel();
         inputKode = new com.raven.util.TextField();
         inputMenu = new com.raven.util.TextField();
-        inputNama = new com.raven.util.TextField();
         inputSub = new com.raven.util.TextField();
         inputQty = new com.raven.util.TextField();
         jLabel14 = new javax.swing.JLabel();
-        checkPoint = new javax.swing.JCheckBox();
         inputBayar = new com.raven.util.TextField();
         inputKembalian = new com.raven.util.TextField();
         labelSelesai = new com.raven.util.Button();
@@ -178,7 +160,12 @@ public class Form_Transaksi extends javax.swing.JPanel {
         tblMenu = new com.raven.swing.TableColumn();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblPesanan = new com.raven.swing.TableColumn();
-        comboBox = new javax.swing.JComboBox<>();
+        indikatorMember = new javax.swing.JLabel();
+        member = new com.raven.util.TextField();
+        poin = new javax.swing.JPanel();
+        poinField = new com.raven.util.TextField();
+        jLabel6 = new javax.swing.JLabel();
+        pakePoin = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
@@ -194,45 +181,27 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel4.setText("NAMA PELANGGAN");
         panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 129, -1, -1));
 
+        panelRound2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel3.setText("TOTAL:");
+        panelRound2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 6, -1, 35));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
         jLabel10.setText("Rp. 0");
+        panelRound2.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(593, 6, -1, 85));
 
-        javax.swing.GroupLayout panelRound2Layout = new javax.swing.GroupLayout(panelRound2);
-        panelRound2.setLayout(panelRound2Layout);
-        panelRound2Layout.setHorizontalGroup(
-            panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel3)
-                .addGap(524, 524, 524)
-                .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        panelRound2Layout.setVerticalGroup(
-            panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelRound2Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(panelRound2Layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-        );
+        totalHarga.setFont(new java.awt.Font("Bahnschrift", 1, 50)); // NOI18N
+        totalHarga.setText("0");
+        panelRound2.add(totalHarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, 400, -1));
 
-        panelRound1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(278, 15, 490, -1));
+        panelRound1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(278, 15, 490, 100));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("MEMBER");
-        jLabel6.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 8, 0, 0));
-        panelRound1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 130, -1, -1));
-
+        inputKode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inputKodeActionPerformed(evt);
+            }
+        });
         inputKode.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 inputKodeKeyPressed(evt);
@@ -240,7 +209,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
         });
         panelRound1.add(inputKode, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 31, 244, -1));
         panelRound1.add(inputMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 88, 198, -1));
-        panelRound1.add(inputNama, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 151, 244, -1));
         panelRound1.add(inputSub, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 200, -1));
         panelRound1.add(inputQty, new org.netbeans.lib.awtextra.AbsoluteConstraints(204, 88, 44, -1));
 
@@ -248,12 +216,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("QTY");
         panelRound1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(215, 72, -1, -1));
-
-        checkPoint.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        checkPoint.setForeground(new java.awt.Color(255, 255, 255));
-        checkPoint.setText("Gunakan Poin");
-        checkPoint.setBorder(null);
-        panelRound1.add(checkPoint, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 130, 100, -1));
         panelRound1.add(inputBayar, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 500, 200, -1));
         panelRound1.add(inputKembalian, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 500, 200, -1));
 
@@ -346,10 +308,51 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
         panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 198, 530, 270));
 
-        comboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        comboBox.setBorder(null);
-        comboBox.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        panelRound1.add(comboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(282, 152, 260, 30));
+        indikatorMember.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/person.png"))); // NOI18N
+        indikatorMember.setToolTipText("Member");
+        panelRound1.add(indikatorMember, new org.netbeans.lib.awtextra.AbsoluteConstraints(215, 157, -1, -1));
+
+        member.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                memberActionPerformed(evt);
+            }
+        });
+        member.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                memberKeyTyped(evt);
+            }
+        });
+        panelRound1.add(member, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 150, 240, -1));
+
+        poin.setBackground(new java.awt.Color(33, 53, 85));
+        poin.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        poinField.setEditable(false);
+        poinField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                poinFieldActionPerformed(evt);
+            }
+        });
+        poinField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                poinFieldKeyTyped(evt);
+            }
+        });
+        poin.add(poinField, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 260, -1));
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("POIN");
+        jLabel6.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 8, 0, 0));
+        poin.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        pakePoin.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        pakePoin.setForeground(new java.awt.Color(255, 255, 255));
+        pakePoin.setText("Gunakan Poin");
+        pakePoin.setBorder(null);
+        poin.add(pakePoin, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 100, -1));
+
+        panelRound1.add(poin, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 130, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));
@@ -386,14 +389,116 @@ public class Form_Transaksi extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_inputKodeKeyPressed
 
+    private void memberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_memberActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_memberActionPerformed
+
+    private void cariMember(boolean isRFID) {
+        try {
+            String query = "";
+            if (isRFID) {
+                query = "SELECT * FROM member WHERE uid = ? LIMIT 1";
+            } else {
+                query = "SELECT * FROM member WHERE no_telp_member = ? LIMIT 1";
+            }
+            String rfid = RFIDId;
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                if (isRFID) {
+                    ps.setString(1, rfid);
+                } else {
+                    ps.setString(1, member.getText());
+                }
+
+                ResultSet hasil = ps.executeQuery();
+                if (hasil.next()) {
+                    member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point"));
+                    poinField.setText(hasil.getDouble("point")+"");
+                    isMember = true;
+                    indikatorMember.setVisible(true);
+                    poin.setVisible(true);
+                } else {
+                    if (isRFID) {
+                        JOptionPane.showMessageDialog(this, "RFID Tidak terdaftar!", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Nomor Tidak terdaftar!", "Error", JOptionPane.PLAIN_MESSAGE);
+                    }
+                    member.setText("");
+                    poinField.setText("");
+                    pakePoin.setSelected(false);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void memberKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_memberKeyTyped
+        long currentTime = System.currentTimeMillis();
+        char c = evt.getKeyChar();
+
+        // Reset RFIDId kalau inputnya lambat
+        if (lastTime != 0 && (currentTime - lastTime) > RFID_THRESHOLD) {
+            RFIDId = "";
+        }
+
+        RFIDId += c;
+        lastTime = currentTime;
+
+        if (c == '\n' || c == '\r') {
+            RFIDId = RFIDId.replace("\n", "");
+            RFIDId = RFIDId.replace("\r", "");
+            if (RFIDId.length() >= 9) {
+                System.out.println("Scan RFID Terdeteksi: " + RFIDId);
+                cariMember(true);
+            } else {
+                //                System.out.println("RFID tidak valid, panjang kurang dari 9 karakter.");
+                if (isNumeric(member)) {
+                    cariMember(false);
+                } else {
+                    pakePoin.setSelected(false);
+                    poinField.setText("");
+                    indikatorMember.setVisible(false);
+                    poin.setVisible(false);
+                }
+            }
+            // Kosongkan RFIDId setelah pemrosesan
+            RFIDId = "";
+            //            userInput.setText("");
+        }
+    }//GEN-LAST:event_memberKeyTyped
+
+    private void poinFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_poinFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_poinFieldActionPerformed
+
+    private void poinFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_poinFieldKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_poinFieldKeyTyped
+
+    private void inputKodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKodeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inputKodeActionPerformed
+
+    public static boolean isNumeric(JTextField textField) {
+        String text = textField.getText();
+        if (text.isEmpty()) {
+            return false; // or handle empty case as needed
+        }
+        try {
+            Double.parseDouble(text);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox checkPoint;
-    private javax.swing.JComboBox<String> comboBox;
+    private javax.swing.JLabel indikatorMember;
     private com.raven.util.TextField inputBayar;
     private com.raven.util.TextField inputKembalian;
     private com.raven.util.TextField inputKode;
     private com.raven.util.TextField inputMenu;
-    private com.raven.util.TextField inputNama;
     private com.raven.util.TextField inputQty;
     private com.raven.util.TextField inputSub;
     private javax.swing.JLabel jLabel1;
@@ -410,9 +515,14 @@ public class Form_Transaksi extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private com.raven.util.Button labelSelesai;
+    private com.raven.util.TextField member;
+    private javax.swing.JCheckBox pakePoin;
     private com.raven.swing.PanelRound panelRound1;
     private com.raven.swing.PanelRound panelRound2;
+    private javax.swing.JPanel poin;
+    private com.raven.util.TextField poinField;
     private com.raven.swing.TableColumn tblMenu;
     private com.raven.swing.TableColumn tblPesanan;
+    private javax.swing.JLabel totalHarga;
     // End of variables declaration//GEN-END:variables
 }
