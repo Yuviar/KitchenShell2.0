@@ -101,19 +101,19 @@ public class Login extends javax.swing.JFrame {
                 eyeMouseClicked(evt);
             }
         });
-        getContentPane().add(eye, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 270, -1, -1));
+        getContentPane().add(eye, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 280, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("PASSWORD");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 250, -1, 10));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 250, -1, 20));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("USERNAME");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 200, -1, 10));
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 190, -1, 20));
 
-        button1.setBackground(new java.awt.Color(163, 180, 202));
+        button1.setBackground(new java.awt.Color(97, 131, 175));
         button1.setForeground(new java.awt.Color(255, 255, 255));
         button1.setText("LOGIN");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -122,7 +122,7 @@ public class Login extends javax.swing.JFrame {
                 button1ActionPerformed(evt);
             }
         });
-        getContentPane().add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 310, 190, -1));
+        getContentPane().add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 320, 240, -1));
 
         userInput.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -132,14 +132,14 @@ public class Login extends javax.swing.JFrame {
                 userInputKeyTyped(evt);
             }
         });
-        getContentPane().add(userInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 190, -1));
+        getContentPane().add(userInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 210, 240, -1));
 
         passInput.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 passInputKeyPressed(evt);
             }
         });
-        getContentPane().add(passInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 190, -1));
+        getContentPane().add(passInput, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 270, 240, -1));
 
         shutdownBtn.setBackground(new java.awt.Color(200, 10, 10));
         shutdownBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/power.png"))); // NOI18N
