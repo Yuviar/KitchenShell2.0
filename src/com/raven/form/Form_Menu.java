@@ -5,6 +5,7 @@
 package com.raven.form;
 
 import com.raven.popup.MenuPopup;
+import com.raven.popup.BahanBakuPopup;
 import java.sql.*;
 import config.DatabaseConfig;
 import java.sql.Connection;
@@ -266,7 +267,7 @@ public class Form_Menu extends javax.swing.JPanel {
         if (indexTable == 0) {
             GlassPanePopup.showPopup(new MenuPopup());
         }else{
-            System.out.println("#add Menu");
+            GlassPanePopup.showPopup(new BahanBakuPopup());
         }
     }//GEN-LAST:event_btnAddActionPerformed
 

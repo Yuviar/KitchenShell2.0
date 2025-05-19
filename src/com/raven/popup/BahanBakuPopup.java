@@ -4,17 +4,34 @@
  */
 package com.raven.popup;
 
-/**
- *
- * @author rayag
- */
+import config.DatabaseConfig;
+import java.sql.*;
+import javax.swing.JOptionPane;
+import raven.glasspanepopup.GlassPanePopup;
+import com.raven.event.DataChangeListener;
+
 public class BahanBakuPopup extends javax.swing.JPanel {
 
-    /**
-     * Creates new form BahanBakuPopup
-     */
+    private Connection con = null;
+    private boolean isEditMode = false;
+    private String editUID = null;
+    private DataChangeListener dataChangeListener;
+    
     public BahanBakuPopup() {
         initComponents();
+        getCon();
+    }
+    
+    public void setBahanBakuListener(DataChangeListener listener) {
+        this.dataChangeListener = listener;
+    }
+    
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -30,8 +47,8 @@ public class BahanBakuPopup extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         txtHarga = new com.raven.util.TextField();
         jLabel2 = new javax.swing.JLabel();
-        button1 = new com.raven.util.Button();
-        btnSubmit = new com.raven.util.Button();
+        btnBatal = new com.raven.util.Button();
+        btnSelesai = new com.raven.util.Button();
         txtNama = new com.raven.util.TextField();
         jLabel3 = new javax.swing.JLabel();
         txtKategori = new com.raven.util.TextField();
@@ -42,6 +59,8 @@ public class BahanBakuPopup extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
         txtNama3 = new com.raven.util.TextField();
         txtJumlah = new javax.swing.JLabel();
+
+        setOpaque(false);
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
 
@@ -60,23 +79,23 @@ public class BahanBakuPopup extends javax.swing.JPanel {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Nama");
 
-        button1.setBackground(new java.awt.Color(97, 131, 175));
-        button1.setForeground(new java.awt.Color(255, 255, 255));
-        button1.setText("Batal");
-        button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        button1.addActionListener(new java.awt.event.ActionListener() {
+        btnBatal.setBackground(new java.awt.Color(97, 131, 175));
+        btnBatal.setForeground(new java.awt.Color(255, 255, 255));
+        btnBatal.setText("Batal");
+        btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnBatal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button1ActionPerformed(evt);
+                btnBatalActionPerformed(evt);
             }
         });
 
-        btnSubmit.setBackground(new java.awt.Color(97, 131, 175));
-        btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
-        btnSubmit.setText("Selesai");
-        btnSubmit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
+        btnSelesai.setBackground(new java.awt.Color(97, 131, 175));
+        btnSelesai.setForeground(new java.awt.Color(255, 255, 255));
+        btnSelesai.setText("Selesai");
+        btnSelesai.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnSelesai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSubmitActionPerformed(evt);
+                btnSelesaiActionPerformed(evt);
             }
         });
 
@@ -120,7 +139,7 @@ public class BahanBakuPopup extends javax.swing.JPanel {
         panelRound1Layout.setHorizontalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+                .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelRound1Layout.createSequentialGroup()
                         .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -147,10 +166,10 @@ public class BahanBakuPopup extends javax.swing.JPanel {
                             .addComponent(txtHarga1, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtSatuan)))
                     .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(392, 392, 392)
-                        .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addComponent(btnSelesai, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(30, Short.MAX_VALUE))
             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panelRound1Layout.setVerticalGroup(
@@ -183,8 +202,8 @@ public class BahanBakuPopup extends javax.swing.JPanel {
                     .addComponent(txtNama3, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnSelesai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(20, 20, 20))
         );
 
@@ -200,13 +219,13 @@ public class BahanBakuPopup extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
+    private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
+        GlassPanePopup.closePopupAll();
+    }//GEN-LAST:event_btnBatalActionPerformed
 
-    }//GEN-LAST:event_button1ActionPerformed
+    private void btnSelesaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelesaiActionPerformed
 
-    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-
-    }//GEN-LAST:event_btnSubmitActionPerformed
+    }//GEN-LAST:event_btnSelesaiActionPerformed
 
     private void txtKeteranganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtKeteranganActionPerformed
         // TODO add your handling code here:
@@ -214,8 +233,8 @@ public class BahanBakuPopup extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.raven.util.Button btnSubmit;
-    private com.raven.util.Button button1;
+    private com.raven.util.Button btnBatal;
+    private com.raven.util.Button btnSelesai;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
