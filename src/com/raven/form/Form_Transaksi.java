@@ -4,6 +4,7 @@ import config.DatabaseConfig;
 import java.awt.event.KeyAdapter;
 import java.sql.*;
 import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
@@ -13,6 +14,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
     Connection con = null;
     DefaultTableModel tableModel;
     DefaultTableModel tableModelMenu;
+    private static double totalBayar = 0;
 
     public Form_Transaksi() {
         initComponents();
@@ -55,7 +57,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }
 
     private void setModel() {
-        String[] judul = {"Kode Menu", "Nama Menu", "Harga", "Jumlah", "Harga Total", "Aksi"};
+        String[] judul = {"Kode Menu", "Nama Menu", "Jumlah", "Harga", "Harga Total", "Aksi"};
         String[] judulMenu = {"Nama Menu", "Stok"};
         tableModel = new DefaultTableModel(judul, 0) {
             @Override
@@ -89,22 +91,64 @@ public class Form_Transaksi extends javax.swing.JPanel {
         }
     }
 
-    private void searchData(){
+    private void searchData() {
         String kodeMenu = inputKode.getText();
-        if(con != null){
+        if (con != null) {
             try {
                 String qCari = "SELECT * FROM v_porsi_menu WHERE kode_menu = ?";
                 PreparedStatement ps = con.prepareStatement(qCari);
                 ps.setString(1, kodeMenu);
                 ResultSet rs = ps.executeQuery();
-                while(rs.next()){
-                    inputMenu.setText(rs.getString("nama_menu"));
+                if (rs != null) {
+                    while (rs.next()) {
+                        inputQty.setText("1");
+                        String namaMenu = rs.getString(2);
+                        int stok = rs.getInt(3);
+                        int jumlah = Integer.parseInt(inputQty.getText());
+                        double harga = Double.parseDouble(rs.getString(4));
+                        double totalHarga = jumlah * harga;
+                        inputMenu.setText(rs.getString("nama_menu"));
+                        boolean cekKode = false;
+                        boolean cekStok = false; //cek stok saat melakukan tambah pesanan
+                        if (stok >= 0) {
+                            //cek apakah ada kode menu yang sama
+                            int row = tblPesanan.getRowCount();
+                            for (int i = 0; i < row; i++) {
+                                //jika ada akan menambahkan jumlah menu tersebut
+                                int stokTabel = (int) tblPesanan.getValueAt(i, 2);
+                                if (tblPesanan.getValueAt(i, 0).equals(kodeMenu) && stokTabel < stok) {
+                                    int jumlahBaru = Integer.parseInt(tblPesanan.getValueAt(i, 2).toString());
+                                    tblPesanan.setValueAt(jumlahBaru + jumlah, i, 2);
+                                    double total = (jumlahBaru + jumlah) * harga;
+                                    tblPesanan.setValueAt(total, i, 4);
+                                    cekKode = true;
+                                    totalBayar += totalHarga;
+                                    break;
+                                }else{
+                                    cekStok = true;
+                                    JOptionPane.showMessageDialog(null, "Stok Tidak Mencukupi!");
+                                }
+                            }
+                            //jika tidak ada menu yang sama, maka akan menambahkan baris baru
+                            if (!cekKode) {
+                                tableModel.addRow(new Object[]{kodeMenu, namaMenu, jumlah, harga, totalHarga});
+                                totalBayar += totalHarga;
+                            }
+                            //set total
+
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Stok Habis!");
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Kode Menu Tidak Terdaftar!");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -337,7 +381,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void inputKodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputKodeKeyPressed
-         if(evt.getKeyChar()== '\n'){
+        if (evt.getKeyChar() == '\n') {
             searchData();
         }
     }//GEN-LAST:event_inputKodeKeyPressed

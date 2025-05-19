@@ -4,113 +4,19 @@
  */
 package com.raven.popup;
 
-import config.DatabaseConfig;
-import java.sql.*;
-import javax.swing.JOptionPane;
 import raven.glasspanepopup.GlassPanePopup;
-import com.raven.event.DataChangeListener;
 
 /**
  *
  * @author MI TA
  */
-public class AkunPopup extends javax.swing.JPanel {
-
-    private Connection con = null;
-    private boolean isEditMode = false;
-    private String editUID = null;
-    private DataChangeListener dataChangeListener;
+public class MemberPopup extends javax.swing.JPanel {
 
     /**
-     * Creates new form AkunPopup
+     * Creates new form MemberPopup
      */
-    public AkunPopup() {
-        getCon();
+    public MemberPopup() {
         initComponents();
-    }
-
-    public void setAkunListener(DataChangeListener listener) {
-        this.dataChangeListener = listener;
-    }
-
-    private void getCon() {
-        try {
-            con = DatabaseConfig.getConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveData() {
-        try {
-            int hak = -1;
-            if (radioAdmin.isSelected()) {
-                hak = 1;
-            } else if (radioKaryawan.isSelected()) {
-                hak = 0;
-            }
-
-            if (!txtNama.getText().equals("") && !txtUsername.getText().equals("")
-                    && !txtPassword.getText().equals("") && hak != -1 && !txtRFID.getText().equals("")) {
-                if (isEditMode) {
-                    // UPDATE data
-                    String query = "UPDATE user SET nama = ?, username = ?, password = ?, level = ? WHERE uid = ?";
-                    PreparedStatement ps = con.prepareStatement(query);
-                    ps.setString(1, txtNama.getText());
-                    ps.setString(2, txtUsername.getText());
-                    ps.setString(3, txtPassword.getText());
-                    ps.setInt(4, hak);
-                    ps.setString(5, editUID);
-                    ps.executeUpdate();
-                    JOptionPane.showMessageDialog(null, "Data berhasil diupdate!");
-                    if (dataChangeListener != null) {
-                        dataChangeListener.onDataChanged();
-                    }
-                } else {
-                    // INSERT data
-                    String query = "INSERT INTO user (uid, nama, username, password, level) VALUES (?, ?, ?, ?, ?)";
-                    PreparedStatement ps = con.prepareStatement(query);
-                    ps.setString(1, txtRFID.getText());
-                    ps.setString(2, txtNama.getText());
-                    ps.setString(3, txtUsername.getText());
-                    ps.setString(4, txtPassword.getText());
-                    ps.setInt(5, hak);
-                    ps.execute();
-                    JOptionPane.showMessageDialog(null, "Data berhasil ditambahkan!");
-                    if (dataChangeListener != null) {
-                        dataChangeListener.onDataChanged();
-                    }
-                }
-                GlassPanePopup.closePopupLast();
-
-            } else {
-                throw new Exception("Semua data harus diisi!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
-        }
-    }
-
-    public void setEditMode(String uid, String nama, String username, String password, int level) {
-        isEditMode = true;
-        editUID = uid;
-
-        txtNama.setText(nama);
-        txtUsername.setText(username);
-        txtPassword.setText(password);
-        txtRFID.setText(uid);
-        txtRFID.setEditable(false);
-
-        if (level == 1) {
-            radioAdmin.setSelected(true);
-        } else {
-            radioKaryawan.setSelected(true);
-        }
-
-        jLabel1.setText("EDIT AKUN");
-        btnSubmit.setText("Update");
     }
 
     /**
@@ -122,7 +28,6 @@ public class AkunPopup extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup2 = new javax.swing.ButtonGroup();
         panelRound1 = new com.raven.swing.PanelRound();
         jLabel1 = new javax.swing.JLabel();
         txtNama = new com.raven.util.TextField();
@@ -131,11 +36,6 @@ public class AkunPopup extends javax.swing.JPanel {
         txtUsername = new com.raven.util.TextField();
         jLabel4 = new javax.swing.JLabel();
         txtPassword = new com.raven.util.TextField();
-        jLabel5 = new javax.swing.JLabel();
-        txtRFID = new com.raven.util.TextField();
-        jLabel6 = new javax.swing.JLabel();
-        radioAdmin = new javax.swing.JRadioButton();
-        radioKaryawan = new javax.swing.JRadioButton();
         button1 = new com.raven.util.Button();
         btnSubmit = new com.raven.util.Button();
 
@@ -147,7 +47,7 @@ public class AkunPopup extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("DAFTAR AKUN");
+        jLabel1.setText("DAFTAR MEMBER");
         jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
         jLabel1.setFocusable(false);
@@ -157,47 +57,19 @@ public class AkunPopup extends javax.swing.JPanel {
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Nama");
+        jLabel2.setText("Kode RFID");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Username");
+        jLabel3.setText("Nama");
 
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Password");
+        jLabel4.setText("No. Telp");
 
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("RFID");
-
-        txtRFID.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Level");
-
-        buttonGroup2.add(radioAdmin);
-        radioAdmin.setForeground(new java.awt.Color(255, 255, 255));
-        radioAdmin.setText("Admin");
-        radioAdmin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioAdminActionPerformed(evt);
-            }
-        });
-
-        buttonGroup2.add(radioKaryawan);
-        radioKaryawan.setForeground(new java.awt.Color(255, 255, 255));
-        radioKaryawan.setText("Karyawan");
-        radioKaryawan.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioKaryawanActionPerformed(evt);
-            }
-        });
 
         button1.setBackground(new java.awt.Color(97, 131, 175));
         button1.setForeground(new java.awt.Color(255, 255, 255));
@@ -230,29 +102,19 @@ public class AkunPopup extends javax.swing.JPanel {
                 .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelRound1Layout.createSequentialGroup()
                         .addGap(8, 8, 8)
                         .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3)
-                            .addComponent(jLabel5)
                             .addComponent(jLabel4)
                             .addComponent(jLabel2)))
                     .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelRound1Layout.createSequentialGroup()
-                            .addGap(6, 6, 6)
-                            .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel6)
-                                .addGroup(panelRound1Layout.createSequentialGroup()
-                                    .addComponent(radioAdmin)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(radioKaryawan))))
-                        .addComponent(txtRFID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(panelRound1Layout.createSequentialGroup()
                             .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtPassword, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(30, 30, 30))
         );
         panelRound1Layout.setVerticalGroup(
@@ -272,59 +134,35 @@ public class AkunPopup extends javax.swing.JPanel {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtRFID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(radioAdmin)
-                    .addComponent(radioKaryawan))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(11, Short.MAX_VALUE))
+                .addGap(20, 20, 20))
         );
 
         add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
     }// </editor-fold>//GEN-END:initComponents
 
-    private void radioAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioAdminActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radioAdminActionPerformed
-
-    private void radioKaryawanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioKaryawanActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radioKaryawanActionPerformed
-
-    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-        saveData();
-    }//GEN-LAST:event_btnSubmitActionPerformed
-
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
         GlassPanePopup.closePopupAll();
     }//GEN-LAST:event_button1ActionPerformed
+
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+//        saveData();
+    }//GEN-LAST:event_btnSubmitActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.util.Button btnSubmit;
     private com.raven.util.Button button1;
-    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private com.raven.swing.PanelRound panelRound1;
-    private javax.swing.JRadioButton radioAdmin;
-    private javax.swing.JRadioButton radioKaryawan;
     private com.raven.util.TextField txtNama;
     private com.raven.util.TextField txtPassword;
-    private com.raven.util.TextField txtRFID;
     private com.raven.util.TextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }

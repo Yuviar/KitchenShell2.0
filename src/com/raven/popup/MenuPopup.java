@@ -81,7 +81,7 @@ public class MenuPopup extends javax.swing.JPanel {
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Nama Menu");
+        jLabel2.setText("Kode Menu");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
@@ -125,13 +125,13 @@ public class MenuPopup extends javax.swing.JPanel {
 
         txtNama1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        boxBahanJadi.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        boxBahanJadi.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nasi", "Ayam suir" }));
 
-        boxBahanBaku.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        boxBahanBaku.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Beras", "Daging Ayam" }));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Harga");
+        jLabel3.setText("Nama Menu");
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
@@ -251,9 +251,9 @@ public class MenuPopup extends javax.swing.JPanel {
                 .addGap(10, 10, 10)
                 .addComponent(jLabel6)
                 .addGap(0, 0, 0)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(radioMakanan)
-                    .addComponent(radioMinuman))
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(radioMinuman, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(radioMakanan))
                 .addGap(18, 18, 18)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)

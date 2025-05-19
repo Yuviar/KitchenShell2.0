@@ -13,6 +13,7 @@ import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;
 import com.raven.popup.HapusDataPopup;
+import com.raven.popup.MemberPopup;
 import java.awt.Color;
 
 /**
@@ -338,7 +339,7 @@ public class Form_Akun extends javax.swing.JPanel {
         if (indexTable == 0) {
             GlassPanePopup.showPopup(new AkunPopup());
         }else{
-            System.out.println("#add Member");
+            GlassPanePopup.showPopup(new MemberPopup());
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
