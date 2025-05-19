@@ -8,10 +8,10 @@ package com.raven.form;
  *
  * @author Fazaa
  */
-
 import config.DatabaseConfig;
 import java.sql.*;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 public class test extends javax.swing.JPanel {
 
@@ -19,31 +19,49 @@ public class test extends javax.swing.JPanel {
      * Creates new form test
      */
     Connection con = null;
+    private boolean isMember = false;
+
     public test() {
         initComponents();
+        if(!isMember)
+            jLabel1.setVisible(false);
         try {
             con = DatabaseConfig.getConnection();
         } catch (Exception e) {
         }
     }
 
-     private String RFIDId = "";
+    private String RFIDId = "";
     private long lastTime = 0;
-    private final long RFID_THRESHOLD = 100;                            
+    private final long RFID_THRESHOLD = 100;
 
-    private void tampilRFID() {
+    private void cariMember(boolean isRFID) {
         try {
-            String query = "SELECT * FROM member WHERE uid = ? LIMIT 1";
+            String query = "";
+            if (isRFID) {
+                query = "SELECT * FROM member WHERE uid = ? LIMIT 1";
+            } else {
+                query = "SELECT * FROM member WHERE no_telp_member = ? LIMIT 1";
+            }
             String rfid = RFIDId;
             try (PreparedStatement ps = con.prepareStatement(query)) {
-
-                ps.setString(1, rfid);
+                if (isRFID) {
+                    ps.setString(1, rfid);
+                } else {
+                    ps.setString(1, member.getText());
+                }
 
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
-                    member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point")); 
+                    member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point"));
+                    isMember = true;
+                    jLabel1.setVisible(true);
                 } else {
-                    JOptionPane.showMessageDialog(this, "RFID Tidak terdaftar!", "Error", JOptionPane.ERROR_MESSAGE);
+                    if (isRFID) {
+                        JOptionPane.showMessageDialog(this, "RFID Tidak terdaftar!", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Nomor Tidak terdaftar!", "Error", JOptionPane.PLAIN_MESSAGE);
+                    }
                     member.setText("");
                 }
             }
@@ -53,7 +71,7 @@ public class test extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Database error!", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -63,7 +81,14 @@ public class test extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
         member = new com.raven.util.TextField();
+
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/person.png"))); // NOI18N
+        jLabel1.setToolTipText("Member");
+        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(265, 127, -1, -1));
 
         member.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -75,23 +100,7 @@ public class test extends javax.swing.JPanel {
                 memberKeyTyped(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(82, 82, 82)
-                .addComponent(member, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(110, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(110, 110, 110)
-                .addComponent(member, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(149, Short.MAX_VALUE))
-        );
+        add(member, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, 208, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void memberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_memberActionPerformed
@@ -115,9 +124,14 @@ public class test extends javax.swing.JPanel {
             RFIDId = RFIDId.replace("\r", "");
             if (RFIDId.length() >= 9) {
                 System.out.println("Scan RFID Terdeteksi: " + RFIDId);
-                tampilRFID();
+                cariMember(true);
             } else {
-                System.out.println("RFID tidak valid, panjang kurang dari 9 karakter.");
+//                System.out.println("RFID tidak valid, panjang kurang dari 9 karakter.");
+                if (isNumeric(member)) {
+                    cariMember(false);
+                } else {
+                    jLabel1.setVisible(false);
+                }
             }
             // Kosongkan RFIDId setelah pemrosesan
             RFIDId = "";
@@ -125,8 +139,21 @@ public class test extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_memberKeyTyped
 
+    public static boolean isNumeric(JTextField textField) {
+        String text = textField.getText();
+        if (text.isEmpty()) {
+            return false; // or handle empty case as needed
+        }
+        try {
+            Double.parseDouble(text);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private com.raven.util.TextField member;
     // End of variables declaration//GEN-END:variables
 }
