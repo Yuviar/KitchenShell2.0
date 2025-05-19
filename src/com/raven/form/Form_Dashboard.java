@@ -1,19 +1,101 @@
 package com.raven.form;
 
 import com.raven.chart.ModelChart;
+import config.DatabaseConfig;
 import java.awt.Color;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+import javax.swing.JOptionPane;
 
 public class Form_Dashboard extends javax.swing.JPanel {
+
+    private Connection con;
+    DefaultTableModel tableModel;
 
     public Form_Dashboard() {
         initComponents();
         setOpaque(false);
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+        }
         init();
     }
 
     private void init() {
+        initChart();
+        initCard();
+        initTable();
+    }
+
+    private void initTable() {
+        String[] judul = {"Bahan Baku", "Sisa Bahan"};
+        tableModel = new DefaultTableModel(judul, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        table.setModel(tableModel);
+        
+        String query = "SELECT * FROM `bahanbaku` WHERE stok_bahanbaku < 1000";
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ResultSet hasil = ps.executeQuery();
+            while (hasil.next()) {
+                String[] data = {hasil.getString(2), hasil.getString(3)+hasil.getString(4)};
+                tableModel.addRow(data);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+//  1/3 done
+    private void initCard() {
+        String query = "";
+        try {
+            query = "SELECT COUNT(*) FROM `menu`";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ResultSet hasil = ps.executeQuery();
+                if (hasil.next()) {
+                    jmlMenu.setText(hasil.getInt(1) + "");
+                } else {
+                    jmlMenu.setText("0");
+
+                }
+            }
+
+            query = "SELECT SUM(jumlah) FROM `detail_transaksi`";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ResultSet hasil = ps.executeQuery();
+                if (hasil.next()) {
+                    pendapatanHari.setText("Rp. " + hasil.getInt(1));
+                } else {
+                    pendapatanHari.setText("Rp. 0");
+
+                }
+            }
+
+            query = "SELECT SUM(jumlah) FROM `detail_transaksi`";
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ResultSet hasil = ps.executeQuery();
+                if (hasil.next()) {
+                    pendapatanBulan.setText("Rp. " + hasil.getInt(1));
+                } else {
+                    pendapatanBulan.setText("Rp. 0");
+
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void initChart() {
         chart.addLegend("Pendapatan", new Color(245, 189, 135));
         chart.addLegend("Pengeluaran", new Color(135, 189, 245));
         chart.addData(new ModelChart("Jan", new double[]{100, 150}));
@@ -33,7 +115,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
         model.addRow(new Object[]{"Minyak", "500ml"});
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(jLabel1.CENTER);
-    
     }
 
     @SuppressWarnings("unchecked")
@@ -46,13 +127,16 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jLabel10 = new javax.swing.JLabel();
         card1 = new com.raven.swing.PanelRound();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jmlMenu = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         card3 = new com.raven.swing.PanelRound();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        pendapatanBulan = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
         card2 = new com.raven.swing.PanelRound();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        pendapatanHari = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         tabel = new com.raven.swing.PanelRound();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new com.raven.swing.TableColumn();
@@ -104,105 +188,60 @@ public class Form_Dashboard extends javax.swing.JPanel {
         card1.setMaximumSize(new java.awt.Dimension(300, 32767));
         card1.setMinimumSize(new java.awt.Dimension(200, 0));
         card1.setPreferredSize(new java.awt.Dimension(285, 100));
+        card1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel3.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Jumlah Menu");
+        card1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 190, -1));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("20");
+        jmlMenu.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        jmlMenu.setForeground(new java.awt.Color(255, 255, 255));
+        jmlMenu.setText("20");
+        card1.add(jmlMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 190, 52));
 
-        javax.swing.GroupLayout card1Layout = new javax.swing.GroupLayout(card1);
-        card1.setLayout(card1Layout);
-        card1Layout.setHorizontalGroup(
-            card1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(card1Layout.createSequentialGroup()
-                .addGap(73, 73, 73)
-                .addGroup(card1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        card1Layout.setVerticalGroup(
-            card1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(card1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(0, 0, 0)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/icons8-fast-food-64.png"))); // NOI18N
+        card1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 15, -1, -1));
 
         card3.setBackground(new java.awt.Color(33, 53, 85));
         card3.setForeground(new java.awt.Color(255, 255, 255));
         card3.setMaximumSize(new java.awt.Dimension(300, 32767));
         card3.setMinimumSize(new java.awt.Dimension(200, 0));
         card3.setPreferredSize(new java.awt.Dimension(285, 100));
+        card3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel7.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Pendapatan Bulan ini");
+        card3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 190, -1));
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setText("Rp 500.000");
+        pendapatanBulan.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        pendapatanBulan.setForeground(new java.awt.Color(255, 255, 255));
+        pendapatanBulan.setText("Rp 500.000");
+        card3.add(pendapatanBulan, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 190, 52));
 
-        javax.swing.GroupLayout card3Layout = new javax.swing.GroupLayout(card3);
-        card3.setLayout(card3Layout);
-        card3Layout.setHorizontalGroup(
-            card3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, card3Layout.createSequentialGroup()
-                .addGap(73, 73, 73)
-                .addGroup(card3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        card3Layout.setVerticalGroup(
-            card3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(card3Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(jLabel7)
-                .addGap(0, 0, 0)
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/icons8-cash-64.png"))); // NOI18N
+        card3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 17, -1, 60));
 
         card2.setBackground(new java.awt.Color(33, 53, 85));
         card2.setForeground(new java.awt.Color(255, 255, 255));
         card2.setMaximumSize(new java.awt.Dimension(300, 32767));
         card2.setMinimumSize(new java.awt.Dimension(200, 0));
         card2.setPreferredSize(new java.awt.Dimension(285, 100));
+        card2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Pendapatan Hari ini");
+        card2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 190, -1));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Rp 50.000");
+        pendapatanHari.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        pendapatanHari.setForeground(new java.awt.Color(255, 255, 255));
+        pendapatanHari.setText("Rp 50.000");
+        card2.add(pendapatanHari, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 190, 52));
 
-        javax.swing.GroupLayout card2Layout = new javax.swing.GroupLayout(card2);
-        card2.setLayout(card2Layout);
-        card2Layout.setHorizontalGroup(
-            card2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, card2Layout.createSequentialGroup()
-                .addGap(73, 73, 73)
-                .addGroup(card2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        card2Layout.setVerticalGroup(
-            card2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(card2Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(jLabel5)
-                .addGap(0, 0, 0)
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/icons8-dollar-coin-64.png"))); // NOI18N
+        card2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(17, 17, -1, -1));
 
         tabel.setBackground(new java.awt.Color(33, 53, 85));
         tabel.setMaximumSize(new java.awt.Dimension(300, 32767));
@@ -302,14 +341,17 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private com.raven.chart.Chart chart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel jmlMenu;
+    private javax.swing.JLabel pendapatanBulan;
+    private javax.swing.JLabel pendapatanHari;
     private com.raven.swing.PanelRound stats;
     private com.raven.swing.PanelRound tabel;
     private com.raven.swing.TableColumn table;
