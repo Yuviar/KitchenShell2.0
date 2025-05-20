@@ -4,6 +4,13 @@
  */
 package com.raven.popup;
 
+import com.raven.event.DataChangeListener;
+import config.DatabaseConfig;
+import java.sql.*;
+import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
+//import raven.glasspanepopup.GlassPanePopup;
+
 import raven.glasspanepopup.GlassPanePopup;
 
 /**
@@ -12,12 +19,105 @@ import raven.glasspanepopup.GlassPanePopup;
  */
 public class MemberPopup extends javax.swing.JPanel {
 
-    /**
-     * Creates new form MemberPopup
-     */
+   private Connection con = null;
+    private boolean isEditMode = false;
+    private String editKodeMember = null;
+    private DataChangeListener dataChangeListener;;
+    
     public MemberPopup() {
+        getCon();
         initComponents();
     }
+        
+    public void setAkunListener(DataChangeListener listener) {
+        this.dataChangeListener = listener;
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+        private void saveData() {
+        try {
+            String nama = txtNama.getText().trim();
+            String telp = txtTelp.getText().trim();
+
+            if (!nama.isEmpty() && !telp.isEmpty()) {
+                if (isEditMode) {
+                    // UPDATE (kode_member tidak berubah)
+                    String query = "UPDATE member SET nama_member = ?, no_telp_member = ? WHERE kode_member = ?";
+                    PreparedStatement ps = con.prepareStatement(query);
+                    ps.setString(1, nama);
+                    ps.setString(2, telp);
+                    ps.setString(3, editKodeMember);
+                    ps.executeUpdate();
+
+                    JOptionPane.showMessageDialog(null, "Data berhasil diupdate!");
+                } else {
+                    // INSERT
+                    String kodeBaru = generateKodeMember();
+                    String query = "INSERT INTO member (kode_member, nama_member, no_telp_member, point, tgl_gabung) VALUES (?, ?, ?, ?, ?)";
+                    PreparedStatement ps = con.prepareStatement(query);
+                    ps.setString(1, kodeBaru);
+                    ps.setString(2, nama);
+                    ps.setString(3, telp);
+                    ps.setDouble(4, 0); // point awal
+                    ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                    ps.execute();
+
+                    JOptionPane.showMessageDialog(null, "Data berhasil ditambahkan! Kode Member: ");
+                }
+
+                if (dataChangeListener != null) {
+                    dataChangeListener.onDataChanged();
+                }
+
+                GlassPanePopup.closePopupLast();
+            } else {
+                throw new Exception("Semua data harus diisi!");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
+        }
+    }
+        public void setEditMode(String kode_member, String nama, String telp) {
+        isEditMode = true;
+        editKodeMember = kode_member;
+
+        txtNama.setText(nama);
+        txtTelp.setText(telp);
+
+        jLabel1.setText("EDIT MEMBER");
+        btnSubmit.setText("Update");
+       }
+        
+        private String generateKodeMember() {
+        try {
+            String sql = "SELECT RIGHT(kode_member, 3) AS nomor FROM member ORDER BY kode_member DESC LIMIT 1";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            int nextNumber = 1;
+            if (rs.next() && rs.getString("nomor") != null) {
+                nextNumber = Integer.parseInt(rs.getString("nomor")) + 1;
+            }
+
+            return String.format("MEM%03d", nextNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "MEM001";
+        }
+    }
+        
+        
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -30,12 +130,12 @@ public class MemberPopup extends javax.swing.JPanel {
 
         panelRound1 = new com.raven.swing.PanelRound();
         jLabel1 = new javax.swing.JLabel();
-        txtNama = new com.raven.util.TextField();
+        txtRFID = new com.raven.util.TextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        txtUsername = new com.raven.util.TextField();
+        txtNama = new com.raven.util.TextField();
         jLabel4 = new javax.swing.JLabel();
-        txtPassword = new com.raven.util.TextField();
+        txtTelp = new com.raven.util.TextField();
         button1 = new com.raven.util.Button();
         btnSubmit = new com.raven.util.Button();
 
@@ -53,7 +153,7 @@ public class MemberPopup extends javax.swing.JPanel {
         jLabel1.setFocusable(false);
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-        txtNama.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtRFID.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
@@ -63,10 +163,10 @@ public class MemberPopup extends javax.swing.JPanel {
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Nama");
 
-        txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        txtUsername.addActionListener(new java.awt.event.ActionListener() {
+        txtNama.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtNama.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtUsernameActionPerformed(evt);
+                txtNamaActionPerformed(evt);
             }
         });
 
@@ -74,7 +174,7 @@ public class MemberPopup extends javax.swing.JPanel {
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("No. Telp");
 
-        txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtTelp.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         button1.setBackground(new java.awt.Color(97, 131, 175));
         button1.setForeground(new java.awt.Color(255, 255, 255));
@@ -106,20 +206,17 @@ public class MemberPopup extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(0, 0, 0)
-                        .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel2)))
+                    .addComponent(txtRFID, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel2)
                     .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelRound1Layout.createSequentialGroup()
                             .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(txtPassword, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtTelp, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(30, 30, 30))
         );
         panelRound1Layout.setVerticalGroup(
@@ -130,15 +227,15 @@ public class MemberPopup extends javax.swing.JPanel {
                 .addGap(27, 27, 27)
                 .addComponent(jLabel2)
                 .addGap(0, 0, 0)
-                .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtRFID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jLabel3)
                 .addGap(0, 0, 0)
-                .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jLabel4)
                 .addGap(0, 0, 0)
-                .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtTelp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -154,12 +251,12 @@ public class MemberPopup extends javax.swing.JPanel {
     }//GEN-LAST:event_button1ActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-//        saveData();
+        saveData();
     }//GEN-LAST:event_btnSubmitActionPerformed
 
-    private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
+    private void txtNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNamaActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsernameActionPerformed
+    }//GEN-LAST:event_txtNamaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -171,7 +268,7 @@ public class MemberPopup extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private com.raven.swing.PanelRound panelRound1;
     private com.raven.util.TextField txtNama;
-    private com.raven.util.TextField txtPassword;
-    private com.raven.util.TextField txtUsername;
+    private com.raven.util.TextField txtRFID;
+    private com.raven.util.TextField txtTelp;
     // End of variables declaration//GEN-END:variables
 }

@@ -4,18 +4,62 @@
  */
 package com.raven.form;
 
+import config.DatabaseConfig;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Fazaa
  */
 public class Form_Absensi extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Form_Absensi
-     */
+    Connection con = null;
+    DefaultTableModel tableModel;
+
     public Form_Absensi() {
         initComponents();
         setOpaque(false);
+        getCon();
+        setModel();
+    }
+
+    private void setModel() {
+        String[] judul = {"Nama", "Tanggal", "Masuk", "Keluar", "Keterangan"};
+        tableModel = new DefaultTableModel(judul, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tblAbsen.setModel(tableModel);
+        loadData();
+    }
+
+    private void loadData() {
+        if (con != null) {
+            try {
+                String q = "SELECT u.nama, a.tanggal, a.waktu_masuk, a.waktu_keluar, a.keterangan FROM Absensi a JOIN user u ON a.id_user = u.id_user";
+                PreparedStatement ps = con.prepareStatement(q);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
+                    tableModel.addRow(data);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
