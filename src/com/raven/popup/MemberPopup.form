@@ -54,7 +54,7 @@
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="btnSubmit" min="-2" pref="80" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="txtTelp" alignment="0" min="-2" pref="298" max="-2" attributes="0"/>
+                          <Component id="txtTelpon" alignment="0" min="-2" pref="298" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
@@ -77,7 +77,7 @@
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-                  <Component id="txtTelp" min="-2" max="-2" attributes="0"/>
+                  <Component id="txtTelpon" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="button1" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -159,7 +159,7 @@
             <Property name="text" type="java.lang.String" value="No. Telp"/>
           </Properties>
         </Component>
-        <Component class="com.raven.util.TextField" name="txtTelp">
+        <Component class="com.raven.util.TextField" name="txtTelpon">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="14" style="0"/>

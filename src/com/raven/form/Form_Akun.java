@@ -6,6 +6,7 @@ package com.raven.form;
 
 import com.raven.popup.AkunPopup;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import config.DatabaseConfig;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
@@ -26,6 +27,7 @@ public class Form_Akun extends javax.swing.JPanel {
     DefaultTableModel tableModel;
     private DataChangeListener dataChangeListener;
     AkunPopup popup = new AkunPopup();
+    MemberPopup popupMember = new MemberPopup();
     HapusDataPopup hapusPopup = new HapusDataPopup();
     int indexTable = 0; // 0 = Akun, 1 = Member
 
@@ -43,7 +45,7 @@ public class Form_Akun extends javax.swing.JPanel {
     }
 
     private void setModel() {
-        String[][] judul = {{"UID", "Nama", "Username", "Password", "Role"}, {"Kode Member", "Nama", "No Telp", "Point", "tanggal Bergabung"}};
+        String[][] judul = {{"UID", "Nama", "Username", "Password", "Role"}, {"Kode Member","UID", "Nama", "No Telp", "Point", "tanggal Bergabung"}};
         tableModel = new DefaultTableModel(judul[indexTable], 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -72,7 +74,10 @@ public class Form_Akun extends javax.swing.JPanel {
                         String[] data = {rs.getString("uid"), rs.getString(3), rs.getString(4), rs.getString(5), role};
                         tableModel.addRow(data);
                     } else {
-                        String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
+                        String rawDate = rs.getString(6);
+                        String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rawDate));
+
+                        String[] data = {rs.getString("kode_member"), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), formattedDate};
                         tableModel.addRow(data);
                     }
                 }
@@ -311,7 +316,13 @@ public class Form_Akun extends javax.swing.JPanel {
                 popup.setEditMode(uid, nama, username, password, role);
                 GlassPanePopup.showPopup(popup);
             } else {
-                System.out.println("#edit Member");
+                String kode_member = tblAkun.getValueAt(selectedRow, 0).toString();
+                String uid = tblAkun.getValueAt(selectedRow, 1).toString();
+                String nama = tblAkun.getValueAt(selectedRow, 2).toString();
+                String noTelp = tblAkun.getValueAt(selectedRow, 3).toString();
+
+                popupMember.setEditMode(kode_member, uid, nama, noTelp);
+                GlassPanePopup.showPopup(popupMember);
             }
         } else {
             JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
@@ -327,7 +338,10 @@ public class Form_Akun extends javax.swing.JPanel {
                 hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
                 GlassPanePopup.showPopup(hapusPopup);
             } else {
-                System.out.println("#delete Member");
+                String kodeMember = tblAkun.getValueAt(selectedRow, 0).toString();
+                hapusPopup.setData("member", "kode_member", kodeMember);
+                hapusPopup.setDataChangeListener(() -> loadData());
+                GlassPanePopup.showPopup(hapusPopup);
             }
         } else {
             JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin dihapus!");
@@ -338,7 +352,7 @@ public class Form_Akun extends javax.swing.JPanel {
         // TODO add your handling code here:
         if (indexTable == 0) {
             GlassPanePopup.showPopup(new AkunPopup());
-        }else{
+        } else {
             GlassPanePopup.showPopup(new MemberPopup());
         }
     }//GEN-LAST:event_btnAddActionPerformed

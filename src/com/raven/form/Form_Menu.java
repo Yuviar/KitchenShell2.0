@@ -145,6 +145,11 @@ public class Form_Menu extends javax.swing.JPanel {
         hapusBtn.setText("DELETE");
         hapusBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         hapusBtn.setShadowColor(new java.awt.Color(102, 102, 102));
+        hapusBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hapusBtnActionPerformed(evt);
+            }
+        });
 
         btnAdd.setBackground(new java.awt.Color(97, 131, 175));
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
@@ -270,6 +275,10 @@ public class Form_Menu extends javax.swing.JPanel {
             GlassPanePopup.showPopup(new BahanBakuPopup());
         }
     }//GEN-LAST:event_btnAddActionPerformed
+
+    private void hapusBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_hapusBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

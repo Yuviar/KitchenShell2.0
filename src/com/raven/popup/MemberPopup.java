@@ -8,8 +8,6 @@ import com.raven.event.DataChangeListener;
 import config.DatabaseConfig;
 import java.sql.*;
 import javax.swing.JOptionPane;
-//import javax.swing.JOptionPane;
-//import raven.glasspanepopup.GlassPanePopup;
 
 import raven.glasspanepopup.GlassPanePopup;
 
@@ -43,30 +41,33 @@ public class MemberPopup extends javax.swing.JPanel {
     
         private void saveData() {
         try {
+            String uid = txtRFID.getText().trim();
             String nama = txtNama.getText().trim();
-            String telp = txtTelp.getText().trim();
+            String telp = txtTelpon.getText().trim();
 
             if (!nama.isEmpty() && !telp.isEmpty()) {
                 if (isEditMode) {
                     // UPDATE (kode_member tidak berubah)
-                    String query = "UPDATE member SET nama_member = ?, no_telp_member = ? WHERE kode_member = ?";
+                    String query = "UPDATE member SET uid = ?, nama_member = ?, no_telp_member = ? WHERE kode_member = ?";
                     PreparedStatement ps = con.prepareStatement(query);
-                    ps.setString(1, nama);
-                    ps.setString(2, telp);
-                    ps.setString(3, editKodeMember);
+                    ps.setString(1, uid);
+                    ps.setString(2, nama);
+                    ps.setString(3, telp);
+                    ps.setString(4, editKodeMember);
                     ps.executeUpdate();
 
                     JOptionPane.showMessageDialog(null, "Data berhasil diupdate!");
                 } else {
                     // INSERT
                     String kodeBaru = generateKodeMember();
-                    String query = "INSERT INTO member (kode_member, nama_member, no_telp_member, point, tgl_gabung) VALUES (?, ?, ?, ?, ?)";
+                    String query = "INSERT INTO member (kode_member, uid , nama_member, no_telp_member, point, tgl_gabung) VALUES (?, ?, ?, ?, ?, ?)";
                     PreparedStatement ps = con.prepareStatement(query);
                     ps.setString(1, kodeBaru);
-                    ps.setString(2, nama);
-                    ps.setString(3, telp);
-                    ps.setDouble(4, 0); // point awal
-                    ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+                    ps.setString(2, uid);
+                    ps.setString(3, nama);
+                    ps.setString(4, telp);
+                    ps.setDouble(5, 0); // point awal
+                    ps.setDate(6, new java.sql.Date(System.currentTimeMillis()));
                     ps.execute();
 
                     JOptionPane.showMessageDialog(null, "Data berhasil ditambahkan! Kode Member: ");
@@ -86,12 +87,13 @@ public class MemberPopup extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
         }
     }
-        public void setEditMode(String kode_member, String nama, String telp) {
+        public void setEditMode(String kode_member, String uid, String nama, String telp) {
         isEditMode = true;
         editKodeMember = kode_member;
 
+        txtRFID.setText(uid);
         txtNama.setText(nama);
-        txtTelp.setText(telp);
+        txtTelpon.setText(telp);
 
         jLabel1.setText("EDIT MEMBER");
         btnSubmit.setText("Update");
@@ -135,7 +137,7 @@ public class MemberPopup extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         txtNama = new com.raven.util.TextField();
         jLabel4 = new javax.swing.JLabel();
-        txtTelp = new com.raven.util.TextField();
+        txtTelpon = new com.raven.util.TextField();
         button1 = new com.raven.util.Button();
         btnSubmit = new com.raven.util.Button();
 
@@ -174,7 +176,7 @@ public class MemberPopup extends javax.swing.JPanel {
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("No. Telp");
 
-        txtTelp.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtTelpon.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         button1.setBackground(new java.awt.Color(97, 131, 175));
         button1.setForeground(new java.awt.Color(255, 255, 255));
@@ -216,7 +218,7 @@ public class MemberPopup extends javax.swing.JPanel {
                             .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(txtTelp, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtTelpon, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(30, 30, 30))
         );
         panelRound1Layout.setVerticalGroup(
@@ -235,7 +237,7 @@ public class MemberPopup extends javax.swing.JPanel {
                 .addGap(0, 0, 0)
                 .addComponent(jLabel4)
                 .addGap(0, 0, 0)
-                .addComponent(txtTelp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtTelpon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -269,6 +271,7 @@ public class MemberPopup extends javax.swing.JPanel {
     private com.raven.swing.PanelRound panelRound1;
     private com.raven.util.TextField txtNama;
     private com.raven.util.TextField txtRFID;
-    private com.raven.util.TextField txtTelp;
+    private com.raven.util.TextField txtTelpon;
     // End of variables declaration//GEN-END:variables
+
 }
