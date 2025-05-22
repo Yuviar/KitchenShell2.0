@@ -1,9 +1,11 @@
 package com.raven.form;
 
+import com.sun.java.accessibility.util.AWTEventMonitor;
 import config.DatabaseConfig;
 import java.awt.event.KeyAdapter;
 import java.sql.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -30,6 +32,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
             indikatorMember.setVisible(false);
             poin.setVisible(false);
         }
+        AWTEventMonitor.addWindowListener(new WindowAdapter() {
+            public void windowOpened(WindowAdapter e) {
+                inputKode.requestFocus();
+            }
+        });
     }
 
     private void getCon() {
@@ -62,7 +69,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
     private void loadData() {
         if (con != null) {
             try {
-                String q = "SELECT nama_menu, jumlah_porsi FROM v_porsi_menu";
+                String q = "SELECT nama_menu, jumlah FROM v_porsi_harian";
                 PreparedStatement ps = con.prepareStatement(q);
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
@@ -79,7 +86,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         String kodeMenu = inputKode.getText();
         if (con != null) {
             try {
-                String qCari = "SELECT * FROM v_porsi_menu WHERE kode_menu = ?";
+                String qCari = "SELECT * FROM v_porsi_harian WHERE kode_menu = ? LIMIT 1";
                 PreparedStatement ps = con.prepareStatement(qCari);
                 ps.setString(1, kodeMenu);
                 ResultSet rs = ps.executeQuery();
@@ -87,9 +94,9 @@ public class Form_Transaksi extends javax.swing.JPanel {
                     while (rs.next()) {
                         inputQty.setText("1");
                         String namaMenu = rs.getString(2);
-                        int stok = rs.getInt(3);
+                        int stok = rs.getInt(4);
                         int jumlah = Integer.parseInt(inputQty.getText());
-                        double harga = Double.parseDouble(rs.getString(4));
+                        double harga = Double.parseDouble(rs.getString(3));
                         double totalHarga = jumlah * harga;
                         inputMenu.setText(rs.getString("nama_menu"));
                         boolean cekKode = false;
@@ -100,26 +107,32 @@ public class Form_Transaksi extends javax.swing.JPanel {
                             for (int i = 0; i < row; i++) {
                                 //jika ada akan menambahkan jumlah menu tersebut
                                 int stokTabel = (int) tblPesanan.getValueAt(i, 2);
-                                if (tblPesanan.getValueAt(i, 0).equals(kodeMenu) && stokTabel < stok) {
-                                    int jumlahBaru = Integer.parseInt(tblPesanan.getValueAt(i, 2).toString());
-                                    tblPesanan.setValueAt(jumlahBaru + jumlah, i, 2);
-                                    double total = (jumlahBaru + jumlah) * harga;
-                                    tblPesanan.setValueAt(total, i, 4);
-                                    cekKode = true;
-                                    totalBayar += totalHarga;
-                                    break;
+                                if (tblPesanan.getValueAt(i, 0).equals(kodeMenu)) {
+                                    if (stokTabel < stok) {
+                                        int jumlahBaru = Integer.parseInt(tblPesanan.getValueAt(i, 2).toString());
+                                        tblPesanan.setValueAt(jumlahBaru + jumlah, i, 2);
+                                        double total = (jumlahBaru + jumlah) * harga;
+                                        tblPesanan.setValueAt(total, i, 4);
+                                        cekKode = true;
+                                        totalBayar += totalHarga;
+                                        break;
+                                    } else {
+                                        cekStok = true;
+                                    }
                                 } else {
-                                    cekStok = true;
-                                    JOptionPane.showMessageDialog(null, "Stok Tidak Mencukupi!");
                                 }
                             }
                             //jika tidak ada menu yang sama, maka akan menambahkan baris baru
                             if (!cekKode) {
-                                tableModel.addRow(new Object[]{kodeMenu, namaMenu, jumlah, harga, totalHarga});
-                                totalBayar += totalHarga;
+                                if (!cekStok) {
+                                    tableModel.addRow(new Object[]{kodeMenu, namaMenu, jumlah, harga, totalHarga});
+                                    totalBayar += totalHarga;
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Stok tidak mencukupi!");
+                                }
                             }
                             //set total
-
+                            txtTotal.setText(String.valueOf(totalBayar));
                         } else {
                             JOptionPane.showMessageDialog(null, "Stok Habis!");
                         }
@@ -143,7 +156,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         panelRound2 = new com.raven.swing.PanelRound();
         jLabel3 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        totalHarga = new javax.swing.JLabel();
+        txtTotal = new javax.swing.JLabel();
         inputKode = new com.raven.util.TextField();
         inputMenu = new com.raven.util.TextField();
         inputSub = new com.raven.util.TextField();
@@ -191,9 +204,10 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel10.setText("Rp. 0");
         panelRound2.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(593, 6, -1, 85));
 
-        totalHarga.setFont(new java.awt.Font("Bahnschrift", 1, 50)); // NOI18N
-        totalHarga.setText("0");
-        panelRound2.add(totalHarga, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, 400, -1));
+        txtTotal.setFont(new java.awt.Font("Bahnschrift", 1, 64)); // NOI18N
+        txtTotal.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        txtTotal.setText("0");
+        panelRound2.add(txtTotal, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 20, 400, -1));
 
         panelRound1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(278, 15, 490, 100));
 
@@ -208,7 +222,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
             }
         });
         panelRound1.add(inputKode, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 31, 244, -1));
+
+        inputMenu.setEnabled(false);
         panelRound1.add(inputMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 88, 198, -1));
+
+        inputSub.setEnabled(false);
         panelRound1.add(inputSub, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 200, -1));
         panelRound1.add(inputQty, new org.netbeans.lib.awtextra.AbsoluteConstraints(204, 88, 44, -1));
 
@@ -217,6 +235,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel14.setText("QTY");
         panelRound1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(215, 72, -1, -1));
         panelRound1.add(inputBayar, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 500, 200, -1));
+
+        inputKembalian.setFocusable(false);
         panelRound1.add(inputKembalian, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 500, 200, -1));
 
         labelSelesai.setBackground(new java.awt.Color(97, 131, 175));
@@ -328,6 +348,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         poin.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         poinField.setEditable(false);
+        poinField.setEnabled(false);
         poinField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 poinFieldActionPerformed(evt);
@@ -412,7 +433,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
                     member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point"));
-                    poinField.setText(hasil.getDouble("point")+"");
+                    poinField.setText(hasil.getDouble("point") + "");
                     isMember = true;
                     indikatorMember.setVisible(true);
                     poin.setVisible(true);
@@ -465,7 +486,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
             }
             // Kosongkan RFIDId setelah pemrosesan
             RFIDId = "";
-            //            userInput.setText("");
+            //userInput.setText("");
         }
     }//GEN-LAST:event_memberKeyTyped
 
@@ -523,6 +544,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
     private com.raven.util.TextField poinField;
     private com.raven.swing.TableColumn tblMenu;
     private com.raven.swing.TableColumn tblPesanan;
-    private javax.swing.JLabel totalHarga;
+    private javax.swing.JLabel txtTotal;
     // End of variables declaration//GEN-END:variables
 }

@@ -8,6 +8,7 @@ import com.raven.form.Form_Akun;
 import com.raven.form.Form_Dashboard;
 import com.raven.form.Form_Laporan;
 import com.raven.form.Form_Menu;
+import com.raven.form.Form_StokOpname;
 import com.raven.form.Form_Transaksi;
 import com.raven.form.test;
 import com.raven.model.ModelMenu;
@@ -62,12 +63,20 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 switch (index) {
-                    case 0 -> showForm(new Form_Dashboard());
-                    case 1 -> showForm(new Form_Transaksi());
-                    case 2 -> showForm(new Form_Menu());
-                    case 3 -> showForm(new Form_Akun());
-                    case 4 -> showForm(new Form_Laporan());
-                    case 5 -> showForm(new Form_Absensi());
+                    case 0 ->
+                        showForm(new Form_Dashboard());
+                    case 1 ->
+                        showForm(new Form_Transaksi());
+                    case 2 ->
+                        showForm(new Form_Menu());
+                    case 3 ->
+                        showForm(new Form_Akun());
+                    case 4 ->
+                        showForm(new Form_Laporan());
+                    case 5 ->
+                        showForm(new Form_Absensi());
+                    case 6 ->
+                        showForm(new Form_StokOpname());
                     default -> {
                     }
                 }
@@ -79,6 +88,7 @@ public class Main extends javax.swing.JFrame {
         menu.addMenu(new ModelMenu("Akun", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
         menu.addMenu(new ModelMenu("Laporan", new ImageIcon(getClass().getResource("/com/raven/icon/problem.png"))));
         menu.addMenu(new ModelMenu("Absensi", new ImageIcon(getClass().getResource("/com/raven/icon/calendar.png"))));
+        menu.addMenu(new ModelMenu("Stok Opname", new ImageIcon(getClass().getResource("/com/raven/icon/inventory.png"))));
         body.add(menu, "w 50!");
         body.add(main, "w 100%");
         TimingTarget target = new TimingTargetAdapter() {

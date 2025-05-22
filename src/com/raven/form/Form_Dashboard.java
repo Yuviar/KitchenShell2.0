@@ -63,7 +63,6 @@ public class Form_Dashboard extends javax.swing.JPanel {
                     jmlMenu.setText(hasil.getInt(1) + "");
                 } else {
                     jmlMenu.setText("0");
-
                 }
             }
 

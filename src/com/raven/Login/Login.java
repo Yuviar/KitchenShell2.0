@@ -51,7 +51,6 @@ public class Login extends javax.swing.JFrame {
 
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
-                    JOptionPane.showMessageDialog(this, "Login berhasil!");
                     Session.setUsername(hasil.getString("username"));
                     Session.setId(hasil.getString("id_user"));
                     if (hasil.getInt("level") == 1) {
