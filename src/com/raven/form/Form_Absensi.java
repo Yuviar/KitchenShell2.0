@@ -4,18 +4,62 @@
  */
 package com.raven.form;
 
+import config.DatabaseConfig;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Fazaa
  */
 public class Form_Absensi extends javax.swing.JPanel {
 
-    /**
-     * Creates new form Form_Absensi
-     */
+    Connection con = null;
+    DefaultTableModel tableModel;
+
     public Form_Absensi() {
         initComponents();
         setOpaque(false);
+        getCon();
+        setModel();
+    }
+
+    private void setModel() {
+        String[] judul = {"Nama", "Tanggal", "Masuk", "Keluar", "Keterangan"};
+        tableModel = new DefaultTableModel(judul, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tblAbsen.setModel(tableModel);
+        loadData();
+    }
+
+    private void loadData() {
+        if (con != null) {
+            try {
+                String q = "SELECT u.nama, a.tanggal, a.waktu_masuk, a.waktu_keluar, a.keterangan FROM Absensi a JOIN user u ON a.id_user = u.id_user";
+                PreparedStatement ps = con.prepareStatement(q);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
+                    tableModel.addRow(data);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -31,7 +75,7 @@ public class Form_Absensi extends javax.swing.JPanel {
         panelRound1 = new com.raven.swing.PanelRound();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblAbsen = new com.raven.swing.TableColumn();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
 
         judul.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         judul.setForeground(new java.awt.Color(33, 53, 85));
@@ -70,8 +114,6 @@ public class Form_Absensi extends javax.swing.JPanel {
         tblAbsen.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tblAbsen);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
         panelRound1.setLayout(panelRound1Layout);
         panelRound1Layout.setHorizontalGroup(
@@ -80,7 +122,7 @@ public class Form_Absensi extends javax.swing.JPanel {
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelRound1Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelRound1Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 794, Short.MAX_VALUE)))
@@ -89,11 +131,11 @@ public class Form_Absensi extends javax.swing.JPanel {
         panelRound1Layout.setVerticalGroup(
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(15, 15, 15)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -120,7 +162,7 @@ public class Form_Absensi extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> jComboBox1;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel judul;
     private com.raven.swing.PanelRound panelRound1;

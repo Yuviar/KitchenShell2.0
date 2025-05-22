@@ -12,6 +12,7 @@ import com.raven.form.Form_StokOpname;
 import com.raven.form.Form_Transaksi;
 import com.raven.form.test;
 import com.raven.model.ModelMenu;
+import config.Session;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -59,36 +60,62 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
-        menu.setEvent(new EventMenuSelected() {
-            @Override
-            public void selected(int index) {
-                switch (index) {
-                    case 0 ->
-                        showForm(new Form_Dashboard());
-                    case 1 ->
-                        showForm(new Form_Transaksi());
-                    case 2 ->
-                        showForm(new Form_Menu());
-                    case 3 ->
-                        showForm(new Form_Akun());
-                    case 4 ->
-                        showForm(new Form_Laporan());
-                    case 5 ->
-                        showForm(new Form_Absensi());
-                    case 6 ->
-                        showForm(new Form_StokOpname());
-                    default -> {
+        if (Session.getRole().equals("Admin")) {
+            menu.setEvent(new EventMenuSelected() {
+                @Override
+                public void selected(int index) {
+                    switch (index) {
+                        case 0 ->
+                            showForm(new Form_Dashboard());
+                        case 1 ->
+                            showForm(new Form_Transaksi());
+                        case 2 ->
+                            showForm(new Form_Menu());
+                        case 3 ->
+                            showForm(new Form_Akun());
+                        case 4 ->
+                            showForm(new Form_Laporan());
+                        case 5 ->
+                            showForm(new Form_Absensi());
+                        default -> {
+                        }
                     }
                 }
-            }
-        });
-        menu.addMenu(new ModelMenu("Dashboard", new ImageIcon(getClass().getResource("/com/raven/icon/dashboard.png"))));
-        menu.addMenu(new ModelMenu("Transaksi", new ImageIcon(getClass().getResource("/com/raven/icon/receipt.png"))));
-        menu.addMenu(new ModelMenu("Menu", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
-        menu.addMenu(new ModelMenu("Akun", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
-        menu.addMenu(new ModelMenu("Laporan", new ImageIcon(getClass().getResource("/com/raven/icon/problem.png"))));
-        menu.addMenu(new ModelMenu("Absensi", new ImageIcon(getClass().getResource("/com/raven/icon/calendar.png"))));
-        menu.addMenu(new ModelMenu("Stok Opname", new ImageIcon(getClass().getResource("/com/raven/icon/inventory.png"))));
+            });
+            menu.addMenu(new ModelMenu("Dashboard", new ImageIcon(getClass().getResource("/com/raven/icon/dashboard.png"))));
+            menu.addMenu(new ModelMenu("Transaksi", new ImageIcon(getClass().getResource("/com/raven/icon/receipt.png"))));
+            menu.addMenu(new ModelMenu("Menu", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
+            menu.addMenu(new ModelMenu("Akun", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
+            menu.addMenu(new ModelMenu("Laporan", new ImageIcon(getClass().getResource("/com/raven/icon/problem.png"))));
+            menu.addMenu(new ModelMenu("Absensi", new ImageIcon(getClass().getResource("/com/raven/icon/calendar.png"))));
+            showForm(new Form_Dashboard());
+        } else if(Session.getRole().equals("Karyawan")){
+            menu.setEvent(new EventMenuSelected() {
+                @Override
+                public void selected(int index) {
+                    switch (index) {
+                        case 0 ->
+                            showForm(new Form_Transaksi());
+                        case 1 ->
+                            showForm(new Form_Menu());
+                        case 2 ->
+                            showForm(new Form_Akun());
+                        case 3 ->
+                            showForm(new Form_Absensi());
+                        default -> {
+                        }
+                    }
+                }
+            });
+            menu.addMenu(new ModelMenu("Transaksi", new ImageIcon(getClass().getResource("/com/raven/icon/dashboard.png"))));
+            menu.addMenu(new ModelMenu("Menu", new ImageIcon(getClass().getResource("/com/raven/icon/receipt.png"))));
+            menu.addMenu(new ModelMenu("Member", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
+            menu.addMenu(new ModelMenu("Presensi", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
+            showForm(new Form_Transaksi());
+        }else{
+            new Login().setVisible(true);
+            this.dispose();
+        }
         body.add(menu, "w 50!");
         body.add(main, "w 100%");
         TimingTarget target = new TimingTargetAdapter() {
@@ -115,7 +142,6 @@ public class Main extends javax.swing.JFrame {
         animator.setResolution(0);
         animator.setAcceleration(0.5f);
         animator.setDeceleration(0.5f);
-        showForm(new Form_Dashboard());
     }
 
     private void showForm(Component com) {

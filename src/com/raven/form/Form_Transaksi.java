@@ -1,14 +1,10 @@
 package com.raven.form;
 
-import com.sun.java.accessibility.util.AWTEventMonitor;
+import com.raven.swing.ModernScrollBarUI;
 import config.DatabaseConfig;
-import java.awt.event.KeyAdapter;
 import java.sql.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 public class Form_Transaksi extends javax.swing.JPanel {
@@ -32,11 +28,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
             indikatorMember.setVisible(false);
             poin.setVisible(false);
         }
-        AWTEventMonitor.addWindowListener(new WindowAdapter() {
-            public void windowOpened(WindowAdapter e) {
-                inputKode.requestFocus();
-            }
-        });
+        
+        jScrollPane3.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
 
     private void getCon() {
@@ -432,8 +425,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
-                    member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point"));
-                    poinField.setText(hasil.getDouble("point") + "");
+                    member.setText(hasil.getString("nama_member"));
+                    poinField.setText(hasil.getDouble("point")+"");
                     isMember = true;
                     indikatorMember.setVisible(true);
                     poin.setVisible(true);
