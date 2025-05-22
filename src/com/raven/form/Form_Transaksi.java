@@ -1,12 +1,10 @@
 package com.raven.form;
 
+import com.raven.swing.ModernScrollBarUI;
 import config.DatabaseConfig;
-import java.awt.event.KeyAdapter;
 import java.sql.*;
-import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 public class Form_Transaksi extends javax.swing.JPanel {
@@ -30,6 +28,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
             indikatorMember.setVisible(false);
             poin.setVisible(false);
         }
+        
+        jScrollPane3.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
 
     private void getCon() {
@@ -411,7 +411,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
-                    member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point"));
+                    member.setText(hasil.getString("nama_member"));
                     poinField.setText(hasil.getDouble("point")+"");
                     isMember = true;
                     indikatorMember.setVisible(true);

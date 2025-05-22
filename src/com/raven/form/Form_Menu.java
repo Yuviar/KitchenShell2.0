@@ -9,11 +9,11 @@ import com.raven.popup.BahanBakuPopup;
 import java.sql.*;
 import config.DatabaseConfig;
 import java.sql.Connection;
-import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;
 import com.raven.popup.HapusDataPopup;
+import com.raven.swing.ModernScrollBarUI;
 import java.awt.Color;
 
 /**
@@ -21,7 +21,7 @@ import java.awt.Color;
  * @author Fazaa
  */
 public class Form_Menu extends javax.swing.JPanel {
-
+    
     Connection con = null;
     DefaultTableModel tableModel;
     private DataChangeListener dataChangeListener;
@@ -29,20 +29,21 @@ public class Form_Menu extends javax.swing.JPanel {
     HapusDataPopup hapusPopup = new HapusDataPopup();
     int indexTable = 0; // 0 = Menu, 1 = Bahan Baku
     
-
     public Form_Menu() {
         getCon();
         initComponents();
         setModel();
-                popup.setMenuListener(new DataChangeListener() {
+        popup.setMenuListener(new DataChangeListener() {
             @Override
             public void onDataChanged() {
                 loadData();
             }
         });
         setOpaque(false);
+        
+        jScrollPane2.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
-
+    
     private void getCon() {
         try {
             con = DatabaseConfig.getConnection();
@@ -50,7 +51,7 @@ public class Form_Menu extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-
+    
     private void setModel() {
         String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"Kode Bahan", "Nama", "Stok"}};
         tableModel = new DefaultTableModel(judul[indexTable], 0) {
@@ -62,7 +63,7 @@ public class Form_Menu extends javax.swing.JPanel {
         tbl_menu.setModel(tableModel);
         loadData();
     }
-
+    
     private void loadData() {
         if (con != null) {
             try {
@@ -75,7 +76,7 @@ public class Form_Menu extends javax.swing.JPanel {
                         String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)};
                         tableModel.addRow(data);
                     } else {
-                        String stok = rs.getDouble(3) >= 1000 ? (rs.getDouble(3)/1000)+(rs.getString(4).equals("g") ? "Kg" : "L") :rs.getDouble(3)+rs.getString(4);
+                        String stok = rs.getDouble(3) >= 1000 ? (rs.getDouble(3) / 1000) + (rs.getString(4).equals("g") ? "Kg" : "L") : rs.getDouble(3) + rs.getString(4);
                         String[] data = {rs.getString(1), rs.getString(2), stok};
                         tableModel.addRow(data);
                     }
@@ -111,6 +112,7 @@ public class Form_Menu extends javax.swing.JPanel {
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
         panelRound1.setPreferredSize(new java.awt.Dimension(865, 583));
+        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         button1.setText("DAFTAR MENU");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -119,6 +121,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 button1ActionPerformed(evt);
             }
         });
+        panelRound1.add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 160, -1));
 
         button2.setBackground(new java.awt.Color(144, 154, 170));
         button2.setText("BAHAN BAKU");
@@ -128,6 +131,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 button2ActionPerformed(evt);
             }
         });
+        panelRound1.add(button2, new org.netbeans.lib.awtextra.AbsoluteConstraints(195, 20, 160, -1));
 
         editBtn.setBackground(new java.awt.Color(255, 157, 35));
         editBtn.setForeground(new java.awt.Color(255, 255, 255));
@@ -139,6 +143,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 editBtnActionPerformed(evt);
             }
         });
+        panelRound1.add(editBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 75, 80, 45));
 
         hapusBtn.setBackground(new java.awt.Color(208, 90, 90));
         hapusBtn.setForeground(new java.awt.Color(255, 255, 255));
@@ -150,6 +155,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 hapusBtnActionPerformed(evt);
             }
         });
+        panelRound1.add(hapusBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 75, 80, 45));
 
         btnAdd.setBackground(new java.awt.Color(97, 131, 175));
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
@@ -161,6 +167,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 btnAddActionPerformed(evt);
             }
         });
+        panelRound1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 75, 80, 45));
 
         jScrollPane2.setBorder(null);
 
@@ -183,43 +190,7 @@ public class Form_Menu extends javax.swing.JPanel {
         tbl_menu.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tbl_menu);
 
-        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
-        panelRound1.setLayout(panelRound1Layout);
-        panelRound1Layout.setHorizontalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
-                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
-        );
-        panelRound1Layout.setVerticalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(10, 10, 10)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
-        );
+        panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 800, 350));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));
@@ -271,7 +242,7 @@ public class Form_Menu extends javax.swing.JPanel {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         if (indexTable == 0) {
             GlassPanePopup.showPopup(new MenuPopup());
-        }else{
+        } else {
             GlassPanePopup.showPopup(new BahanBakuPopup());
         }
     }//GEN-LAST:event_btnAddActionPerformed
