@@ -77,6 +77,8 @@ public class Main extends javax.swing.JFrame {
                             showForm(new Form_Laporan());
                         case 5 ->
                             showForm(new Form_Absensi());
+                        case 6 ->
+                            showForm(new Form_StokOpname());
                         default -> {
                         }
                     }
@@ -88,8 +90,9 @@ public class Main extends javax.swing.JFrame {
             menu.addMenu(new ModelMenu("Akun", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
             menu.addMenu(new ModelMenu("Laporan", new ImageIcon(getClass().getResource("/com/raven/icon/problem.png"))));
             menu.addMenu(new ModelMenu("Absensi", new ImageIcon(getClass().getResource("/com/raven/icon/calendar.png"))));
+            menu.addMenu(new ModelMenu("Stok Opname", new ImageIcon(getClass().getResource("/com/raven/icon/inventory.png"))));
             showForm(new Form_Dashboard());
-        } else if(Session.getRole().equals("Karyawan")){
+        } else if (Session.getRole().equals("Karyawan")) {
             menu.setEvent(new EventMenuSelected() {
                 @Override
                 public void selected(int index) {
@@ -112,7 +115,7 @@ public class Main extends javax.swing.JFrame {
             menu.addMenu(new ModelMenu("Member", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
             menu.addMenu(new ModelMenu("Presensi", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
             showForm(new Form_Transaksi());
-        }else{
+        } else {
             new Login().setVisible(true);
             this.dispose();
         }
