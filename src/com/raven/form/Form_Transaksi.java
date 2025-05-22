@@ -2,7 +2,11 @@ package com.raven.form;
 
 import com.raven.swing.ModernScrollBarUI;
 import config.DatabaseConfig;
+import config.Session;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
@@ -13,6 +17,9 @@ public class Form_Transaksi extends javax.swing.JPanel {
     DefaultTableModel tableModel;
     DefaultTableModel tableModelMenu;
     private static double totalBayar = 0;
+    private static int stokGlobal = 0;
+    private static double subTotal = 0;
+    private String kodeMember = "";
     private boolean isMember = false;
     private String RFIDId = "";
     private long lastTime = 0;
@@ -28,7 +35,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
             indikatorMember.setVisible(false);
             poin.setVisible(false);
         }
-        
+
         jScrollPane3.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
 
@@ -88,6 +95,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                         inputQty.setText("1");
                         String namaMenu = rs.getString(2);
                         int stok = rs.getInt(4);
+                        stokGlobal = rs.getInt(4);
                         int jumlah = Integer.parseInt(inputQty.getText());
                         double harga = Double.parseDouble(rs.getString(3));
                         double totalHarga = jumlah * harga;
@@ -108,11 +116,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
                                         tblPesanan.setValueAt(total, i, 4);
                                         cekKode = true;
                                         totalBayar += totalHarga;
+                                        subTotal += totalHarga;
                                         break;
                                     } else {
                                         cekStok = true;
                                     }
-                                } else {
                                 }
                             }
                             //jika tidak ada menu yang sama, maka akan menambahkan baris baru
@@ -120,12 +128,14 @@ public class Form_Transaksi extends javax.swing.JPanel {
                                 if (!cekStok) {
                                     tableModel.addRow(new Object[]{kodeMenu, namaMenu, jumlah, harga, totalHarga});
                                     totalBayar += totalHarga;
+                                    subTotal += totalHarga;
                                 } else {
                                     JOptionPane.showMessageDialog(null, "Stok tidak mencukupi!");
                                 }
                             }
                             //set total
                             txtTotal.setText(String.valueOf(totalBayar));
+                            inputSub.setText(String.valueOf(subTotal));
                         } else {
                             JOptionPane.showMessageDialog(null, "Stok Habis!");
                         }
@@ -136,6 +146,310 @@ public class Form_Transaksi extends javax.swing.JPanel {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void clearAll() {
+        totalBayar = 0;
+        inputBayar.setText("0");
+        inputKembalian.setText("");
+        inputKode.setText("");
+        inputQty.setText("");
+        inputSub.setText("");
+        txtTotal.setText("");
+        tableModel.setRowCount(0);
+        pakePoin.setSelected(false);
+        poinField.setText("");
+        indikatorMember.setVisible(false);
+        poin.setVisible(false);
+        member.setText("");
+        inputMenu.setText("");
+    }
+
+    public static String generateKodeTransaksi() {
+        Connection conn = DatabaseConfig.getConnection();
+        String kodeTransaksi = "";
+
+        if (conn != null) {
+            try {
+                Statement statement = conn.createStatement();
+                String query = "SELECT kode_transaksi FROM transaksi ORDER BY kode_transaksi DESC LIMIT 1";
+                ResultSet resultSet = statement.executeQuery(query);
+
+                if (resultSet.next()) {
+                    String lastKode = resultSet.getString("kode_transaksi");
+                    int getYear = Calendar.getInstance().get(Calendar.YEAR);
+                    int year = getYear % 100;
+                    int kodeNum = Integer.parseInt(lastKode.substring(5)) + 1;
+                    kodeTransaksi = String.format("TR" + year + "%04d", kodeNum);
+                }
+
+                resultSet.close();
+                statement.close();
+                conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return kodeTransaksi;
+    }
+
+    // LANGKAH 1: Ganti method prosesTransaksi() yang kosong dengan implementasi lengkap
+    private void prosesTransaksi() {
+        String kodeTransaksi, idAdmin, namaPelanggan;
+        double point, bayar, kembalian;
+        boolean isMemberTransaction = false;
+        boolean gunakanPoint = pakePoin.isSelected();
+        tableModelMenu.setRowCount(0);
+        // Validasi input
+        if (tableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Tidak ada item dalam pesanan!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (inputBayar.getText().isEmpty() || Double.parseDouble(inputBayar.getText()) < totalBayar) {
+            JOptionPane.showMessageDialog(this, "Nominal pembayaran tidak cukup!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Inisialisasi data transaksi
+        kodeTransaksi = generateKodeTransaksi();
+        idAdmin = Session.getId();
+        namaPelanggan = member.getText().trim();
+        bayar = Double.parseDouble(inputBayar.getText());
+        kembalian = bayar - totalBayar;
+
+        // Cek apakah menggunakan member
+        if (!namaPelanggan.isEmpty() && isMember) {
+            isMemberTransaction = true;
+        }
+
+        // Hitung point
+        point = totalBayar * 0.1; // 10% dari total transaksi
+
+        try {
+            con.setAutoCommit(false); // Mulai transaction
+
+            // 1. Cek ketersediaan stok semua menu
+            if (!cekKetersediaanStok()) {
+                con.rollback();
+                return;
+            }
+
+            // 2. Insert ke tabel transaksi
+            String queryTransaksi = "INSERT INTO transaksi (kode_transaksi, id_user, kode_member, tgl_transaksi, nama_pelanggan, total_transaksi, bayar) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
+            PreparedStatement psTransaksi = con.prepareStatement(queryTransaksi);
+            psTransaksi.setString(1, kodeTransaksi);
+            psTransaksi.setString(2, idAdmin);
+
+            if (isMemberTransaction) {
+                // Ambil kode member dari database berdasarkan nama atau nomor telepon
+                String kodeMemberDB = getKodeMemberFromDB(namaPelanggan);
+                psTransaksi.setString(3, kodeMemberDB);
+            } else {
+                psTransaksi.setNull(3, java.sql.Types.VARCHAR);
+            }
+
+            psTransaksi.setString(4, namaPelanggan);
+            psTransaksi.setDouble(5, totalBayar);
+            psTransaksi.setDouble(6, bayar);
+            psTransaksi.executeUpdate();
+
+            // 3. Insert ke tabel detail_transaksi dan update stok
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String kodeMenu = (String) tableModel.getValueAt(i, 0);
+                int jumlahPesan = (Integer) tableModel.getValueAt(i, 2);
+
+                // Insert detail transaksi
+                String queryDetail = "INSERT INTO detail_transaksi (kode_transaksi, kode_menu, jumlah) VALUES (?, ?, ?)";
+                PreparedStatement psDetail = con.prepareStatement(queryDetail);
+                psDetail.setString(1, kodeTransaksi);
+                psDetail.setString(2, kodeMenu);
+                psDetail.setInt(3, jumlahPesan);
+                psDetail.executeUpdate();
+
+                // Update porsi_harian
+                updatePorsiHarian(kodeMenu, jumlahPesan);
+
+                // Update bahan_baku berdasarkan detail_menu
+                updateBahanBaku(kodeMenu, jumlahPesan);
+            }
+
+            // 4. Update point member jika menggunakan member
+            if (isMemberTransaction) {
+                updatePointMember(namaPelanggan, point, gunakanPoint);
+            }
+
+            con.commit(); // Commit transaction
+
+            // Tampilkan pesan sukses dan reset form
+            JOptionPane.showMessageDialog(this,
+                    "Transaksi berhasil!\n"
+                    + "Kode Transaksi: " + kodeTransaksi + "\n"
+                    + "Total: Rp " + totalBayar + "\n"
+                    + "Bayar: Rp " + bayar + "\n"
+                    + "Kembalian: Rp " + kembalian
+                    + (isMemberTransaction && !gunakanPoint ? "\nPoint diperoleh: " + point : "")
+                    + (isMemberTransaction && gunakanPoint ? "\nPoint digunakan: " + (Double.parseDouble(poinField.getText()) - (Double.parseDouble(poinField.getText()) % 500)) : ""),
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+            clearAll();
+            loadData(); // Refresh data menu
+
+        } catch (SQLException e) {
+            try {
+                con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saat memproses transaksi: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+// LANGKAH 2: Tambahkan method-method pendukung setelah method prosesTransaksi()
+    private boolean cekKetersediaanStok() {
+        try {
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String kodeMenu = (String) tableModel.getValueAt(i, 0);
+                int jumlahPesan = (Integer) tableModel.getValueAt(i, 2);
+
+                // Cek stok di porsi_harian
+                String queryStok = "SELECT jumlah FROM porsi_harian WHERE kode_menu = ?";
+                PreparedStatement psStok = con.prepareStatement(queryStok);
+                psStok.setString(1, kodeMenu);
+                ResultSet rsStok = psStok.executeQuery();
+
+                if (rsStok.next()) {
+                    int stokTersedia = rsStok.getInt("jumlah");
+                    if (stokTersedia < jumlahPesan) {
+                        JOptionPane.showMessageDialog(this,
+                                "Stok tidak mencukupi untuk menu: " + tableModel.getValueAt(i, 1)
+                                + "\nStok tersedia: " + stokTersedia
+                                + "\nJumlah pesanan: " + jumlahPesan,
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Menu tidak ditemukan: " + kodeMenu, "Error", JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saat mengecek stok: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    private String getKodeMemberFromDB(String identifier) throws SQLException {
+        // Cek apakah identifier adalah nomor telepon atau nama
+        String query;
+        if (isNumeric(new JTextField(identifier))) {
+            query = "SELECT kode_member FROM member WHERE no_telp_member = ?";
+        } else {
+            query = "SELECT kode_member FROM member WHERE nama_member = ?";
+        }
+
+        PreparedStatement ps = con.prepareStatement(query);
+        ps.setString(1, identifier);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getString("kode_member");
+        }
+        throw new SQLException("Member tidak ditemukan: " + identifier);
+    }
+
+    private void updatePorsiHarian(String kodeMenu, int jumlahPesan) throws SQLException {
+        String queryUpdate = "UPDATE porsi_harian SET jumlah = jumlah - ? WHERE kode_menu = ?";
+        PreparedStatement psUpdate = con.prepareStatement(queryUpdate);
+        psUpdate.setInt(1, jumlahPesan);
+        psUpdate.setString(2, kodeMenu);
+        int rowsAffected = psUpdate.executeUpdate();
+
+        if (rowsAffected == 0) {
+            throw new SQLException("Gagal update porsi_harian untuk menu: " + kodeMenu);
+        }
+    }
+
+    private void updateBahanBaku(String kodeMenu, int jumlahPesan) throws SQLException {
+        // Ambil semua bahan baku yang dibutuhkan untuk menu ini
+        String queryBahan = "SELECT kode_bahanbaku, jumlah FROM detail_menu WHERE kode_menu = ?";
+        PreparedStatement psBahan = con.prepareStatement(queryBahan);
+        psBahan.setString(1, kodeMenu);
+        ResultSet rsBahan = psBahan.executeQuery();
+
+        while (rsBahan.next()) {
+            String kodeBahanBaku = rsBahan.getString("kode_bahanbaku");
+            int jumlahPerMenu = rsBahan.getInt("jumlah");
+            int totalBahanDibutuhkan = jumlahPerMenu * jumlahPesan;
+
+            // Update stok bahan baku
+            String queryUpdateBahan = "UPDATE bahanbaku SET stok_bahanbaku = stok_bahanbaku - ? WHERE kode_bahanbaku = ?";
+            PreparedStatement psUpdateBahan = con.prepareStatement(queryUpdateBahan);
+            psUpdateBahan.setInt(1, totalBahanDibutuhkan);
+            psUpdateBahan.setString(2, kodeBahanBaku);
+
+            int rowsAffected = psUpdateBahan.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Gagal update bahan baku: " + kodeBahanBaku);
+            }
+        }
+    }
+
+    private void updatePointMember(String namaPelanggan, double pointBaru, boolean gunakanPoint) throws SQLException {
+        String kodeMember = getKodeMemberFromDB(namaPelanggan);
+
+        if (gunakanPoint) {
+            // Kurangi point yang digunakan
+            double pointSekarang = Double.parseDouble(poinField.getText());
+            double pointDigunakan = Math.floor(pointSekarang / 500) * 500; // Kelipatan 500
+            double sisaPoint = pointSekarang - pointDigunakan;
+
+            String queryUpdatePoint = "UPDATE member SET point = ? WHERE kode_member = ?";
+            PreparedStatement psUpdatePoint = con.prepareStatement(queryUpdatePoint);
+            psUpdatePoint.setDouble(1, sisaPoint);
+            psUpdatePoint.setString(2, kodeMember);
+            psUpdatePoint.executeUpdate();
+        } else {
+            // Tambah point baru
+            String queryUpdatePoint = "UPDATE member SET point = point + ? WHERE kode_member = ?";
+            PreparedStatement psUpdatePoint = con.prepareStatement(queryUpdatePoint);
+            psUpdatePoint.setDouble(1, pointBaru);
+            psUpdatePoint.setString(2, kodeMember);
+            psUpdatePoint.executeUpdate();
+        }
+    }
+
+    private boolean validasiPembayaran() {
+        try {
+            if (inputBayar.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Masukkan jumlah pembayaran!", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            double bayar = Double.parseDouble(inputBayar.getText());
+            if (bayar < totalBayar) {
+                JOptionPane.showMessageDialog(this,
+                        "Jumlah pembayaran kurang!\n"
+                        + "Total: Rp " + totalBayar + "\n"
+                        + "Bayar: Rp " + bayar,
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+
+            return true;
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Format pembayaran tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 
@@ -157,7 +471,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel14 = new javax.swing.JLabel();
         inputBayar = new com.raven.util.TextField();
         inputKembalian = new com.raven.util.TextField();
-        labelSelesai = new com.raven.util.Button();
+        btnBatal = new com.raven.util.Button();
         jLabel5 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -172,6 +486,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         poinField = new com.raven.util.TextField();
         jLabel6 = new javax.swing.JLabel();
         pakePoin = new javax.swing.JCheckBox();
+        btnSelesai = new com.raven.util.Button();
         jLabel1 = new javax.swing.JLabel();
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
@@ -220,23 +535,45 @@ public class Form_Transaksi extends javax.swing.JPanel {
         panelRound1.add(inputMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 88, 198, -1));
 
         inputSub.setEnabled(false);
-        panelRound1.add(inputSub, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 200, -1));
+        panelRound1.add(inputSub, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 150, -1));
+
+        inputQty.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                inputQtyKeyPressed(evt);
+            }
+        });
         panelRound1.add(inputQty, new org.netbeans.lib.awtextra.AbsoluteConstraints(204, 88, 44, -1));
 
         jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("QTY");
         panelRound1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(215, 72, -1, -1));
-        panelRound1.add(inputBayar, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 500, 200, -1));
+
+        inputBayar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                inputBayarKeyPressed(evt);
+            }
+        });
+        panelRound1.add(inputBayar, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 500, 150, -1));
 
         inputKembalian.setFocusable(false);
-        panelRound1.add(inputKembalian, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 500, 200, -1));
+        inputKembalian.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inputKembalianActionPerformed(evt);
+            }
+        });
+        panelRound1.add(inputKembalian, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 500, 150, -1));
 
-        labelSelesai.setBackground(new java.awt.Color(97, 131, 175));
-        labelSelesai.setForeground(new java.awt.Color(255, 255, 255));
-        labelSelesai.setText("SELESAI");
-        labelSelesai.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        panelRound1.add(labelSelesai, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 500, 130, -1));
+        btnBatal.setBackground(new java.awt.Color(97, 131, 175));
+        btnBatal.setForeground(new java.awt.Color(255, 255, 255));
+        btnBatal.setText("BATAL");
+        btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnBatal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBatalActionPerformed(evt);
+            }
+        });
+        panelRound1.add(btnBatal, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 500, 130, -1));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
@@ -251,12 +588,12 @@ public class Form_Transaksi extends javax.swing.JPanel {
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("BAYAR");
-        panelRound1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 480, -1, -1));
+        panelRound1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 480, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("KEMBALIAN");
-        panelRound1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 480, -1, -1));
+        panelRound1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 480, -1, -1));
 
         jScrollPane3.setBorder(null);
 
@@ -364,9 +701,25 @@ public class Form_Transaksi extends javax.swing.JPanel {
         pakePoin.setForeground(new java.awt.Color(255, 255, 255));
         pakePoin.setText("Gunakan Poin");
         pakePoin.setBorder(null);
+        pakePoin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pakePoinActionPerformed(evt);
+            }
+        });
         poin.add(pakePoin, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 100, -1));
 
         panelRound1.add(poin, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 130, -1, -1));
+
+        btnSelesai.setBackground(new java.awt.Color(97, 131, 175));
+        btnSelesai.setForeground(new java.awt.Color(255, 255, 255));
+        btnSelesai.setText("SELESAI");
+        btnSelesai.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnSelesai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSelesaiActionPerformed(evt);
+            }
+        });
+        panelRound1.add(btnSelesai, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 500, 130, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));
@@ -426,7 +779,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
                     member.setText(hasil.getString("nama_member"));
-                    poinField.setText(hasil.getDouble("point")+"");
+                    poinField.setText(hasil.getDouble("point") + "");
                     isMember = true;
                     indikatorMember.setVisible(true);
                     poin.setVisible(true);
@@ -463,6 +816,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         if (c == '\n' || c == '\r') {
             RFIDId = RFIDId.replace("\n", "");
             RFIDId = RFIDId.replace("\r", "");
+            kodeMember = member.getText();
             if (RFIDId.length() >= 9) {
                 System.out.println("Scan RFID Terdeteksi: " + RFIDId);
                 cariMember(true);
@@ -495,6 +849,90 @@ public class Form_Transaksi extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_inputKodeActionPerformed
 
+    private void pakePoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pakePoinActionPerformed
+        double point;
+
+        point = Double.parseDouble(poinField.getText());
+        double diskon = (point / 500) * 500;
+        double sisaPoint = point - diskon;
+        if (pakePoin.isSelected()) {
+            totalBayar -= diskon;
+            txtTotal.setText(totalBayar + "");
+        } else {
+            totalBayar += diskon;
+            txtTotal.setText(totalBayar + "");
+        }
+    }//GEN-LAST:event_pakePoinActionPerformed
+
+    private void inputBayarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputBayarKeyPressed
+        if (evt.getKeyChar() == '\n') {
+            double bayar = Double.parseDouble(inputBayar.getText());
+            if (bayar >= totalBayar) {
+                double kembalian = bayar - totalBayar;
+                inputKembalian.setText("" + kembalian);
+            } else {
+                JOptionPane.showMessageDialog(this, "Nominal tidak cukup!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_inputBayarKeyPressed
+
+    private void inputKembalianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputKembalianActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inputKembalianActionPerformed
+
+    private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
+        clearAll();
+    }//GEN-LAST:event_btnBatalActionPerformed
+
+    private void inputQtyKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputQtyKeyPressed
+
+    }//GEN-LAST:event_inputQtyKeyPressed
+
+    private void btnSelesaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelesaiActionPerformed
+//        String kodeTransaksi, idAdmin, namaPelanggan;
+//        double point, bayar;
+//        String[] kodeMember;
+//        List<String> kodeMenuList = new ArrayList<>();
+//        List<Integer> jumlahList = new ArrayList<>();
+//
+//        kodeTransaksi = generateKodeTransaksi();
+//        idAdmin = Session.getId();
+//        point = totalBayar * 0.1;
+//        double updatePoint = pakePoin.isSelected() ? 0 : point;
+//        boolean gunakanPoint = pakePoin.isSelected();
+//        namaPelanggan = member.getText();
+//
+//        for (int i = 0; i < tableModel.getRowCount(); i++) {
+//            kodeMenuList.add((String) tableModel.getValueAt(i, 0));
+//            jumlahList.add((Integer) tableModel.getValueAt(i, 2));
+//        }
+//        String[] kodeMenu = kodeMenuList.toArray(new String[0]);
+//        int[] jumlah = jumlahList.stream().mapToInt(Integer::intValue).toArray();
+//
+//        try {
+//            if (tableModel.getRowCount() != 0) {
+//                //fungsi proses transaksi 
+//            }
+//        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//        }
+        if (!validasiPembayaran()) {
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Konfirmasi transaksi?\n"
+                + "Total: Rp " + totalBayar + "\n"
+                + "Bayar: Rp " + inputBayar.getText() + "\n"
+                + "Kembalian: Rp " + inputKembalian.getText(),
+                "Konfirmasi Transaksi",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            prosesTransaksi();
+        }
+    }//GEN-LAST:event_btnSelesaiActionPerformed
+
     public static boolean isNumeric(JTextField textField) {
         String text = textField.getText();
         if (text.isEmpty()) {
@@ -508,6 +946,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button btnBatal;
+    private com.raven.util.Button btnSelesai;
     private javax.swing.JLabel indikatorMember;
     private com.raven.util.TextField inputBayar;
     private com.raven.util.TextField inputKembalian;
@@ -528,7 +968,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private com.raven.util.Button labelSelesai;
     private com.raven.util.TextField member;
     private javax.swing.JCheckBox pakePoin;
     private com.raven.swing.PanelRound panelRound1;

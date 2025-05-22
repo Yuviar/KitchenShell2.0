@@ -103,6 +103,10 @@ public class TextField extends JTextField {
         }
     }
 
+    public void setText(double subTotal) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     private class TextUI extends BasicTextFieldUI {
 
         //  Override this method to remove background or not paint background
