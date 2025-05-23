@@ -23,8 +23,6 @@ public class test extends javax.swing.JPanel {
 
     public test() {
         initComponents();
-        if(!isMember)
-            jLabel1.setVisible(false);
         try {
             con = DatabaseConfig.getConnection();
         } catch (Exception e) {
@@ -55,7 +53,6 @@ public class test extends javax.swing.JPanel {
                 if (hasil.next()) {
                     member.setText(hasil.getString("nama_member") + " | " + hasil.getInt("point"));
                     isMember = true;
-                    jLabel1.setVisible(true);
                 } else {
                     if (isRFID) {
                         JOptionPane.showMessageDialog(this, "RFID Tidak terdaftar!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -81,14 +78,12 @@ public class test extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         member = new com.raven.util.TextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        button1 = new com.raven.util.Button();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/raven/icon/person.png"))); // NOI18N
-        jLabel1.setToolTipText("Member");
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(265, 127, -1, -1));
 
         member.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -100,7 +95,16 @@ public class test extends javax.swing.JPanel {
                 memberKeyTyped(evt);
             }
         });
-        add(member, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 120, 208, -1));
+        add(member, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 40, 208, -1));
+
+        jLabel2.setText("jLabel2");
+        add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, -1, -1));
+
+        jLabel3.setText("jLabel3");
+        add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, -1, -1));
+
+        button1.setText("button1");
+        add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 150, 210, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void memberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_memberActionPerformed
@@ -130,7 +134,6 @@ public class test extends javax.swing.JPanel {
                 if (isNumeric(member)) {
                     cariMember(false);
                 } else {
-                    jLabel1.setVisible(false);
                 }
             }
             // Kosongkan RFIDId setelah pemrosesan
@@ -153,7 +156,9 @@ public class test extends javax.swing.JPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private com.raven.util.Button button1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private com.raven.util.TextField member;
     // End of variables declaration//GEN-END:variables
 }

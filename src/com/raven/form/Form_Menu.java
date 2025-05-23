@@ -8,7 +8,6 @@ import com.raven.popup.MenuPopup;
 import com.raven.popup.BahanBakuPopup;
 import java.sql.*;
 import config.DatabaseConfig;
-import java.sql.Connection;
 import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;

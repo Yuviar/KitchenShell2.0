@@ -8,6 +8,7 @@ import com.raven.form.Form_Akun;
 import com.raven.form.Form_Dashboard;
 import com.raven.form.Form_Laporan;
 import com.raven.form.Form_Menu;
+import com.raven.form.Form_StokHarian;
 import com.raven.form.Form_StokOpname;
 import com.raven.form.Form_Transaksi;
 import com.raven.form.test;
@@ -17,8 +18,12 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
@@ -100,20 +105,20 @@ public class Main extends javax.swing.JFrame {
                         case 0 ->
                             showForm(new Form_Transaksi());
                         case 1 ->
-                            showForm(new Form_Menu());
+                            showForm(new Form_StokHarian());
                         case 2 ->
                             showForm(new Form_Akun());
                         case 3 ->
-                            showForm(new Form_Absensi());
+                            showForm(new test());
                         default -> {
                         }
                     }
                 }
             });
-            menu.addMenu(new ModelMenu("Transaksi", new ImageIcon(getClass().getResource("/com/raven/icon/dashboard.png"))));
-            menu.addMenu(new ModelMenu("Menu", new ImageIcon(getClass().getResource("/com/raven/icon/receipt.png"))));
-            menu.addMenu(new ModelMenu("Member", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
-            menu.addMenu(new ModelMenu("Presensi", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
+            menu.addMenu(new ModelMenu("Transaksi", new ImageIcon(getClass().getResource("/com/raven/icon/receipt.png"))));
+            menu.addMenu(new ModelMenu("Menu", new ImageIcon(getClass().getResource("/com/raven/icon/book.png"))));
+            menu.addMenu(new ModelMenu("Member", new ImageIcon(getClass().getResource("/com/raven/icon/person.png"))));
+            menu.addMenu(new ModelMenu("Presensi", new ImageIcon(getClass().getResource("/com/raven/icon/calendar.png"))));
             showForm(new Form_Transaksi());
         } else {
             new Login().setVisible(true);
