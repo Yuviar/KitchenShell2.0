@@ -4,26 +4,55 @@
  */
 package com.raven.popup;
 
-import config.DatabaseConfig;
-import java.sql.*;
-import javax.swing.JOptionPane;
-import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;
+import config.DatabaseConfig;
+import java.math.BigDecimal;
+import java.sql.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import raven.glasspanepopup.GlassPanePopup;
 
 /**
  *
  * @author rayag
  */
 public class MenuPopup extends javax.swing.JPanel {
-    
+
     private Connection con = null;
     private boolean isEditMode = false;
-    private String editUID = null;
+    private String editKodeMenu = null;
     private DataChangeListener dataChangeListener;
-    
+
+    ;
+
     public MenuPopup() {
-        getCon();
         initComponents();
+        getCon();
+        loadKategori();
+        loadBahanBaku();
+        prepareTambah(); // default
+        cmbKategori.setLightWeightPopupEnabled(false);
+        cmbBahan.setLightWeightPopupEnabled(false);
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[]{"Kode Bahan", "Nama Bahan", "Jumlah"}, 0
+        );
+        tblBahan.setModel(model);
+        btnBatalResep.setVisible(false);
+        tblBahan.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (tblBahan.getSelectedRow() != -1) {
+                    btnBatalResep.setVisible(true);
+                }
+            }
+        });
+
+        tblBahan.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                btnBatalResep.setVisible(tblBahan.getSelectedRow() != -1);
+            }
+        });
+
     }
 
     public void setMenuListener(DataChangeListener listener) {
@@ -37,6 +66,180 @@ public class MenuPopup extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
+
+    private void prepareTambah() {
+        isEditMode = false;
+        txtKodeMenu.setText(generateKodeMenu());
+        txtKodeMenu.setEnabled(false);
+    }
+
+    public void setEditMode(String kodeMenu) {
+        isEditMode = true;
+        editKodeMenu = kodeMenu;
+
+        try {
+            PreparedStatement pst = con.prepareStatement("SELECT * FROM menu WHERE kode_menu=?");
+            pst.setString(1, kodeMenu);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                txtKodeMenu.setText(rs.getString("kode_menu"));
+                txtNamaMenu.setText(rs.getString("nama_menu"));
+                txtHargaBikin.setText(rs.getString("harga"));
+                txtHargaBikin.setText(rs.getString("harga_bikin"));
+                cmbKategori.setSelectedItem(rs.getString("kode_kategori"));
+            }
+
+            // Load detail bahan
+            DefaultTableModel model = (DefaultTableModel) tblBahan.getModel();
+            model.setRowCount(0);
+            pst = con.prepareStatement("SELECT * FROM detail_menu WHERE kode_menu=?");
+            pst.setString(1, kodeMenu);
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getString("kode_bahanbaku"),
+                    getNamaBahanBaku(rs.getString("kode_bahanbaku")),
+                    rs.getInt("jumlah")
+                });
+            }
+
+            lblTitle.setText("EDIT MENU");
+            btnSubmit.setText("Update");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveData() {
+        try {
+            String kodeMenu = txtKodeMenu.getText().trim();
+            String namaMenu = txtNamaMenu.getText().trim();
+            String kodeKategori = cmbKategori.getSelectedItem().toString().split(" - ")[0];
+            BigDecimal harga = new BigDecimal(txtHargaBikin.getText().trim());
+            BigDecimal hargaBikin = new BigDecimal(txtHargaBikin.getText().trim());
+
+            if (namaMenu.isEmpty()) {
+                throw new Exception("Nama menu tidak boleh kosong!");
+            }
+
+            con.setAutoCommit(false);
+
+            if (isEditMode) {
+                PreparedStatement pst = con.prepareStatement(
+                        "UPDATE menu SET kode_kategori=?, nama_menu=?, harga=?, harga_bikin=? WHERE kode_menu=?");
+                pst.setString(1, kodeKategori);
+                pst.setString(2, namaMenu);
+                pst.setBigDecimal(3, harga);
+                pst.setBigDecimal(4, hargaBikin);
+                pst.setString(5, kodeMenu);
+                pst.executeUpdate();
+
+                pst = con.prepareStatement("DELETE FROM detail_menu WHERE kode_menu=?");
+                pst.setString(1, kodeMenu);
+                pst.executeUpdate();
+            } else {
+                PreparedStatement pst = con.prepareStatement(
+                        "INSERT INTO menu (kode_menu, kode_kategori, nama_menu, harga, harga_bikin) VALUES (?, ?, ?, ?, ?)");
+                pst.setString(1, kodeMenu);
+                pst.setString(2, kodeKategori);
+                pst.setString(3, namaMenu);
+                pst.setBigDecimal(4, harga);
+                pst.setBigDecimal(5, hargaBikin);
+                pst.execute();
+            }
+
+            // Insert bahan baku
+            for (int i = 0; i < tblBahan.getRowCount(); i++) {
+                String kodeBahan = tblBahan.getValueAt(i, 0).toString();
+                int jumlah = Integer.parseInt(tblBahan.getValueAt(i, 2).toString());
+
+                PreparedStatement pst = con.prepareStatement(
+                        "INSERT INTO detail_menu (kode_menu, kode_bahanbaku, jumlah) VALUES (?, ?, ?)");
+                pst.setString(1, kodeMenu);
+                pst.setString(2, kodeBahan);
+                pst.setInt(3, jumlah);
+                pst.execute();
+            }
+
+            con.commit();
+            JOptionPane.showMessageDialog(this, (isEditMode ? "Menu berhasil diperbarui!" : "Menu berhasil ditambahkan!"));
+            GlassPanePopup.closePopupLast();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage());
+            try {
+                con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private String generateKodeMenu() {
+        try {
+            String sql = "SELECT RIGHT(kode_menu, 3) AS nomor FROM menu ORDER BY kode_menu DESC LIMIT 1";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            int nextNumber = 1;
+            if (rs.next() && rs.getString("nomor") != null) {
+                nextNumber = Integer.parseInt(rs.getString("nomor")) + 1;
+            }
+
+            return String.format("MNU%03d", nextNumber);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "MNU001";
+        }
+    }
+
+    private String getNamaBahanBaku(String kode) throws SQLException {
+        PreparedStatement pst = con.prepareStatement("SELECT nama_bahanbaku FROM bahanbaku WHERE kode_bahanbaku=?");
+        pst.setString(1, kode);
+        ResultSet rs = pst.executeQuery();
+        if (rs.next()) {
+            return rs.getString(1);
+        }
+        return "";
+    }
+
+    private void loadBahanBaku() {
+        try {
+            PreparedStatement pst = con.prepareStatement("SELECT kode_bahanbaku, nama_bahanbaku FROM bahanbaku");
+            ResultSet rs = pst.executeQuery();
+            cmbBahan.removeAllItems();
+            cmbBahan.addItem("-- Pilih Bahan Baku --");
+            while (rs.next()) {
+                String kode = rs.getString("kode_bahanbaku");
+                String nama = rs.getString("nama_bahanbaku");
+                cmbBahan.addItem(kode + " - " + nama); // atau hanya nama jika lebih ringkas
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal memuat data bahan baku");
+        }
+    }
+
+    private void loadKategori() {
+        try {
+            cmbKategori.addItem("--Pilih Kategori--");
+            PreparedStatement pst = con.prepareStatement("SELECT kode_kategori, nama_kategori FROM kategori");
+            ResultSet rs = pst.executeQuery();
+            cmbKategori.removeAllItems();
+            cmbKategori.addItem("-- Pilih Kategori --");
+            while (rs.next()) {
+                String kode = rs.getString("kode_kategori");
+                String nama = rs.getString("nama_kategori");
+                cmbKategori.addItem(kode + " - " + nama);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal memuat data kategori");
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -47,63 +250,52 @@ public class MenuPopup extends javax.swing.JPanel {
     private void initComponents() {
 
         panelRound1 = new com.raven.swing.PanelRound();
-        jLabel1 = new javax.swing.JLabel();
-        txtNama = new com.raven.util.TextField();
+        lblTitle = new javax.swing.JLabel();
+        txtNamaMenu = new com.raven.util.TextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        radioMakanan = new javax.swing.JRadioButton();
-        radioMinuman = new javax.swing.JRadioButton();
         btnBatal = new com.raven.util.Button();
-        btnSelesai = new com.raven.util.Button();
-        txtKode = new com.raven.util.TextField();
-        boxBahanBaku = new javax.swing.JComboBox<>();
+        btnSubmit = new com.raven.util.Button();
+        txtKodeMenu = new com.raven.util.TextField();
+        cmbBahan = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         btnTambah = new com.raven.util.Button();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        txtHarga = new com.raven.util.TextField();
+        txtHargaBikin = new com.raven.util.TextField();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tableColumn1 = new com.raven.swing.TableColumn();
+        tblBahan = new com.raven.swing.TableColumn();
+        cmbKategori = new javax.swing.JComboBox<>();
+        btnBatalResep = new com.raven.util.Button();
 
         setOpaque(false);
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
+        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("TAMBAH MENU");
-        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
-        jLabel1.setFocusable(false);
-        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        lblTitle.setForeground(new java.awt.Color(255, 255, 255));
+        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle.setText("TAMBAH MENU");
+        lblTitle.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        lblTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
+        lblTitle.setFocusable(false);
+        lblTitle.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        panelRound1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 590, -1));
 
-        txtNama.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtNamaMenu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        panelRound1.add(txtNamaMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(315, 89, 255, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Kode Menu");
+        panelRound1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 69, -1, -1));
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Kategori");
-
-        radioMakanan.setForeground(new java.awt.Color(255, 255, 255));
-        radioMakanan.setText("Makanan");
-        radioMakanan.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioMakananActionPerformed(evt);
-            }
-        });
-
-        radioMinuman.setForeground(new java.awt.Color(255, 255, 255));
-        radioMinuman.setText("Minuman");
-        radioMinuman.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radioMinumanActionPerformed(evt);
-            }
-        });
+        panelRound1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 452, -1, -1));
 
         btnBatal.setBackground(new java.awt.Color(97, 131, 175));
         btnBatal.setForeground(new java.awt.Color(255, 255, 255));
@@ -114,28 +306,34 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnBatalActionPerformed(evt);
             }
         });
+        panelRound1.add(btnBatal, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 531, 80, -1));
 
-        btnSelesai.setBackground(new java.awt.Color(97, 131, 175));
-        btnSelesai.setForeground(new java.awt.Color(255, 255, 255));
-        btnSelesai.setText("Selesai");
-        btnSelesai.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnSelesai.addActionListener(new java.awt.event.ActionListener() {
+        btnSubmit.setBackground(new java.awt.Color(97, 131, 175));
+        btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
+        btnSubmit.setText("Selesai");
+        btnSubmit.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSelesaiActionPerformed(evt);
+                btnSubmitActionPerformed(evt);
             }
         });
+        panelRound1.add(btnSubmit, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 531, 80, -1));
 
-        txtKode.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtKodeMenu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        panelRound1.add(txtKodeMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 89, 255, -1));
 
-        boxBahanBaku.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Beras", "Daging Ayam" }));
+        cmbBahan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Beras", "Daging Ayam" }));
+        panelRound1.add(cmbBahan, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 156, 249, 39));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Nama Menu");
+        panelRound1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 69, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Bahan Baku");
+        panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 134, -1, -1));
 
         btnTambah.setBackground(new java.awt.Color(97, 131, 175));
         btnTambah.setForeground(new java.awt.Color(255, 255, 255));
@@ -146,18 +344,22 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnTambahActionPerformed(evt);
             }
         });
+        panelRound1.add(btnTambah, new org.netbeans.lib.awtextra.AbsoluteConstraints(486, 214, 80, -1));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Resep :");
+        panelRound1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 239, -1, -1));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Harga");
+        panelRound1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 134, -1, -1));
 
-        txtHarga.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        txtHargaBikin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        panelRound1.add(txtHargaBikin, new org.netbeans.lib.awtextra.AbsoluteConstraints(314, 154, 255, -1));
 
-        tableColumn1.setModel(new javax.swing.table.DefaultTableModel(
+        tblBahan.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -168,98 +370,23 @@ public class MenuPopup extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(tableColumn1);
+        jScrollPane2.setViewportView(tblBahan);
 
-        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
-        panelRound1.setLayout(panelRound1Layout);
-        panelRound1Layout.setHorizontalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(390, 390, 390)
-                        .addComponent(btnSelesai, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(panelRound1Layout.createSequentialGroup()
-                                .addComponent(txtKode, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(37, 37, 37)
-                                .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(panelRound1Layout.createSequentialGroup()
-                                .addGap(300, 300, 300)
-                                .addComponent(jLabel8))))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(panelRound1Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(417, 417, 417)
-                                .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(panelRound1Layout.createSequentialGroup()
-                                .addComponent(boxBahanBaku, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(40, 40, 40)
-                                .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel4)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addComponent(radioMakanan)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(radioMinuman)))
-                .addContainerGap(20, Short.MAX_VALUE))
-            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(189, 189, 189))
-        );
-        panelRound1Layout.setVerticalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(12, 12, 12)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtKode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, 0)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel4))
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(boxBahanBaku, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel7)))
-                .addGap(15, 15, 15)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel6)
-                .addGap(0, 0, 0)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(radioMakanan)
-                    .addComponent(radioMinuman))
-                .addGap(15, 15, 15)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSelesai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20))
-        );
+        panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 274, 537, 160));
+
+        cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Beras", "Daging Ayam" }));
+        panelRound1.add(cmbKategori, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 472, 249, 39));
+
+        btnBatalResep.setBackground(new java.awt.Color(97, 131, 175));
+        btnBatalResep.setForeground(new java.awt.Color(255, 255, 255));
+        btnBatalResep.setText("Batal");
+        btnBatalResep.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnBatalResep.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBatalResepActionPerformed(evt);
+            }
+        });
+        panelRound1.add(btnBatalResep, new org.netbeans.lib.awtextra.AbsoluteConstraints(394, 214, 80, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -278,33 +405,57 @@ public class MenuPopup extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void radioMakananActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioMakananActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radioMakananActionPerformed
-
-    private void radioMinumanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioMinumanActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_radioMinumanActionPerformed
-
     private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
         GlassPanePopup.closePopupAll();
     }//GEN-LAST:event_btnBatalActionPerformed
 
-    private void btnSelesaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelesaiActionPerformed
-        
-    }//GEN-LAST:event_btnSelesaiActionPerformed
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        saveData();
+    }//GEN-LAST:event_btnSubmitActionPerformed
 
     private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
-        // TODO add your handling code here:
+        String selected = cmbBahan.getSelectedItem().toString(); // contoh: "BB001 - Gula"
+        String kode = selected.split(" - ")[0];
+        String nama = selected.split(" - ")[1];
+
+        String jumlahStr = JOptionPane.showInputDialog(this, "Masukkan jumlah bahan:");
+        if (jumlahStr != null && !jumlahStr.isEmpty()) {
+            try {
+                int jumlah = Integer.parseInt(jumlahStr);
+                DefaultTableModel model = (DefaultTableModel) tblBahan.getModel();
+                model.addRow(new Object[]{kode, nama, jumlah});
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Jumlah harus berupa angka");
+            }
+        }
     }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void btnBatalResepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalResepActionPerformed
+        int selectedRow = tblBahan.getSelectedRow();
+        if (selectedRow != -1) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Yakin ingin membatalkan bahan ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                DefaultTableModel model = (DefaultTableModel) tblBahan.getModel();
+                model.removeRow(selectedRow);
+
+                // Jika tidak ada data lagi, sembunyikan tombol
+                if (tblBahan.getRowCount() == 0) {
+                    btnBatalResep.setVisible(false);
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Pilih baris bahan terlebih dahulu.");
+        }
+    }//GEN-LAST:event_btnBatalResepActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> boxBahanBaku;
     private com.raven.util.Button btnBatal;
-    private com.raven.util.Button btnSelesai;
+    private com.raven.util.Button btnBatalResep;
+    private com.raven.util.Button btnSubmit;
     private com.raven.util.Button btnTambah;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JComboBox<String> cmbBahan;
+    private javax.swing.JComboBox<String> cmbKategori;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -312,12 +463,11 @@ public class MenuPopup extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblTitle;
     private com.raven.swing.PanelRound panelRound1;
-    private javax.swing.JRadioButton radioMakanan;
-    private javax.swing.JRadioButton radioMinuman;
-    private com.raven.swing.TableColumn tableColumn1;
-    private com.raven.util.TextField txtHarga;
-    private com.raven.util.TextField txtKode;
-    private com.raven.util.TextField txtNama;
+    private com.raven.swing.TableColumn tblBahan;
+    private com.raven.util.TextField txtHargaBikin;
+    private com.raven.util.TextField txtKodeMenu;
+    private com.raven.util.TextField txtNamaMenu;
     // End of variables declaration//GEN-END:variables
 }
