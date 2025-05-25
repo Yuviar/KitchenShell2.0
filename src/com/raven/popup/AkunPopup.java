@@ -27,6 +27,8 @@ public class AkunPopup extends javax.swing.JPanel {
     public AkunPopup() {
         getCon();
         initComponents();
+//        radioAdmin.setOpaque(false);
+//        radioKaryawan.setOpaque(false);
     }
 
     public void setAkunListener(DataChangeListener listener) {
@@ -189,6 +191,7 @@ public class AkunPopup extends javax.swing.JPanel {
         buttonGroup2.add(radioAdmin);
         radioAdmin.setForeground(new java.awt.Color(255, 255, 255));
         radioAdmin.setText("Admin");
+        radioAdmin.setBorder(null);
         radioAdmin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 radioAdminActionPerformed(evt);
@@ -197,7 +200,9 @@ public class AkunPopup extends javax.swing.JPanel {
 
         buttonGroup2.add(radioKaryawan);
         radioKaryawan.setForeground(new java.awt.Color(255, 255, 255));
+        radioKaryawan.setSelected(true);
         radioKaryawan.setText("Karyawan");
+        radioKaryawan.setBorder(null);
         radioKaryawan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 radioKaryawanActionPerformed(evt);
@@ -237,22 +242,16 @@ public class AkunPopup extends javax.swing.JPanel {
                     .addComponent(txtUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(0, 0, 0)
-                        .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel2)))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel2)
                     .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelRound1Layout.createSequentialGroup()
-                            .addGap(0, 0, 0)
-                            .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel6)
-                                .addGroup(panelRound1Layout.createSequentialGroup()
-                                    .addComponent(radioAdmin)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(radioKaryawan))))
+                            .addComponent(radioAdmin)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(radioKaryawan))
                         .addComponent(txtRFID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(panelRound1Layout.createSequentialGroup()
                             .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)

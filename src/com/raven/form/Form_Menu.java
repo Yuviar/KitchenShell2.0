@@ -8,11 +8,12 @@ import com.raven.popup.MenuPopup;
 import com.raven.popup.BahanBakuPopup;
 import java.sql.*;
 import config.DatabaseConfig;
-import java.sql.Connection;
 import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;
 import com.raven.popup.HapusDataPopup;
+import com.raven.popup.KategoriPopup;
+import com.raven.popup.SatuanPopup;
 import com.raven.swing.ModernScrollBarUI;
 import java.awt.Color;
 
@@ -21,14 +22,14 @@ import java.awt.Color;
  * @author Fazaa
  */
 public class Form_Menu extends javax.swing.JPanel {
-    
+
     Connection con = null;
     DefaultTableModel tableModel;
     private DataChangeListener dataChangeListener;
     MenuPopup popup = new MenuPopup();
     HapusDataPopup hapusPopup = new HapusDataPopup();
     int indexTable = 0; // 0 = Menu, 1 = Bahan Baku
-    
+
     public Form_Menu() {
         getCon();
         initComponents();
@@ -40,10 +41,10 @@ public class Form_Menu extends javax.swing.JPanel {
             }
         });
         setOpaque(false);
-        
+
         jScrollPane2.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
-    
+
     private void getCon() {
         try {
             con = DatabaseConfig.getConnection();
@@ -51,9 +52,9 @@ public class Form_Menu extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-    
+
     private void setModel() {
-        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"Kode Bahan", "Nama", "Stok"}};
+        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"Kode Bahan", "Nama", "Stok"}, {"Nama Satuan"}, {"Kode Kategori", "Nama Kategori"}};
         tableModel = new DefaultTableModel(judul[indexTable], 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -63,24 +64,68 @@ public class Form_Menu extends javax.swing.JPanel {
         tbl_menu.setModel(tableModel);
         loadData();
     }
-    
+
     private void loadData() {
         if (con != null) {
             try {
-                String query = indexTable == 0 ? "SELECT * FROM menu" : "SELECT * FROM bahanbaku";
+                String query = "";
+
+                if (indexTable == 0) {
+                    query = "SELECT menu.kode_menu, kategori.nama_kategori AS kategori, menu.nama_menu, menu.harga FROM menu\n"
+                            + "JOIN kategori ON menu.kode_kategori = kategori.kode_kategori";
+                } else if (indexTable == 1) {
+                    query = "SELECT b.kode_bahanbaku, b.nama_bahanbaku, b.stok_bahanbaku, s.satuan "
+                            + "FROM bahanbaku b JOIN satuan s ON b.kode_satuan = s.kode_satuan";
+                } else if (indexTable == 2) {
+                    query = "SELECT satuan FROM satuan";
+                } else if (indexTable == 3) {
+                    query = "SELECT * FROM kategori";
+                }
+
                 PreparedStatement ps = con.prepareStatement(query);
                 ResultSet rs = ps.executeQuery();
                 tableModel.setRowCount(0);
+
                 while (rs.next()) {
+                    String[] data;
+
                     if (indexTable == 0) {
-                        String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)};
-                        tableModel.addRow(data);
+                        data = new String[]{
+                            rs.getString("kode_menu"),
+                            rs.getString("kategori"),
+                            rs.getString("nama_menu"),
+                            rs.getString("harga")
+                        };
+                    } else if (indexTable == 1) {
+                        double stok = rs.getDouble("stok_bahanbaku");
+                        String satuan = rs.getString("satuan");
+                        String stokFormatted;
+
+                        if ((satuan.equalsIgnoreCase("Gram") || satuan.equalsIgnoreCase("Milliliter")) && stok >= 1000) {
+                            stokFormatted = (stok / 1000) + (satuan.equalsIgnoreCase("Gram") ? " Kg" : " L");
+                        } else {
+                            stokFormatted = stok + " " + satuan;
+                        }
+
+                        data = new String[]{
+                            rs.getString("kode_bahanbaku"),
+                            rs.getString("nama_bahanbaku"),
+                            stokFormatted
+                        };
+                    } else if (indexTable == 2) {
+                        data = new String[]{rs.getString("satuan")};
+                    } else if (indexTable == 3) {
+                        data = new String[]{
+                            rs.getString("kode_kategori"),
+                            rs.getString("nama_kategori")
+                        };
                     } else {
-                        String stok = rs.getDouble(3) >= 1000 ? (rs.getDouble(3) / 1000) + (rs.getString(4).equals("g") ? "Kg" : "L") : rs.getDouble(3) + rs.getString(4);
-                        String[] data = {rs.getString(1), rs.getString(2), stok};
-                        tableModel.addRow(data);
+                        data = new String[]{};
                     }
+
+                    tableModel.addRow(data);
                 }
+
                 rs.close();
                 ps.close();
             } catch (Exception e) {
@@ -106,13 +151,14 @@ public class Form_Menu extends javax.swing.JPanel {
         btnAdd = new com.raven.util.Button();
         jScrollPane2 = new javax.swing.JScrollPane();
         tbl_menu = new com.raven.swing.TableColumn();
+        button3 = new com.raven.util.Button();
+        button4 = new com.raven.util.Button();
         jLabel1 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(865, 583));
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
         panelRound1.setPreferredSize(new java.awt.Dimension(865, 583));
-        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         button1.setText("DAFTAR MENU");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -121,7 +167,6 @@ public class Form_Menu extends javax.swing.JPanel {
                 button1ActionPerformed(evt);
             }
         });
-        panelRound1.add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 160, -1));
 
         button2.setBackground(new java.awt.Color(144, 154, 170));
         button2.setText("BAHAN BAKU");
@@ -131,7 +176,6 @@ public class Form_Menu extends javax.swing.JPanel {
                 button2ActionPerformed(evt);
             }
         });
-        panelRound1.add(button2, new org.netbeans.lib.awtextra.AbsoluteConstraints(195, 20, 160, -1));
 
         editBtn.setBackground(new java.awt.Color(255, 157, 35));
         editBtn.setForeground(new java.awt.Color(255, 255, 255));
@@ -143,7 +187,6 @@ public class Form_Menu extends javax.swing.JPanel {
                 editBtnActionPerformed(evt);
             }
         });
-        panelRound1.add(editBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 75, 80, 45));
 
         hapusBtn.setBackground(new java.awt.Color(208, 90, 90));
         hapusBtn.setForeground(new java.awt.Color(255, 255, 255));
@@ -155,7 +198,6 @@ public class Form_Menu extends javax.swing.JPanel {
                 hapusBtnActionPerformed(evt);
             }
         });
-        panelRound1.add(hapusBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 75, 80, 45));
 
         btnAdd.setBackground(new java.awt.Color(97, 131, 175));
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
@@ -167,7 +209,6 @@ public class Form_Menu extends javax.swing.JPanel {
                 btnAddActionPerformed(evt);
             }
         });
-        panelRound1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 75, 80, 45));
 
         jScrollPane2.setBorder(null);
 
@@ -190,7 +231,64 @@ public class Form_Menu extends javax.swing.JPanel {
         tbl_menu.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tbl_menu);
 
-        panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 800, 350));
+        button3.setBackground(new java.awt.Color(144, 154, 170));
+        button3.setText("SATUAN");
+        button3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button3ActionPerformed(evt);
+            }
+        });
+
+        button4.setBackground(new java.awt.Color(144, 154, 170));
+        button4.setText("KATEGORI");
+        button4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        button4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button4ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
+        panelRound1.setLayout(panelRound1Layout);
+        panelRound1Layout.setHorizontalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelRound1Layout.createSequentialGroup()
+                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(54, 54, 54)
+                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(54, 54, 54)
+                        .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(54, 54, 54)
+                        .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelRound1Layout.createSequentialGroup()
+                        .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(550, 550, 550)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+        panelRound1Layout.setVerticalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));
@@ -203,7 +301,7 @@ public class Form_Menu extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 839, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 840, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1)
@@ -224,6 +322,8 @@ public class Form_Menu extends javax.swing.JPanel {
         indexTable = 0;
         button1.setBackground(new Color(255, 255, 255));
         button2.setBackground(new Color(144, 154, 170));
+        button3.setBackground(new Color(144, 154, 170));
+        button4.setBackground(new Color(144, 154, 170));
         setModel();
     }//GEN-LAST:event_button1ActionPerformed
 
@@ -232,30 +332,72 @@ public class Form_Menu extends javax.swing.JPanel {
         indexTable = 1;
         button2.setBackground(new Color(255, 255, 255));
         button1.setBackground(new Color(144, 154, 170));
+        button3.setBackground(new Color(144, 154, 170));
+        button4.setBackground(new Color(144, 154, 170));
         setModel();
     }//GEN-LAST:event_button2ActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
-        // TODO add your handling code here:
+        if (indexTable == 0) {
+//            GlassPanePopup.showPopup(new MenuPopup());
+        } else if (indexTable == 1) {
+//            GlassPanePopup.showPopup(new BahanBakuPopup());
+        } else if (indexTable == 2) {
+//            GlassPanePopup.showPopup(new SatuanPopup());
+        } else if (indexTable == 3) {
+//            GlassPanePopup.showPopup(new KategoriPopup());
+        }
     }//GEN-LAST:event_editBtnActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         if (indexTable == 0) {
             GlassPanePopup.showPopup(new MenuPopup());
-        } else {
+        } else if (indexTable == 1) {
             GlassPanePopup.showPopup(new BahanBakuPopup());
+        } else if (indexTable == 2) {
+            GlassPanePopup.showPopup(new SatuanPopup());
+        } else if (indexTable == 3) {
+            GlassPanePopup.showPopup(new KategoriPopup());
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void hapusBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusBtnActionPerformed
-        // TODO add your handling code here:
+        if (indexTable == 0) {
+//            GlassPanePopup.showPopup(new MenuPopup());
+        } else if (indexTable == 1) {
+//            GlassPanePopup.showPopup(new BahanBakuPopup());
+        } else if (indexTable == 2) {
+//            GlassPanePopup.showPopup(new SatuanPopup());
+        } else if (indexTable == 3) {
+//            GlassPanePopup.showPopup(new KategoriPopup());
+        }
     }//GEN-LAST:event_hapusBtnActionPerformed
+
+    private void button3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button3ActionPerformed
+        indexTable = 2;
+        button3.setBackground(new Color(255, 255, 255));
+        button1.setBackground(new Color(144, 154, 170));
+        button2.setBackground(new Color(144, 154, 170));
+        button4.setBackground(new Color(144, 154, 170));
+        setModel();
+    }//GEN-LAST:event_button3ActionPerformed
+
+    private void button4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button4ActionPerformed
+        indexTable = 3;
+        button4.setBackground(new Color(255, 255, 255));
+        button1.setBackground(new Color(144, 154, 170));
+        button2.setBackground(new Color(144, 154, 170));
+        button3.setBackground(new Color(144, 154, 170));
+        setModel();
+    }//GEN-LAST:event_button4ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.util.Button btnAdd;
     private com.raven.util.Button button1;
     private com.raven.util.Button button2;
+    private com.raven.util.Button button3;
+    private com.raven.util.Button button4;
     private com.raven.util.Button editBtn;
     private com.raven.util.Button hapusBtn;
     private javax.swing.JLabel jLabel1;
