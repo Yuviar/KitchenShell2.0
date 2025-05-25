@@ -5,10 +5,22 @@
 package com.raven.popup;
 
 import com.raven.event.DataChangeListener;
+import com.raven.swing.ModernScrollBarUI;
 import config.DatabaseConfig;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.table.DefaultTableModel;
 import raven.glasspanepopup.GlassPanePopup;
 
@@ -22,14 +34,15 @@ public class MenuPopup extends javax.swing.JPanel {
     private boolean isEditMode = false;
     private String editKodeMenu = null;
     private DataChangeListener dataChangeListener;
-
-    ;
+    private List<String> itemBahan, itemKateg;
 
     public MenuPopup() {
         initComponents();
         getCon();
         loadKategori();
         loadBahanBaku();
+        styling(cmbBahan, itemBahan);
+        styling(cmbKategori, itemKateg);
         prepareTambah(); // default
         cmbKategori.setLightWeightPopupEnabled(false);
         cmbBahan.setLightWeightPopupEnabled(false);
@@ -113,6 +126,9 @@ public class MenuPopup extends javax.swing.JPanel {
 
     private void saveData() {
         try {
+            if (cmbKategori.getSelectedItem() == null) {
+                return;
+            }
             String kodeMenu = txtKodeMenu.getText().trim();
             String namaMenu = txtNamaMenu.getText().trim();
             String kodeKategori = cmbKategori.getSelectedItem().toString().split(" - ")[0];
@@ -177,6 +193,71 @@ public class MenuPopup extends javax.swing.JPanel {
         }
     }
 
+    private void styling(JComboBox combo, List<String> items) {
+        // Ganti font & warna
+        // styling dasar
+        combo.setFont(new Font("Arial", Font.BOLD, 14));
+        combo.setForeground(new Color(50, 45, 20));
+        combo.setBackground(Color.WHITE);
+        combo.setOpaque(true);
+
+        // override hanya arrow button & background area
+        combo.setUI(new BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton arrow = new JButton("▼");
+//                arrow.setBorder(BorderFactory.createEmptyBorder());
+                arrow.setForeground(Color.gray);
+                arrow.setBackground(new Color(255, 255, 255));
+                arrow.setSize(34, 34);
+                return arrow;
+            }
+
+            @Override
+            public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
+                g.setColor(combo.getBackground());
+                g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            }
+
+            @Override
+            protected ComboPopup createPopup() {
+                BasicComboPopup popup = new BasicComboPopup(comboBox);
+
+                JScrollPane scrollPane = (JScrollPane) popup.getComponents()[0];
+                JScrollBar vScrollBar = scrollPane.getVerticalScrollBar();
+
+                // Ubah style scrollbar
+                vScrollBar.setUI(new ModernScrollBarUI());
+
+                return popup;
+            }
+        });
+        combo.setLightWeightPopupEnabled(false);
+
+        combo.setEditable(true);
+
+        JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
+        editor.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        editor.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                String input = editor.getText();
+                combo.hidePopup();
+                combo.removeAllItems();
+
+                for (String item : items) {
+                    if (item.toLowerCase().contains(input.toLowerCase())) {
+                        combo.addItem(item);
+                    }
+                }
+                if(combo.getItemCount() <= 0)
+                    return;
+                editor.setText(input); // keep the text
+                combo.showPopup();
+            }
+        });
+
+    }
+
     private String generateKodeMenu() {
         try {
             String sql = "SELECT RIGHT(kode_menu, 3) AS nomor FROM menu ORDER BY kode_menu DESC LIMIT 1";
@@ -207,6 +288,7 @@ public class MenuPopup extends javax.swing.JPanel {
 
     private void loadBahanBaku() {
         try {
+            itemBahan = new ArrayList<String>();
             PreparedStatement pst = con.prepareStatement("SELECT kode_bahanbaku, nama_bahanbaku FROM bahanbaku");
             ResultSet rs = pst.executeQuery();
             cmbBahan.removeAllItems();
@@ -215,6 +297,7 @@ public class MenuPopup extends javax.swing.JPanel {
                 String kode = rs.getString("kode_bahanbaku");
                 String nama = rs.getString("nama_bahanbaku");
                 cmbBahan.addItem(kode + " - " + nama); // atau hanya nama jika lebih ringkas
+                itemBahan.add(kode + " - " + nama);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,6 +307,7 @@ public class MenuPopup extends javax.swing.JPanel {
 
     private void loadKategori() {
         try {
+            itemKateg = new ArrayList<String>();
             cmbKategori.addItem("--Pilih Kategori--");
             PreparedStatement pst = con.prepareStatement("SELECT kode_kategori, nama_kategori FROM kategori");
             ResultSet rs = pst.executeQuery();
@@ -233,6 +317,7 @@ public class MenuPopup extends javax.swing.JPanel {
                 String kode = rs.getString("kode_kategori");
                 String nama = rs.getString("nama_kategori");
                 cmbKategori.addItem(kode + " - " + nama);
+                itemKateg.add(kode + " - " + nama);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -272,7 +357,6 @@ public class MenuPopup extends javax.swing.JPanel {
         setOpaque(false);
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
-        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         lblTitle.setForeground(new java.awt.Color(255, 255, 255));
@@ -282,20 +366,16 @@ public class MenuPopup extends javax.swing.JPanel {
         lblTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
         lblTitle.setFocusable(false);
         lblTitle.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        panelRound1.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 590, -1));
 
         txtNamaMenu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        panelRound1.add(txtNamaMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(315, 89, 255, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Kode Menu");
-        panelRound1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 69, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Kategori");
-        panelRound1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 452, -1, -1));
 
         btnBatal.setBackground(new java.awt.Color(97, 131, 175));
         btnBatal.setForeground(new java.awt.Color(255, 255, 255));
@@ -306,7 +386,6 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnBatalActionPerformed(evt);
             }
         });
-        panelRound1.add(btnBatal, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 531, 80, -1));
 
         btnSubmit.setBackground(new java.awt.Color(97, 131, 175));
         btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
@@ -317,23 +396,18 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnSubmitActionPerformed(evt);
             }
         });
-        panelRound1.add(btnSubmit, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 531, 80, -1));
 
         txtKodeMenu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        panelRound1.add(txtKodeMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 89, 255, -1));
 
         cmbBahan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Beras", "Daging Ayam" }));
-        panelRound1.add(cmbBahan, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 156, 249, 39));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Nama Menu");
-        panelRound1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(319, 69, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Bahan Baku");
-        panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 134, -1, -1));
 
         btnTambah.setBackground(new java.awt.Color(97, 131, 175));
         btnTambah.setForeground(new java.awt.Color(255, 255, 255));
@@ -344,20 +418,16 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnTambahActionPerformed(evt);
             }
         });
-        panelRound1.add(btnTambah, new org.netbeans.lib.awtextra.AbsoluteConstraints(486, 214, 80, -1));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Resep :");
-        panelRound1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 239, -1, -1));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Harga");
-        panelRound1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 134, -1, -1));
 
         txtHargaBikin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        panelRound1.add(txtHargaBikin, new org.netbeans.lib.awtextra.AbsoluteConstraints(314, 154, 255, -1));
 
         tblBahan.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -372,10 +442,7 @@ public class MenuPopup extends javax.swing.JPanel {
         ));
         jScrollPane2.setViewportView(tblBahan);
 
-        panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 274, 537, 160));
-
         cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Beras", "Daging Ayam" }));
-        panelRound1.add(cmbKategori, new org.netbeans.lib.awtextra.AbsoluteConstraints(25, 472, 249, 39));
 
         btnBatalResep.setBackground(new java.awt.Color(97, 131, 175));
         btnBatalResep.setForeground(new java.awt.Color(255, 255, 255));
@@ -386,7 +453,92 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnBatalResepActionPerformed(evt);
             }
         });
-        panelRound1.add(btnBatalResep, new org.netbeans.lib.awtextra.AbsoluteConstraints(394, 214, 80, -1));
+
+        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
+        panelRound1.setLayout(panelRound1Layout);
+        panelRound1Layout.setHorizontalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 590, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel2)
+                .addGap(218, 218, 218)
+                .addComponent(jLabel3))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(txtKodeMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
+                .addComponent(txtNamaMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel4)
+                .addGap(217, 217, 217)
+                .addComponent(jLabel8))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(cmbBahan, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(40, 40, 40)
+                .addComponent(txtHargaBikin, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel7)
+                .addGap(321, 321, 321)
+                .addComponent(btnBatalResep, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel6))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(cmbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(390, 390, 390)
+                .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        panelRound1Layout.setVerticalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addComponent(lblTitle)
+                .addGap(12, 12, 12)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtKodeMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNamaMenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel8))
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelRound1Layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(cmbBahan, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtHargaBikin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelRound1Layout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addComponent(jLabel7))
+                    .addComponent(btnBatalResep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6)
+                .addGap(0, 0, 0)
+                .addComponent(cmbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(10, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -399,9 +551,8 @@ public class MenuPopup extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(0, 6, Short.MAX_VALUE)
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -414,6 +565,9 @@ public class MenuPopup extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSubmitActionPerformed
 
     private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        if (cmbBahan.getSelectedItem() == null) {
+            return;
+        }
         String selected = cmbBahan.getSelectedItem().toString(); // contoh: "BB001 - Gula"
         String kode = selected.split(" - ")[0];
         String nama = selected.split(" - ")[1];

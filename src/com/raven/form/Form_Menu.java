@@ -258,11 +258,11 @@ public class Form_Menu extends javax.swing.JPanel {
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelRound1Layout.createSequentialGroup()
                         .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15)
+                        .addGap(54, 54, 54)
                         .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)
+                        .addGap(54, 54, 54)
                         .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)
+                        .addGap(54, 54, 54)
                         .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelRound1Layout.createSequentialGroup()
                         .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -301,7 +301,7 @@ public class Form_Menu extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 839, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 840, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1)
@@ -338,7 +338,15 @@ public class Form_Menu extends javax.swing.JPanel {
     }//GEN-LAST:event_button2ActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
-        // TODO add your handling code here:
+        if (indexTable == 0) {
+//            GlassPanePopup.showPopup(new MenuPopup());
+        } else if (indexTable == 1) {
+//            GlassPanePopup.showPopup(new BahanBakuPopup());
+        } else if (indexTable == 2) {
+//            GlassPanePopup.showPopup(new SatuanPopup());
+        } else if (indexTable == 3) {
+//            GlassPanePopup.showPopup(new KategoriPopup());
+        }
     }//GEN-LAST:event_editBtnActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
@@ -354,7 +362,15 @@ public class Form_Menu extends javax.swing.JPanel {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void hapusBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusBtnActionPerformed
-        // TODO add your handling code here:
+        if (indexTable == 0) {
+//            GlassPanePopup.showPopup(new MenuPopup());
+        } else if (indexTable == 1) {
+//            GlassPanePopup.showPopup(new BahanBakuPopup());
+        } else if (indexTable == 2) {
+//            GlassPanePopup.showPopup(new SatuanPopup());
+        } else if (indexTable == 3) {
+//            GlassPanePopup.showPopup(new KategoriPopup());
+        }
     }//GEN-LAST:event_hapusBtnActionPerformed
 
     private void button3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button3ActionPerformed
