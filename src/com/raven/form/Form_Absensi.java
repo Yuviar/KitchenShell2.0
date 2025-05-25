@@ -5,9 +5,13 @@
 package com.raven.form;
 
 import config.DatabaseConfig;
+import config.Session;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -16,42 +20,15 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Form_Absensi extends javax.swing.JPanel {
 
-    Connection con = null;
+       Connection con = null;
     DefaultTableModel tableModel;
+    private Component currentForm = null;
 
     public Form_Absensi() {
         initComponents();
         setOpaque(false);
         getCon();
-        setModel();
-    }
-
-    private void setModel() {
-        String[] judul = {"Nama", "Tanggal", "Masuk", "Keluar", "Keterangan"};
-        tableModel = new DefaultTableModel(judul, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        tblAbsen.setModel(tableModel);
-        loadData();
-    }
-
-    private void loadData() {
-        if (con != null) {
-            try {
-                String q = "SELECT u.nama, a.tanggal, a.waktu_masuk, a.waktu_keluar, a.keterangan FROM Absensi a JOIN user u ON a.id_user = u.id_user";
-                PreparedStatement ps = con.prepareStatement(q);
-                ResultSet rs = ps.executeQuery();
-                while (rs.next()) {
-                    String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)};
-                    tableModel.addRow(data);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        initializeFormBasedOnRole();
     }
 
     private void getCon() {
@@ -59,9 +36,123 @@ public class Form_Absensi extends javax.swing.JPanel {
             con = DatabaseConfig.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Gagal menghubungkan ke database: " + e.getMessage(), 
+                "Error Database", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
+    /**
+     * Inisialisasi form berdasarkan role pengguna
+     */
+    private void initializeFormBasedOnRole() {
+        try {
+            String userRole = Session.getRole();
+            
+            // Validasi role tidak null atau kosong
+            if (userRole == null || userRole.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Role pengguna tidak ditemukan. Silakan login kembali.", 
+                    "Error Session", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Load form berdasarkan role
+            if (userRole.equalsIgnoreCase("Admin")) {
+                showForm(new Form_AbsenAdmin());
+                System.out.println("Loading Form Admin untuk role: " + userRole);
+            } else {
+                showForm(new Form_AbsenKaryawan());
+                System.out.println("Loading Form Karyawan untuk role: " + userRole);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Terjadi kesalahan saat memuat form: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            
+            // Fallback ke form karyawan jika terjadi error
+            try {
+                showForm(new Form_AbsenKaryawan());
+            } catch (Exception fallbackError) {
+                System.err.println("Gagal memuat form fallback: " + fallbackError.getMessage());
+            }
+        }
+    }
+    
+    /**
+     * Menampilkan form/komponen di dalam body panel
+     * @param com Komponen yang akan ditampilkan
+     */
+    public void showForm(Component com) {
+        if (com == null) {
+            System.err.println("Warning: Komponen yang akan ditampilkan adalah null");
+            return;
+        }
+        
+        try {
+            // Hapus komponen sebelumnya
+            body.removeAll();
+            
+            // Set layout yang tepat untuk body
+            body.setLayout(new BorderLayout());
+            
+            // Tambahkan komponen baru
+            body.add(com, BorderLayout.CENTER);
+            
+            // Simpan referensi form saat ini
+            currentForm = com;
+            
+            // Refresh tampilan
+            body.revalidate();
+            body.repaint();
+            
+            // Update parent container juga
+            this.revalidate();
+            this.repaint();
+            
+            System.out.println("Form berhasil dimuat: " + com.getClass().getSimpleName());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Gagal menampilkan form: " + e.getMessage(), 
+                "Error Display", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Mendapatkan form yang sedang aktif
+     * @return Komponen form yang sedang ditampilkan
+     */
+    public Component getCurrentForm() {
+        return currentForm;
+    }
+    
+    /**
+     * Refresh form berdasarkan role saat ini
+     */
+    public void refreshForm() {
+        initializeFormBasedOnRole();
+    }
+    
+    /**
+     * Cleanup resources saat panel ditutup
+     */
+    public void cleanup() {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -73,9 +164,7 @@ public class Form_Absensi extends javax.swing.JPanel {
 
         judul = new javax.swing.JLabel();
         panelRound1 = new com.raven.swing.PanelRound();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tblAbsen = new com.raven.swing.TableColumn();
-        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        body = new javax.swing.JPanel();
 
         judul.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         judul.setForeground(new java.awt.Color(33, 53, 85));
@@ -85,58 +174,11 @@ public class Form_Absensi extends javax.swing.JPanel {
         judul.setFocusable(false);
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
+        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jScrollPane2.setBorder(null);
-
-        tblAbsen.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "ID", "NAMA", "TANGGAL", "MASUK", "KELUAR", "STATUS KEHADIRAN", "KET"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tblAbsen.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(tblAbsen);
-
-        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
-        panelRound1.setLayout(panelRound1Layout);
-        panelRound1Layout.setHorizontalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelRound1Layout.createSequentialGroup()
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 794, Short.MAX_VALUE)))
-                .addGap(20, 20, 20))
-        );
-        panelRound1Layout.setVerticalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
+        body.setOpaque(false);
+        body.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelRound1.add(body, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 770, 390));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -146,26 +188,24 @@ public class Form_Absensi extends javax.swing.JPanel {
                 .addComponent(judul)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(8, Short.MAX_VALUE)
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 812, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(8, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(judul)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, 425, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.toedter.calendar.JDateChooser jDateChooser1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPanel body;
     private javax.swing.JLabel judul;
     private com.raven.swing.PanelRound panelRound1;
-    private com.raven.swing.TableColumn tblAbsen;
     // End of variables declaration//GEN-END:variables
 }

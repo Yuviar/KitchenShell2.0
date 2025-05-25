@@ -10,6 +10,8 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import print.StrukManager;
+import print.model.ParameterStruk;
 
 public class Form_Transaksi extends javax.swing.JPanel {
 
@@ -35,7 +37,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
             indikatorMember.setVisible(false);
             poin.setVisible(false);
         }
-
+        clearAll();
         jScrollPane3.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
 
@@ -67,6 +69,11 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }
 
     private void loadData() {
+        try {
+            StrukManager.getIntance().compileStruk();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (con != null) {
             try {
                 String q = "SELECT nama_menu, jumlah FROM v_porsi_harian";
@@ -151,6 +158,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
     private void clearAll() {
         totalBayar = 0;
+        subTotal = 0;
         inputBayar.setText("0");
         inputKembalian.setText("");
         inputKode.setText("");
@@ -194,13 +202,14 @@ public class Form_Transaksi extends javax.swing.JPanel {
         return kodeTransaksi;
     }
 
-    // LANGKAH 1: Ganti method prosesTransaksi() yang kosong dengan implementasi lengkap
+// LANGKAH 1: Ganti method prosesTransaksi() yang kosong dengan implementasi lengkap
     private void prosesTransaksi() {
         String kodeTransaksi, idAdmin, namaPelanggan;
-        double point, bayar, kembalian;
+        double point, bayar, kembalian, diskon = 0, dapatPoint = 0;
         boolean isMemberTransaction = false;
         boolean gunakanPoint = pakePoin.isSelected();
         tableModelMenu.setRowCount(0);
+
         // Validasi input
         if (tableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Tidak ada item dalam pesanan!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -217,15 +226,29 @@ public class Form_Transaksi extends javax.swing.JPanel {
         idAdmin = Session.getId();
         namaPelanggan = member.getText().trim();
         bayar = Double.parseDouble(inputBayar.getText());
-        kembalian = bayar - totalBayar;
 
         // Cek apakah menggunakan member
         if (!namaPelanggan.isEmpty() && isMember) {
             isMemberTransaction = true;
         }
 
-        // Hitung point
-        point = totalBayar * 0.1; // 10% dari total transaksi
+        // Hitung point dan diskon
+        if (isMemberTransaction) {
+            if (gunakanPoint) {
+                // Jika menggunakan point, set diskon dan point yang didapat = 0
+                double pointSekarang = Double.parseDouble(poinField.getText());
+                diskon = Math.floor(pointSekarang / 500) * 500; // Kelipatan 500 sebagai diskon
+                dapatPoint = 0; // Tidak dapat point baru
+            } else {
+                // Jika tidak menggunakan point, set diskon = 0 dan hitung point baru
+                diskon = 0;
+                dapatPoint = totalBayar * 0.1; // 10% dari total transaksi
+            }
+        }
+
+        // Hitung kembalian setelah diskon
+        double totalSetelahDiskon = totalBayar - diskon;
+        kembalian = bayar - totalSetelahDiskon;
 
         try {
             con.setAutoCommit(false); // Mulai transaction
@@ -236,8 +259,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 return;
             }
 
-            // 2. Insert ke tabel transaksi
-            String queryTransaksi = "INSERT INTO transaksi (kode_transaksi, id_user, kode_member, tgl_transaksi, nama_pelanggan, total_transaksi, bayar) VALUES (?, ?, ?, NOW(), ?, ?, ?)";
+            // 2. Insert ke tabel transaksi dengan kolom baru
+            String queryTransaksi = "INSERT INTO transaksi (kode_transaksi, id_user, kode_member, tgl_transaksi, nama_pelanggan, total_transaksi, bayar, kembalian, diskon, dapat_point) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?)";
             PreparedStatement psTransaksi = con.prepareStatement(queryTransaksi);
             psTransaksi.setString(1, kodeTransaksi);
             psTransaksi.setString(2, idAdmin);
@@ -253,6 +276,9 @@ public class Form_Transaksi extends javax.swing.JPanel {
             psTransaksi.setString(4, namaPelanggan);
             psTransaksi.setDouble(5, totalBayar);
             psTransaksi.setDouble(6, bayar);
+            psTransaksi.setDouble(7, kembalian);
+            psTransaksi.setDouble(8, diskon);
+            psTransaksi.setDouble(9, dapatPoint);
             psTransaksi.executeUpdate();
 
             // 3. Insert ke tabel detail_transaksi dan update stok
@@ -275,23 +301,35 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 updateBahanBaku(kodeMenu, jumlahPesan);
             }
 
-            // 4. Update point member jika menggunakan member
+            // 4. Update point member
             if (isMemberTransaction) {
-                updatePointMember(namaPelanggan, point, gunakanPoint);
+                updatePointMember(namaPelanggan, dapatPoint, gunakanPoint, diskon);
             }
 
             con.commit(); // Commit transaction
 
             // Tampilkan pesan sukses dan reset form
-            JOptionPane.showMessageDialog(this,
-                    "Transaksi berhasil!\n"
+            String pesanSukses = "Transaksi berhasil!\n"
                     + "Kode Transaksi: " + kodeTransaksi + "\n"
-                    + "Total: Rp " + totalBayar + "\n"
-                    + "Bayar: Rp " + bayar + "\n"
-                    + "Kembalian: Rp " + kembalian
-                    + (isMemberTransaction && !gunakanPoint ? "\nPoint diperoleh: " + point : "")
-                    + (isMemberTransaction && gunakanPoint ? "\nPoint digunakan: " + (Double.parseDouble(poinField.getText()) - (Double.parseDouble(poinField.getText()) % 500)) : ""),
-                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                    + "Total: Rp " + totalBayar + "\n";
+
+            if (diskon > 0) {
+                pesanSukses += "Diskon Point: Rp " + diskon + "\n"
+                        + "Total Setelah Diskon: Rp " + totalSetelahDiskon + "\n";
+            }
+
+            pesanSukses += "Bayar: Rp " + bayar + "\n"
+                    + "Kembalian: Rp " + kembalian;
+
+            if (isMemberTransaction) {
+                if (gunakanPoint) {
+                    pesanSukses += "\nPoint digunakan: " + diskon;
+                } else {
+                    pesanSukses += "\nPoint diperoleh: " + dapatPoint;
+                }
+            }
+
+            JOptionPane.showMessageDialog(this, pesanSukses, "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
             clearAll();
             loadData(); // Refresh data menu
@@ -405,13 +443,12 @@ public class Form_Transaksi extends javax.swing.JPanel {
         }
     }
 
-    private void updatePointMember(String namaPelanggan, double pointBaru, boolean gunakanPoint) throws SQLException {
+    private void updatePointMember(String namaPelanggan, double pointBaru, boolean gunakanPoint, double pointDigunakan) throws SQLException {
         String kodeMember = getKodeMemberFromDB(namaPelanggan);
 
         if (gunakanPoint) {
             // Kurangi point yang digunakan
             double pointSekarang = Double.parseDouble(poinField.getText());
-            double pointDigunakan = Math.floor(pointSekarang / 500) * 500; // Kelipatan 500
             double sisaPoint = pointSekarang - pointDigunakan;
 
             String queryUpdatePoint = "UPDATE member SET point = ? WHERE kode_member = ?";
@@ -437,10 +474,20 @@ public class Form_Transaksi extends javax.swing.JPanel {
             }
 
             double bayar = Double.parseDouble(inputBayar.getText());
-            if (bayar < totalBayar) {
+
+            // Hitung total setelah diskon jika ada
+            double totalSetelahDiskon = totalBayar;
+            if (pakePoin.isSelected() && isMember && !member.getText().trim().isEmpty()) {
+                double pointSekarang = Double.parseDouble(poinField.getText());
+                double diskon = Math.floor(pointSekarang / 500) * 500;
+                totalSetelahDiskon = totalBayar - diskon;
+            }
+
+            if (bayar < totalSetelahDiskon) {
                 JOptionPane.showMessageDialog(this,
                         "Jumlah pembayaran kurang!\n"
                         + "Total: Rp " + totalBayar + "\n"
+                        + (totalSetelahDiskon != totalBayar ? "Total Setelah Diskon: Rp " + totalSetelahDiskon + "\n" : "")
                         + "Bayar: Rp " + bayar,
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
@@ -450,6 +497,22 @@ public class Form_Transaksi extends javax.swing.JPanel {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Format pembayaran tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
+        }
+    }
+
+    private void printStruk() {
+        if (con != null) {
+            try {
+                String query = "SELECT nama_user, tanggal_transaksi, kode_transaksi, nama_pelanggan, total_transaksi, menggunakan_member, diskon, nominal_bayar, kembalian, point_didapat FROM `v_cetak_struk` LIMIT 1; ";
+                PreparedStatement ps = con.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    ParameterStruk dataPrint = new ParameterStruk(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(9), rs.getString(10));
+                    StrukManager.getIntance().printStruk(dataPrint);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -853,8 +916,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         double point;
 
         point = Double.parseDouble(poinField.getText());
-        double diskon = (point / 500) * 500;
-        double sisaPoint = point - diskon;
+        double diskon = Math.floor(point / 500) * 500;
         if (pakePoin.isSelected()) {
             totalBayar -= diskon;
             txtTotal.setText(totalBayar + "");
@@ -889,33 +951,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }//GEN-LAST:event_inputQtyKeyPressed
 
     private void btnSelesaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelesaiActionPerformed
-//        String kodeTransaksi, idAdmin, namaPelanggan;
-//        double point, bayar;
-//        String[] kodeMember;
-//        List<String> kodeMenuList = new ArrayList<>();
-//        List<Integer> jumlahList = new ArrayList<>();
-//
-//        kodeTransaksi = generateKodeTransaksi();
-//        idAdmin = Session.getId();
-//        point = totalBayar * 0.1;
-//        double updatePoint = pakePoin.isSelected() ? 0 : point;
-//        boolean gunakanPoint = pakePoin.isSelected();
-//        namaPelanggan = member.getText();
-//
-//        for (int i = 0; i < tableModel.getRowCount(); i++) {
-//            kodeMenuList.add((String) tableModel.getValueAt(i, 0));
-//            jumlahList.add((Integer) tableModel.getValueAt(i, 2));
-//        }
-//        String[] kodeMenu = kodeMenuList.toArray(new String[0]);
-//        int[] jumlah = jumlahList.stream().mapToInt(Integer::intValue).toArray();
-//
-//        try {
-//            if (tableModel.getRowCount() != 0) {
-//                //fungsi proses transaksi 
-//            }
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//        }
         if (!validasiPembayaran()) {
             return;
         }

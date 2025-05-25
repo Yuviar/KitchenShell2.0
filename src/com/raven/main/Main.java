@@ -65,21 +65,28 @@ public class Main extends javax.swing.JFrame {
                 @Override
                 public void selected(int index) {
                     switch (index) {
-                        case 0 ->
+                        case 0:
                             showForm(new Form_Dashboard());
-                        case 1 ->
+                            break;
+                        case 1:
                             showForm(new Form_Transaksi());
-                        case 2 ->
+                            break;
+                        case 2:
                             showForm(new Form_Menu());
-                        case 3 ->
+                            break;
+                        case 3:
                             showForm(new Form_Akun());
-                        case 4 ->
+                            break;
+                        case 4:
                             showForm(new Form_Laporan());
-                        case 5 ->
+                            break;
+                        case 5:
                             showForm(new Form_Absensi());
-                        case 6 ->
+                            break;
+                        case 6:
                             showForm(new Form_StokOpname());
-                        default -> {
+                            break;
+                        default: {
                         }
                     }
                 }
@@ -97,15 +104,19 @@ public class Main extends javax.swing.JFrame {
                 @Override
                 public void selected(int index) {
                     switch (index) {
-                        case 0 ->
+                        case 0:
                             showForm(new Form_Transaksi());
-                        case 1 ->
+                            break;
+                        case 1:
                             showForm(new Form_Menu());
-                        case 2 ->
+                            break;
+                        case 2:
                             showForm(new Form_Akun());
-                        case 3 ->
+                            break;
+                        case 3:
                             showForm(new Form_Absensi());
-                        default -> {
+                            break;
+                        default: {
                         }
                     }
                 }
