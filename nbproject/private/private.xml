@@ -3,8 +3,20 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/MI%20TA/Documents/NetBeansProjects/KitchenShell2.0/src/com/raven/main/Main.java</file>
-            <file>file:/C:/Users/MI%20TA/Documents/NetBeansProjects/KitchenShell2.0/src/report/invoice.jrxml</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/popup/PorsiPopup.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/popup/MenuPopup.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/popup/MemberPopup.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_Laporan.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_StokHarian.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/popup/KategoriPopup.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_Akun.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_Menu.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/popup/SatuanPopup.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_StokOpname.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_Transaksi.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/form/Form_Dashboard.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/config/DatabaseConfig.java</file>
+            <file>file:/C:/NetbeansProject/KitchenShell2.0/src/com/raven/popup/AkunPopup.java</file>
         </group>
     </open-files>
 </project-private>

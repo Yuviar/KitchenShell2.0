@@ -26,19 +26,201 @@ public class Form_StokOpname extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        judul = new javax.swing.JLabel();
+        panelRound1 = new com.raven.swing.PanelRound();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblOpname = new com.raven.swing.TableColumn();
+        btnUpdate = new com.raven.util.Button();
+        btnDelete = new com.raven.util.Button();
+        btnAdd = new com.raven.util.Button();
+
+        judul.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        judul.setForeground(new java.awt.Color(33, 53, 85));
+        judul.setText("STOK OPNAME");
+        judul.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        judul.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
+        judul.setFocusable(false);
+
+        panelRound1.setBackground(new java.awt.Color(33, 53, 85));
+
+        jScrollPane2.setBorder(null);
+
+        tblOpname.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "KODE", "NAMA MENU", "HARGA", "QTY", "SUBTOTAL", "AKSI"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Double.class, java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblOpname.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(tblOpname);
+
+        btnUpdate.setBackground(new java.awt.Color(255, 157, 35));
+        btnUpdate.setForeground(new java.awt.Color(255, 255, 255));
+        btnUpdate.setText("UPDATE");
+        btnUpdate.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setBackground(new java.awt.Color(208, 90, 90));
+        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
+        btnDelete.setText("DELETE");
+        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        btnAdd.setBackground(new java.awt.Color(97, 131, 175));
+        btnAdd.setForeground(new java.awt.Color(255, 255, 255));
+        btnAdd.setText("ADD");
+        btnAdd.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
+        panelRound1.setLayout(panelRound1Layout);
+        panelRound1Layout.setHorizontalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                    .addGroup(panelRound1Layout.createSequentialGroup()
+                        .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(20, 20, 20))
+        );
+        panelRound1Layout.setVerticalGroup(
+            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelRound1Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(judul)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(judul)
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+//        int selectedRow = tblOpname.getSelectedRow();
+//        if (selectedRow != -1) {
+//            if (indexTable == 0) {
+//                int role = -1;
+//                String getRole = tblOpname.getValueAt(selectedRow, 4).toString();
+//                if (getRole == "Admin") {
+//                    role = 1;
+//                } else {
+//                    role = 0;
+//                }
+//                String uid = tblOpname.getValueAt(selectedRow, 0).toString();
+//                String nama = tblOpname.getValueAt(selectedRow, 1).toString();
+//                String username = tblOpname.getValueAt(selectedRow, 2).toString();
+//                String password = tblOpname.getValueAt(selectedRow, 3).toString();
+//
+//                popup.setEditMode(uid, nama, username, password, role);
+//                GlassPanePopup.showPopup(popup);
+//            } else {
+//                String kode_member = tblOpname.getValueAt(selectedRow, 0).toString();
+//                String uid = tblOpname.getValueAt(selectedRow, 1).toString();
+//                String nama = tblOpname.getValueAt(selectedRow, 2).toString();
+//                String noTelp = tblOpname.getValueAt(selectedRow, 3).toString();
+//
+//                popupMember.setEditMode(kode_member, uid, nama, noTelp);
+//                GlassPanePopup.showPopup(popupMember);
+//            }
+//        } else {
+//            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
+//        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+//        int selectedRow = tblOpname.getSelectedRow();
+//        if (selectedRow != -1) {
+//            if (indexTable == 0) {
+//                String uid = tblOpname.getValueAt(selectedRow, 0).toString();
+//                hapusPopup.setData("user", "uid", uid);
+//                hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
+//                GlassPanePopup.showPopup(hapusPopup);
+//            } else {
+//                String kodeMember = tblOpname.getValueAt(selectedRow, 0).toString();
+//                hapusPopup.setData("member", "kode_member", kodeMember);
+//                hapusPopup.setDataChangeListener(() -> loadData());
+//                GlassPanePopup.showPopup(hapusPopup);
+//            }
+//        } else {
+//            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin dihapus!");
+//        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        // TODO add your handling code here:
+//        if (indexTable == 0) {
+//            GlassPanePopup.showPopup(new AkunPopup());
+//        } else {
+//            GlassPanePopup.showPopup(new MemberPopup());
+//        }
+    }//GEN-LAST:event_btnAddActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.raven.util.Button btnAdd;
+    private com.raven.util.Button btnDelete;
+    private com.raven.util.Button btnUpdate;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel judul;
+    private com.raven.swing.PanelRound panelRound1;
+    private com.raven.swing.TableColumn tblOpname;
     // End of variables declaration//GEN-END:variables
 }
