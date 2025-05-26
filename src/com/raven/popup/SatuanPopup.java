@@ -69,6 +69,9 @@ public class SatuanPopup extends javax.swing.JPanel {
                 }
 
                 GlassPanePopup.closePopupLast();
+                isEditMode =false;
+                txtNama.setText("");
+                editKodeSatuan=null;
             } else {
                 throw new Exception("Semua data harus diisi!");
             }

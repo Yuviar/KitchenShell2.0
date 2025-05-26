@@ -113,7 +113,7 @@ public class Main extends javax.swing.JFrame {
                             showForm(new Form_Transaksi());
                             break;
                         case 1:
-                            showForm(new Form_Menu());
+                            showForm(new Form_StokHarian());
                             break;
                         case 2:
                             showForm(new Form_Akun());
