@@ -1,6 +1,7 @@
 package com.raven.form;
 
 import com.raven.chart.ModelChart;
+import com.raven.swing.ModernScrollBarUI;
 import config.DatabaseConfig;
 import java.awt.Color;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -21,6 +22,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         } catch (Exception e) {
         }
         init();
+        jScrollPane1.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
 
     private void init() {
@@ -40,11 +42,11 @@ public class Form_Dashboard extends javax.swing.JPanel {
         
         table.setModel(tableModel);
         
-        String query = "SELECT * FROM `bahanbaku` WHERE stok_bahanbaku < 1000";
+        String query = "SELECT `nama_bahanbaku`,`stok_bahanbaku`,`satuan` FROM `bahanbaku` JOIN `satuan` ON `satuan`.`kode_satuan` = `bahanbaku`.`kode_satuan`";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             ResultSet hasil = ps.executeQuery();
             while (hasil.next()) {
-                String[] data = {hasil.getString(2), hasil.getString(3)+hasil.getString(4)};
+                String[] data = {hasil.getString(1), hasil.getString(2)+" "+hasil.getString(3)};
                 tableModel.addRow(data);
             }
         } catch (SQLException e) {

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="opaque" type="boolean" value="false"/>
+  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -70,18 +73,18 @@
                   <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="button1" min="-2" pref="160" max="-2" attributes="0"/>
+                          <Component id="btnProfit" min="-2" pref="160" max="-2" attributes="0"/>
                           <EmptySpace min="15" pref="15" max="-2" attributes="0"/>
-                          <Component id="button2" min="-2" pref="160" max="-2" attributes="0"/>
+                          <Component id="btnPemasukan" min="-2" pref="160" max="-2" attributes="0"/>
                           <EmptySpace min="15" pref="15" max="-2" attributes="0"/>
-                          <Component id="button3" min="-2" pref="160" max="-2" attributes="0"/>
+                          <Component id="btnPengeluaran" min="-2" pref="160" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
-                          <Component id="button4" min="-2" pref="80" max="-2" attributes="0"/>
+                          <Component id="btnHari" min="-2" pref="80" max="-2" attributes="0"/>
                           <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
-                          <Component id="button5" min="-2" pref="80" max="-2" attributes="0"/>
+                          <Component id="btnBulan" min="-2" pref="80" max="-2" attributes="0"/>
                           <EmptySpace min="10" pref="10" max="-2" attributes="0"/>
-                          <Component id="button6" min="-2" pref="80" max="-2" attributes="0"/>
+                          <Component id="btnTahun" min="-2" pref="80" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jScrollPane2" alignment="0" min="-2" pref="800" max="-2" attributes="0"/>
                   </Group>
@@ -94,15 +97,15 @@
               <Group type="102" attributes="0">
                   <EmptySpace min="20" pref="20" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="button1" min="-2" pref="45" max="-2" attributes="0"/>
-                      <Component id="button2" min="-2" pref="45" max="-2" attributes="0"/>
-                      <Component id="button3" min="-2" pref="45" max="-2" attributes="0"/>
+                      <Component id="btnProfit" min="-2" pref="45" max="-2" attributes="0"/>
+                      <Component id="btnPemasukan" min="-2" pref="45" max="-2" attributes="0"/>
+                      <Component id="btnPengeluaran" min="-2" pref="45" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="button4" min="-2" pref="45" max="-2" attributes="0"/>
-                      <Component id="button5" min="-2" pref="45" max="-2" attributes="0"/>
-                      <Component id="button6" min="-2" pref="45" max="-2" attributes="0"/>
+                      <Component id="btnHari" min="-2" pref="45" max="-2" attributes="0"/>
+                      <Component id="btnBulan" min="-2" pref="45" max="-2" attributes="0"/>
+                      <Component id="btnTahun" min="-2" pref="45" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                   <Component id="jScrollPane2" min="-2" pref="350" max="-2" attributes="0"/>
@@ -112,7 +115,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="com.raven.util.Button" name="button1">
+        <Component class="com.raven.util.Button" name="btnProfit">
           <Properties>
             <Property name="text" type="java.lang.String" value="PROFIT"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -120,34 +123,43 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProfitActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.raven.util.Button" name="button2">
+        <Component class="com.raven.util.Button" name="btnPemasukan">
           <Properties>
             <Property name="text" type="java.lang.String" value="PEMASUKAN"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="12" style="1"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPemasukanActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="com.raven.util.Button" name="button3">
+        <Component class="com.raven.util.Button" name="btnPengeluaran">
           <Properties>
             <Property name="text" type="java.lang.String" value="PENGELUARAN"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="12" style="1"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnPengeluaranActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="com.raven.util.Button" name="button4">
+        <Component class="com.raven.util.Button" name="btnHari">
           <Properties>
             <Property name="text" type="java.lang.String" value="DAY"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="12" style="1"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnHariActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="com.raven.util.Button" name="button5">
+        <Component class="com.raven.util.Button" name="btnBulan">
           <Properties>
             <Property name="text" type="java.lang.String" value="MONTH"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -155,16 +167,19 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button5ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBulanActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.raven.util.Button" name="button6">
+        <Component class="com.raven.util.Button" name="btnTahun">
           <Properties>
             <Property name="text" type="java.lang.String" value="YEAR"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="12" style="1"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnTahunActionPerformed"/>
+          </Events>
         </Component>
         <Container class="javax.swing.JScrollPane" name="jScrollPane2">
           <AuxValues>
@@ -173,7 +188,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.raven.swing.TableColumn" name="table">
+            <Component class="com.raven.swing.TableColumn" name="tblLaporan">
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                   <Table columnCount="5" rowCount="0">

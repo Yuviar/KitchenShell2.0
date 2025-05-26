@@ -16,6 +16,7 @@ import com.raven.popup.KategoriPopup;
 import com.raven.popup.SatuanPopup;
 import com.raven.swing.ModernScrollBarUI;
 import java.awt.Color;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -26,7 +27,10 @@ public class Form_Menu extends javax.swing.JPanel {
     Connection con = null;
     DefaultTableModel tableModel;
     private DataChangeListener dataChangeListener;
-    MenuPopup popup = new MenuPopup();
+    MenuPopup menuPopup = new MenuPopup();
+    BahanBakuPopup bahanPopup = new BahanBakuPopup();
+    KategoriPopup kategPopup = new KategoriPopup();
+    SatuanPopup satuanPopup = new SatuanPopup();
     HapusDataPopup hapusPopup = new HapusDataPopup();
     int indexTable = 0; // 0 = Menu, 1 = Bahan Baku
 
@@ -34,7 +38,25 @@ public class Form_Menu extends javax.swing.JPanel {
         getCon();
         initComponents();
         setModel();
-        popup.setMenuListener(new DataChangeListener() {
+        menuPopup.setMenuListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadData();
+            }
+        });
+        bahanPopup.setBahanBakuListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadData();
+            }
+        });
+        kategPopup.setKategoriListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadData();
+            }
+        });
+        satuanPopup.setSatuanListener(new DataChangeListener() {
             @Override
             public void onDataChanged() {
                 loadData();
@@ -54,7 +76,7 @@ public class Form_Menu extends javax.swing.JPanel {
     }
 
     private void setModel() {
-        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"Kode Bahan", "Nama", "Stok"}, {"Nama Satuan"}, {"Kode Kategori", "Nama Kategori"}};
+        String[][] judul = {{"Kode Menu", "Kategori", "Nama menu", "harga jual"}, {"Kode Bahan", "Nama", "Stok"}, {"", "Nama Satuan"}, {"Kode Kategori", "Nama Kategori"}};
         tableModel = new DefaultTableModel(judul[indexTable], 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -77,7 +99,7 @@ public class Form_Menu extends javax.swing.JPanel {
                     query = "SELECT b.kode_bahanbaku, b.nama_bahanbaku, b.stok_bahanbaku, s.satuan "
                             + "FROM bahanbaku b JOIN satuan s ON b.kode_satuan = s.kode_satuan";
                 } else if (indexTable == 2) {
-                    query = "SELECT satuan FROM satuan";
+                    query = "SELECT kode_satuan, satuan FROM satuan";
                 } else if (indexTable == 3) {
                     query = "SELECT * FROM kategori";
                 }
@@ -101,7 +123,7 @@ public class Form_Menu extends javax.swing.JPanel {
                         String satuan = rs.getString("satuan");
                         String stokFormatted;
 
-                        if ((satuan.equalsIgnoreCase("Gram") || satuan.equalsIgnoreCase("Milliliter")) && stok >= 1000) {
+                        if ((satuan.equalsIgnoreCase("Gram") || satuan.equalsIgnoreCase("Ml")) && stok >= 1000) {
                             stokFormatted = (stok / 1000) + (satuan.equalsIgnoreCase("Gram") ? " Kg" : " L");
                         } else {
                             stokFormatted = stok + " " + satuan;
@@ -113,7 +135,7 @@ public class Form_Menu extends javax.swing.JPanel {
                             stokFormatted
                         };
                     } else if (indexTable == 2) {
-                        data = new String[]{rs.getString("satuan")};
+                        data = new String[]{rs.getString("kode_satuan"), rs.getString("satuan")};
                     } else if (indexTable == 3) {
                         data = new String[]{
                             rs.getString("kode_kategori"),
@@ -338,38 +360,72 @@ public class Form_Menu extends javax.swing.JPanel {
     }//GEN-LAST:event_button2ActionPerformed
 
     private void editBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBtnActionPerformed
-        if (indexTable == 0) {
-//            GlassPanePopup.showPopup(new MenuPopup());
-        } else if (indexTable == 1) {
-//            GlassPanePopup.showPopup(new BahanBakuPopup());
-        } else if (indexTable == 2) {
-//            GlassPanePopup.showPopup(new SatuanPopup());
-        } else if (indexTable == 3) {
-//            GlassPanePopup.showPopup(new KategoriPopup());
+        int selectedRow = tbl_menu.getSelectedRow();
+        if (selectedRow != -1) {
+            if (indexTable == 0) {
+                String kode = tbl_menu.getValueAt(selectedRow, 0).toString();
+                menuPopup.setEditMode(kode);
+                GlassPanePopup.showPopup(menuPopup);
+            } else if (indexTable == 1) {
+                String kode = tbl_menu.getValueAt(selectedRow, 0).toString();
+                String nama = tbl_menu.getValueAt(selectedRow, 1).toString();
+                bahanPopup.setEditMode(kode, nama);
+                GlassPanePopup.showPopup(bahanPopup);
+            } else if (indexTable == 2) {
+                String kode = tbl_menu.getValueAt(selectedRow, 0).toString();
+                String nama = tbl_menu.getValueAt(selectedRow, 1).toString();
+                satuanPopup.setEditMode(kode, nama);
+                GlassPanePopup.showPopup(satuanPopup);
+            } else if (indexTable == 3) {
+                String kode = tbl_menu.getValueAt(selectedRow, 0).toString();
+                String nama = tbl_menu.getValueAt(selectedRow, 1).toString();
+                kategPopup.setEditMode(kode, nama);
+                GlassPanePopup.showPopup(kategPopup);
+            }
+//            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
         }
+
+
     }//GEN-LAST:event_editBtnActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         if (indexTable == 0) {
-            GlassPanePopup.showPopup(new MenuPopup());
+            GlassPanePopup.showPopup(menuPopup);
         } else if (indexTable == 1) {
-            GlassPanePopup.showPopup(new BahanBakuPopup());
+            GlassPanePopup.showPopup(bahanPopup);
         } else if (indexTable == 2) {
-            GlassPanePopup.showPopup(new SatuanPopup());
+            GlassPanePopup.showPopup(satuanPopup);
         } else if (indexTable == 3) {
-            GlassPanePopup.showPopup(new KategoriPopup());
+            GlassPanePopup.showPopup(kategPopup);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void hapusBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hapusBtnActionPerformed
-        if (indexTable == 0) {
-//            GlassPanePopup.showPopup(new MenuPopup());
-        } else if (indexTable == 1) {
-//            GlassPanePopup.showPopup(new BahanBakuPopup());
-        } else if (indexTable == 2) {
-//            GlassPanePopup.showPopup(new SatuanPopup());
-        } else if (indexTable == 3) {
-//            GlassPanePopup.showPopup(new KategoriPopup());
+        int selectedRow = tbl_menu.getSelectedRow();
+        if (selectedRow != -1) {
+            if (indexTable == 0) {
+                String uid = tbl_menu.getValueAt(selectedRow, 0).toString();
+                hapusPopup.setData("menu", "kode_menu", uid);
+                hapusPopup.setDataChangeListener(() -> loadData());
+                GlassPanePopup.showPopup(hapusPopup);
+            } else if (indexTable == 1) {
+                String uid = tbl_menu.getValueAt(selectedRow, 0).toString();
+                hapusPopup.setData("bahanbaku", "kode_bahanbaku", uid);
+                hapusPopup.setDataChangeListener(() -> loadData());
+                GlassPanePopup.showPopup(hapusPopup);
+            } else if (indexTable == 2) {
+                String uid = tbl_menu.getValueAt(selectedRow, 0).toString();
+                hapusPopup.setData("satuan", "kode_satuan", uid);
+                hapusPopup.setDataChangeListener(() -> loadData());
+                GlassPanePopup.showPopup(hapusPopup);
+            } else if (indexTable == 3) {
+                String uid = tbl_menu.getValueAt(selectedRow, 0).toString();
+                hapusPopup.setData("kategori", "kode_kategori", uid);
+                hapusPopup.setDataChangeListener(() -> loadData());
+                GlassPanePopup.showPopup(hapusPopup);
+            }
         }
     }//GEN-LAST:event_hapusBtnActionPerformed
 
