@@ -68,7 +68,9 @@ public class KategoriPopup extends javax.swing.JPanel {
                 if (dataChangeListener != null) {
                     dataChangeListener.onDataChanged();
                 }
-
+                isEditMode =false;
+                txtNama.setText("");
+                editKodeKategori=null;
                 GlassPanePopup.closePopupLast();
             } else {
                 throw new Exception("Semua data harus diisi!");

@@ -353,39 +353,53 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
 // LANGKAH 2: Tambahkan method-method pendukung setelah method prosesTransaksi()
     private boolean cekKetersediaanStok() {
-        try {
-            for (int i = 0; i < tableModel.getRowCount(); i++) {
-                String kodeMenu = (String) tableModel.getValueAt(i, 0);
-                int jumlahPesan = (Integer) tableModel.getValueAt(i, 2);
+    try {
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String kodeMenu = (String) tableModel.getValueAt(i, 0);
+            int jumlahPesan = (Integer) tableModel.getValueAt(i, 2);
 
-                // Cek stok di porsi_harian
-                String queryStok = "SELECT jumlah FROM porsi_harian WHERE kode_menu = ?";
-                PreparedStatement psStok = con.prepareStatement(queryStok);
-                psStok.setString(1, kodeMenu);
-                ResultSet rsStok = psStok.executeQuery();
+            // Debug: Print kode menu yang dicari
+            System.out.println("Mengecek stok untuk kode menu: " + kodeMenu);
 
-                if (rsStok.next()) {
-                    int stokTersedia = rsStok.getInt("jumlah");
-                    if (stokTersedia < jumlahPesan) {
-                        JOptionPane.showMessageDialog(this,
-                                "Stok tidak mencukupi untuk menu: " + tableModel.getValueAt(i, 1)
-                                + "\nStok tersedia: " + stokTersedia
-                                + "\nJumlah pesanan: " + jumlahPesan,
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                        return false;
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Menu tidak ditemukan: " + kodeMenu, "Error", JOptionPane.ERROR_MESSAGE);
+            // PERBAIKAN: Gunakan view v_porsi_harian yang sama dengan loadData()
+            String queryStok = "SELECT jumlah FROM v_porsi_harian WHERE kode_menu = ?";
+            PreparedStatement psStok = con.prepareStatement(queryStok);
+            psStok.setString(1, kodeMenu);
+            ResultSet rsStok = psStok.executeQuery();
+
+            if (rsStok.next()) {
+                int stokTersedia = rsStok.getInt("jumlah");
+                
+                // Debug: Print stok yang ditemukan
+                System.out.println("Stok tersedia untuk " + kodeMenu + ": " + stokTersedia);
+                System.out.println("Jumlah pesanan: " + jumlahPesan);
+                
+                if (stokTersedia < jumlahPesan) {
+                    JOptionPane.showMessageDialog(this,
+                            "Stok tidak mencukupi untuk menu: " + tableModel.getValueAt(i, 1)
+                            + "\nStok tersedia: " + stokTersedia
+                            + "\nJumlah pesanan: " + jumlahPesan,
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
+            } else {
+                System.out.println("Menu tidak ditemukan di v_porsi_harian: " + kodeMenu);
+                JOptionPane.showMessageDialog(this, "Menu tidak ditemukan: " + kodeMenu, "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
             }
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error saat mengecek stok: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return false;
+            
+            // Tutup resources
+            rsStok.close();
+            psStok.close();
         }
+        return true;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error saat mengecek stok: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        return false;
     }
+}
+
 
     private String getKodeMemberFromDB(String identifier) throws SQLException {
         // Cek apakah identifier adalah nomor telepon atau nama
@@ -965,6 +979,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             prosesTransaksi();
+            printStruk();
         }
     }//GEN-LAST:event_btnSelesaiActionPerformed
 
