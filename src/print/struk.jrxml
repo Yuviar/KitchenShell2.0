@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="226" pageHeight="842" columnWidth="204" leftMargin="11" rightMargin="11" topMargin="0" bottomMargin="0" uuid="e192be22-e46e-4ddc-91fb-3a225846dcbe">
-	<property name="ireport.zoom" value="2.2000000000000055"/>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="226" pageHeight="842" columnWidth="222" leftMargin="2" rightMargin="2" topMargin="0" bottomMargin="0" uuid="e192be22-e46e-4ddc-91fb-3a225846dcbe">
+	<property name="ireport.zoom" value="2.928200000000008"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="nama_kasir" class="java.lang.String"/>
@@ -65,28 +65,28 @@
 	<pageHeader>
 		<band height="78" splitType="Stretch">
 			<textField>
-				<reportElement x="104" y="0" width="100" height="15" uuid="aecc8945-513c-4d6a-9aee-6192c2f3e0f5"/>
+				<reportElement x="99" y="0" width="100" height="15" uuid="aecc8945-513c-4d6a-9aee-6192c2f3e0f5"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{nama_kasir}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="15" width="100" height="15" uuid="7755a9cc-293c-406c-b353-a2d490e199c8"/>
+				<reportElement x="99" y="15" width="100" height="15" uuid="7755a9cc-293c-406c-b353-a2d490e199c8"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{tanggal}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="30" width="100" height="15" uuid="5bacf862-ba26-4f64-a17d-c80e6ac75988"/>
+				<reportElement x="99" y="30" width="100" height="15" uuid="5bacf862-ba26-4f64-a17d-c80e6ac75988"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{kode_transaksi}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="45" width="100" height="15" uuid="af2bd018-fcb7-4bbe-beb7-900063204e09"/>
+				<reportElement x="99" y="45" width="100" height="15" uuid="af2bd018-fcb7-4bbe-beb7-900063204e09"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
@@ -134,7 +134,7 @@
 				<text><![CDATA[Member]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="104" y="60" width="100" height="15" uuid="1f07585c-3a00-43a8-842a-9f270877cea8"/>
+				<reportElement x="99" y="60" width="100" height="15" uuid="1f07585c-3a00-43a8-842a-9f270877cea8"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
@@ -187,7 +187,7 @@
 				<text><![CDATA[Harga]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="153" y="0" width="51" height="15" uuid="70332193-5821-423f-902d-342878d0258c"/>
+				<reportElement x="155" y="0" width="44" height="15" uuid="70332193-5821-423f-902d-342878d0258c"/>
 				<box>
 					<pen lineStyle="Dashed"/>
 					<topPen lineStyle="Dashed"/>
@@ -219,7 +219,7 @@
 				<textFieldExpression><![CDATA[$F{harga_menu}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="153" y="0" width="51" height="15" uuid="407cfd1f-4ca9-4ae3-9496-7c1c28f64874"/>
+				<reportElement x="155" y="0" width="44" height="15" uuid="407cfd1f-4ca9-4ae3-9496-7c1c28f64874"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
@@ -278,35 +278,35 @@
 				</graphicElement>
 			</line>
 			<textField>
-				<reportElement x="104" y="2" width="100" height="15" uuid="734f5f49-2de7-4f2e-8604-66b4e762daff"/>
+				<reportElement x="99" y="2" width="100" height="15" uuid="734f5f49-2de7-4f2e-8604-66b4e762daff"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{total}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="17" width="100" height="15" uuid="17011739-ffa0-4f24-b0dc-23f9afd62a6c"/>
+				<reportElement x="99" y="17" width="100" height="15" uuid="17011739-ffa0-4f24-b0dc-23f9afd62a6c"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{diskon}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="32" width="100" height="15" uuid="d2987f73-255c-4712-a5f7-3245e3ab396e"/>
+				<reportElement x="99" y="32" width="100" height="15" uuid="d2987f73-255c-4712-a5f7-3245e3ab396e"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{bayar}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="47" width="100" height="15" uuid="80b20a8b-895e-4285-8c0b-8beed5590fda"/>
+				<reportElement x="99" y="47" width="100" height="15" uuid="80b20a8b-895e-4285-8c0b-8beed5590fda"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{kembalian}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="104" y="62" width="100" height="15" uuid="7b098995-628a-4675-981d-0650b9a628b2"/>
+				<reportElement x="99" y="62" width="100" height="15" uuid="7b098995-628a-4675-981d-0650b9a628b2"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>

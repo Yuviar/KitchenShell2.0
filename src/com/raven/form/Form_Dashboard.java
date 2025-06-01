@@ -39,15 +39,17 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 return false;
             }
         };
-        
+
         table.setModel(tableModel);
-        
+
         String query = "SELECT `nama_bahanbaku`,`stok_bahanbaku`,`satuan` FROM `bahanbaku` JOIN `satuan` ON `satuan`.`kode_satuan` = `bahanbaku`.`kode_satuan`";
         try (PreparedStatement ps = con.prepareStatement(query)) {
             ResultSet hasil = ps.executeQuery();
             while (hasil.next()) {
-                String[] data = {hasil.getString(1), hasil.getString(2)+" "+hasil.getString(3)};
-                tableModel.addRow(data);
+                if (hasil.getInt(2) <= 1000 && !"Pcs".equals(hasil.getString(3))) {
+                    String[] data = {hasil.getString(1), hasil.getString(2) + " " + hasil.getString(3)};
+                    tableModel.addRow(data);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -68,7 +70,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 }
             }
 
-            query = "SELECT SUM(jumlah) FROM `detail_transaksi`";
+            query = "SELECT SUM(total_penjualan) as total_penjualan FROM v_laporan WHERE DATE(tanggal) = CURDATE() GROUP BY DATE(tanggal);";
             try (PreparedStatement ps = con.prepareStatement(query)) {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
@@ -79,7 +81,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
                 }
             }
 
-            query = "SELECT SUM(jumlah) FROM `detail_transaksi`";
+            query = "SELECT SUM(total_penjualan) as total_penjualan FROM v_laporan WHERE MONTH(tanggal) = MONTH(CURDATE()) GROUP BY DATE_FORMAT(tanggal,'%m');";
             try (PreparedStatement ps = con.prepareStatement(query)) {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
@@ -99,18 +101,58 @@ public class Form_Dashboard extends javax.swing.JPanel {
     private void initChart() {
         chart.addLegend("Pendapatan", new Color(245, 189, 135));
         chart.addLegend("Pengeluaran", new Color(135, 189, 245));
-        chart.addData(new ModelChart("Jan", new double[]{100, 150}));
-        chart.addData(new ModelChart("Feb", new double[]{600, 750}));
-        chart.addData(new ModelChart("Mar", new double[]{200, 350}));
-        chart.addData(new ModelChart("Apr", new double[]{480, 150}));
-        chart.addData(new ModelChart("Mei", new double[]{350, 540}));
-        chart.addData(new ModelChart("Juni", new double[]{190, 500}));
-        chart.addData(new ModelChart("Juli", new double[]{100, 150}));
-        chart.addData(new ModelChart("Ags", new double[]{600, 750}));
-        chart.addData(new ModelChart("Sept", new double[]{200, 350}));
-        chart.addData(new ModelChart("Okt", new double[]{480, 150}));
-        chart.addData(new ModelChart("Nov", new double[]{350, 540}));
-        chart.addData(new ModelChart("Des", new double[]{190, 500}));
+        try {
+            String q = "SELECT \n"
+                    + "    bulan_data.bulan_nama AS bulan,\n"
+                    + "    IFNULL(SUM(t.total_penjualan), 0) AS total_penjualan,\n"
+                    + "    IFNULL(SUM(t.total_pengeluaran), 0) AS total_pengeluaran\n"
+                    + "FROM (\n"
+                    + "    SELECT 1 AS bulan_num, 'Jan' AS bulan_nama UNION ALL\n"
+                    + "    SELECT 2, 'Feb' UNION ALL\n"
+                    + "    SELECT 3, 'Mar' UNION ALL\n"
+                    + "    SELECT 4, 'Apr' UNION ALL\n"
+                    + "    SELECT 5, 'May' UNION ALL\n"
+                    + "    SELECT 6, 'Jun' UNION ALL\n"
+                    + "    SELECT 7, 'Jul' UNION ALL\n"
+                    + "    SELECT 8, 'Aug' UNION ALL\n"
+                    + "    SELECT 9, 'Sep' UNION ALL\n"
+                    + "    SELECT 10, 'Oct' UNION ALL\n"
+                    + "    SELECT 11, 'Nov' UNION ALL\n"
+                    + "    SELECT 12, 'Dec'\n"
+                    + ") AS bulan_data\n"
+                    + "LEFT JOIN (\n"
+                    + "    SELECT \n"
+                    + "        MONTH(tanggal) AS bulan,\n"
+                    + "        SUM(total_penjualan) AS total_penjualan,\n"
+                    + "        SUM(total_pengeluaran) AS total_pengeluaran\n"
+                    + "    FROM v_laporan\n"
+                    + "    WHERE YEAR(tanggal) = YEAR(CURDATE())\n"
+                    + "    GROUP BY MONTH(tanggal)\n"
+                    + ") t\n"
+                    + "ON bulan_data.bulan_num = t.bulan\n"
+                    + "GROUP BY bulan_data.bulan_num, bulan_data.bulan_nama\n"
+                    + "ORDER BY bulan_data.bulan_num;";
+            PreparedStatement ps = con.prepareStatement(q);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                chart.addData(new ModelChart(rs.getString(1), new double[]{rs.getDouble(2), rs.getDouble(3)}));
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        chart.addData(new ModelChart("Jan", new double[]{100, 150}));
+//        chart.addData(new ModelChart("Feb", new double[]{600, 750}));
+//        chart.addData(new ModelChart("Mar", new double[]{200, 350}));
+//        chart.addData(new ModelChart("Apr", new double[]{480, 150}));
+//        chart.addData(new ModelChart("Mei", new double[]{350, 540}));
+//        chart.addData(new ModelChart("Juni", new double[]{190, 500}));
+//        chart.addData(new ModelChart("Juli", new double[]{100, 150}));
+//        chart.addData(new ModelChart("Ags", new double[]{600, 750}));
+//        chart.addData(new ModelChart("Sept", new double[]{200, 350}));
+//        chart.addData(new ModelChart("Okt", new double[]{480, 150}));
+//        chart.addData(new ModelChart("Nov", new double[]{350, 540}));
+//        chart.addData(new ModelChart("Des", new double[]{190, 500}));
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.addRow(new Object[]{"Tahu", "900g"});
         model.addRow(new Object[]{"Minyak", "500ml"});
