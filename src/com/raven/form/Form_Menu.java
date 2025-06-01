@@ -181,6 +181,7 @@ public class Form_Menu extends javax.swing.JPanel {
 
         panelRound1.setBackground(new java.awt.Color(33, 53, 85));
         panelRound1.setPreferredSize(new java.awt.Dimension(865, 583));
+        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         button1.setText("DAFTAR MENU");
         button1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -189,6 +190,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 button1ActionPerformed(evt);
             }
         });
+        panelRound1.add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 160, -1));
 
         button2.setBackground(new java.awt.Color(144, 154, 170));
         button2.setText("BAHAN BAKU");
@@ -198,6 +200,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 button2ActionPerformed(evt);
             }
         });
+        panelRound1.add(button2, new org.netbeans.lib.awtextra.AbsoluteConstraints(195, 20, 160, -1));
 
         editBtn.setBackground(new java.awt.Color(255, 157, 35));
         editBtn.setForeground(new java.awt.Color(255, 255, 255));
@@ -209,6 +212,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 editBtnActionPerformed(evt);
             }
         });
+        panelRound1.add(editBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 75, 80, 45));
 
         hapusBtn.setBackground(new java.awt.Color(208, 90, 90));
         hapusBtn.setForeground(new java.awt.Color(255, 255, 255));
@@ -220,6 +224,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 hapusBtnActionPerformed(evt);
             }
         });
+        panelRound1.add(hapusBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 75, 80, 45));
 
         btnAdd.setBackground(new java.awt.Color(97, 131, 175));
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
@@ -231,6 +236,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 btnAddActionPerformed(evt);
             }
         });
+        panelRound1.add(btnAdd, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 75, 80, 45));
 
         jScrollPane2.setBorder(null);
 
@@ -253,6 +259,8 @@ public class Form_Menu extends javax.swing.JPanel {
         tbl_menu.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tbl_menu);
 
+        panelRound1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 800, 350));
+
         button3.setBackground(new java.awt.Color(144, 154, 170));
         button3.setText("SATUAN");
         button3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -261,6 +269,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 button3ActionPerformed(evt);
             }
         });
+        panelRound1.add(button3, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 20, 160, -1));
 
         button4.setBackground(new java.awt.Color(144, 154, 170));
         button4.setText("KATEGORI");
@@ -270,47 +279,7 @@ public class Form_Menu extends javax.swing.JPanel {
                 button4ActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout panelRound1Layout = new javax.swing.GroupLayout(panelRound1);
-        panelRound1.setLayout(panelRound1Layout);
-        panelRound1Layout.setHorizontalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(54, 54, 54)
-                        .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(54, 54, 54)
-                        .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(54, 54, 54)
-                        .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(550, 550, 550)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-        panelRound1Layout.setVerticalGroup(
-            panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelRound1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(editBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hapusBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+        panelRound1.add(button4, new org.netbeans.lib.awtextra.AbsoluteConstraints(545, 20, 160, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));

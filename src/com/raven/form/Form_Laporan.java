@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import javax.swing.table.DefaultTableModel;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class Form_Laporan extends javax.swing.JPanel {
 
@@ -22,6 +24,18 @@ public class Form_Laporan extends javax.swing.JPanel {
         getCon();
         setTableModelDynamic();
         loadData();
+    }
+
+    private String formatRupiah(double amount) {
+        Locale indonesia = new Locale("id", "ID");
+        NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(indonesia);
+        return rupiahFormat.format(amount);
+    }
+
+    private String getNamaBulan(int bulan) {
+        String[] bulanIndo = {"Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"};
+        return bulanIndo[bulan - 1];
     }
 
     private void getCon() {
@@ -47,7 +61,7 @@ public class Form_Laporan extends javax.swing.JPanel {
             { // Pengeluaran
                 {"Tanggal", "Kategori", "Nama", "Jumlah", "Harga Satuan", "Total Harga"},
                 {"Bulan", "Kategori", "Total Pengeluaran"},
-                {"Tahun", "Total Pengeluaran", "Kategori"}
+                {"Tahun", "Kategori", "Total Pengeluaran"}
             }
         };
 
@@ -72,30 +86,60 @@ public class Form_Laporan extends javax.swing.JPanel {
 
     private void loadLaporanProfit() {
         try {
-            String query = "SELECT tanggal, total_penjualan, total_pengeluaran FROM v_laporan WHERE 1=1";
-            if (indexFilter == 0) {
-                query += " AND tanggal = CURDATE()";
-            } else if (indexFilter == 1) {
-                query += " AND MONTH(tanggal) = MONTH(CURDATE()) AND YEAR(tanggal) = YEAR(CURDATE())";
-            } else {
-                query += " AND YEAR(tanggal) = YEAR(CURDATE())";
+            String query = "";
+            if (indexFilter == 0) { // Harian
+                query = "SELECT tanggal, total_penjualan, total_pengeluaran, "
+                        + "(total_penjualan - total_pengeluaran) AS profit "
+                        + "FROM v_laporan "
+                        + "WHERE tanggal = CURDATE()";
+            } else if (indexFilter == 1) { // Bulanan
+                query = "SELECT MONTH(tanggal) AS bulan, "
+                        + "SUM(total_penjualan) AS total_penjualan, "
+                        + "SUM(total_pengeluaran) AS total_pengeluaran, "
+                        + "SUM(total_penjualan - total_pengeluaran) AS profit "
+                        + "FROM v_laporan "
+                        + "WHERE MONTH(tanggal) = MONTH(CURDATE()) AND YEAR(tanggal) = YEAR(CURDATE()) "
+                        + "GROUP BY MONTH(tanggal)";
+            } else if (indexFilter == 2) { // Tahunan
+                query = "SELECT YEAR(tanggal) AS tahun, "
+                        + "SUM(total_penjualan) AS total_penjualan, "
+                        + "SUM(total_pengeluaran) AS total_pengeluaran, "
+                        + "SUM(total_penjualan - total_pengeluaran) AS profit "
+                        + "FROM v_laporan "
+                        + "WHERE YEAR(tanggal) = YEAR(CURDATE()) "
+                        + "GROUP BY YEAR(tanggal)";
             }
 
             PreparedStatement ps = con.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
+
+            tableModel.setRowCount(0); // Kosongkan isi tabel sebelumnya
+
             while (rs.next()) {
                 double penjualan = rs.getDouble("total_penjualan");
                 double pengeluaran = rs.getDouble("total_pengeluaran");
-                double profit = penjualan - pengeluaran;
+                double profit = rs.getDouble("profit");
                 String minus = profit < 0 ? "YA" : "TIDAK";
-                Object waktu = rs.getDate("tanggal");
-                if (indexFilter == 1) {
-                    waktu = new SimpleDateFormat("MMMM").format(rs.getDate("tanggal"));
-                } else if (indexFilter == 2) {
-                    waktu = new SimpleDateFormat("yyyy").format(rs.getDate("tanggal"));
+                Object waktu;
+
+                if (indexFilter == 0) {
+                    waktu = rs.getDate("tanggal");
+                } else if (indexFilter == 1) {
+                    int bulan = rs.getInt("bulan");
+                    waktu = getNamaBulan(bulan);
+                } else {
+                    waktu = rs.getString("tahun");
                 }
-                tableModel.addRow(new Object[]{waktu, penjualan, pengeluaran, profit, minus});
+
+                tableModel.addRow(new Object[]{
+                    waktu,
+                    formatRupiah(penjualan),
+                    formatRupiah(pengeluaran),
+                    formatRupiah(profit),
+                    minus
+                });
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,28 +147,78 @@ public class Form_Laporan extends javax.swing.JPanel {
 
     private void loadLaporanPemasukan() {
         try {
-            String query = "SELECT t.tgl_transaksi, t.kode_transaksi, t.nama_pelanggan, m.nama_menu, dt.jumlah, (dt.jumlah * m.harga) as total "
-                    + "FROM transaksi t JOIN detail_transaksi dt ON t.kode_transaksi = dt.kode_transaksi "
-                    + "JOIN menu m ON dt.kode_menu = m.kode_menu WHERE 1=1";
-            if (indexFilter == 0) {
-                query += " AND DATE(t.tgl_transaksi) = CURDATE()";
-            } else if (indexFilter == 1) {
-                query += " AND MONTH(t.tgl_transaksi) = MONTH(CURDATE()) AND YEAR(t.tgl_transaksi) = YEAR(CURDATE())";
-            } else {
-                query += " AND YEAR(t.tgl_transaksi) = YEAR(CURDATE())";
-            }
+            tableModel.setRowCount(0); // Bersihkan tabel
+            String query = "";
+            PreparedStatement ps;
+            ResultSet rs;
 
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                tableModel.addRow(new Object[]{
-                    rs.getDate("tgl_transaksi"),
-                    rs.getString("kode_transaksi"),
-                    rs.getString("nama_pelanggan"),
-                    rs.getString("nama_menu"),
-                    rs.getInt("jumlah"),
-                    rs.getDouble("total")
-                });
+            if (indexFilter == 0) {
+                // Harian
+                query = "SELECT t.tgl_transaksi, t.kode_transaksi, t.nama_pelanggan, m.nama_menu, dt.jumlah, (dt.jumlah * m.harga) AS total "
+                        + "FROM transaksi t "
+                        + "JOIN detail_transaksi dt ON t.kode_transaksi = dt.kode_transaksi "
+                        + "JOIN menu m ON dt.kode_menu = m.kode_menu "
+                        + "WHERE DATE(t.tgl_transaksi) = CURDATE()";
+                ps = con.prepareStatement(query);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    tableModel.addRow(new Object[]{
+                        rs.getDate("tgl_transaksi"),
+                        rs.getString("kode_transaksi"),
+                        rs.getString("nama_pelanggan"),
+                        rs.getString("nama_menu"),
+                        rs.getInt("jumlah"),
+                        formatRupiah(rs.getDouble("total"))
+                    });
+                }
+
+            } else if (indexFilter == 1) {
+                // Bulanan
+                query = "SELECT DATE_FORMAT(t.tgl_transaksi, '%Y-%m') AS bulan, "
+                        + "SUM(t.total_transaksi) AS total, "
+                        + "ROUND(SUM(t.total_transaksi) / COUNT(DISTINCT DATE(t.tgl_transaksi)), 2) AS rata_rata, "
+                        + "(SELECT m2.nama_menu FROM detail_transaksi dt2 "
+                        + " JOIN menu m2 ON dt2.kode_menu = m2.kode_menu "
+                        + " JOIN transaksi t2 ON dt2.kode_transaksi = t2.kode_transaksi "
+                        + " WHERE MONTH(t2.tgl_transaksi) = MONTH(CURDATE()) AND YEAR(t2.tgl_transaksi) = YEAR(CURDATE()) "
+                        + " GROUP BY dt2.kode_menu ORDER BY SUM(dt2.jumlah) DESC LIMIT 1) AS menu_terlaris "
+                        + "FROM transaksi t "
+                        + "WHERE MONTH(t.tgl_transaksi) = MONTH(CURDATE()) AND YEAR(t.tgl_transaksi) = YEAR(CURDATE()) "
+                        + "GROUP BY DATE_FORMAT(t.tgl_transaksi, '%Y-%m')";
+                ps = con.prepareStatement(query);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    tableModel.addRow(new Object[]{
+                        rs.getString("bulan"),
+                        formatRupiah(rs.getDouble("total")),
+                        formatRupiah(rs.getDouble("rata_rata")),
+                        rs.getString("menu_terlaris")
+                    });
+                }
+
+            } else if (indexFilter == 2) {
+                // Tahunan
+                query = "SELECT YEAR(t.tgl_transaksi) AS tahun, "
+                        + "SUM(t.total_transaksi) AS total, "
+                        + "ROUND(SUM(t.total_transaksi) / COUNT(DISTINCT MONTH(t.tgl_transaksi)), 2) AS rata_rata, "
+                        + "(SELECT m2.nama_menu FROM detail_transaksi dt2 "
+                        + " JOIN menu m2 ON dt2.kode_menu = m2.kode_menu "
+                        + " JOIN transaksi t2 ON dt2.kode_transaksi = t2.kode_transaksi "
+                        + " WHERE YEAR(t2.tgl_transaksi) = YEAR(CURDATE()) "
+                        + " GROUP BY dt2.kode_menu ORDER BY SUM(dt2.jumlah) DESC LIMIT 1) AS menu_terlaris "
+                        + "FROM transaksi t "
+                        + "WHERE YEAR(t.tgl_transaksi) = YEAR(CURDATE()) "
+                        + "GROUP BY YEAR(t.tgl_transaksi)";
+                ps = con.prepareStatement(query);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    tableModel.addRow(new Object[]{
+                        rs.getInt("tahun"),
+                        formatRupiah(rs.getDouble("total")),
+                        formatRupiah(rs.getDouble("rata_rata")),
+                        rs.getString("menu_terlaris")
+                    });
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,28 +227,73 @@ public class Form_Laporan extends javax.swing.JPanel {
 
     private void loadLaporanPengeluaran() {
         try {
-            String query = "SELECT p.tgl_pengeluaran, dp.nama_pengeluaran, dp.jumlah, dp.harga_satuan, dp.total "
-                    + "FROM pengeluaran p JOIN detail_pengeluaran dp ON p.kode_pengeluaran = dp.kode_pengeluaran WHERE 1=1";
+            tableModel.setRowCount(0); // Kosongkan tabel
+            String query = "";
+            PreparedStatement ps;
+            ResultSet rs;
+
             if (indexFilter == 0) {
-                query += " AND p.tgl_pengeluaran = CURDATE()";
+                // Harian
+                tableModel.setColumnIdentifiers(new String[]{"Tanggal", "Kategori", "Nama", "Jumlah", "Harga Satuan", "Total Harga"});
+                query = "SELECT p.tgl_pengeluaran, dp.kode_bahanbaku, dp.nama_pengeluaran, dp.jumlah, dp.harga_satuan, dp.total "
+                        + "FROM detail_pengeluaran dp "
+                        + "JOIN pengeluaran p ON p.kode_pengeluaran = dp.kode_pengeluaran "
+                        + "WHERE p.tgl_pengeluaran = CURDATE()";
+                ps = con.prepareStatement(query);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    String kategori = rs.getString("kode_bahanbaku") == null ? "Lainnya" : "Operasional";
+                    tableModel.addRow(new Object[]{
+                        rs.getDate("tgl_pengeluaran"),
+                        kategori,
+                        rs.getString("nama_pengeluaran"),
+                        rs.getDouble("jumlah"),
+                        formatRupiah(rs.getDouble("harga_satuan")),
+                        formatRupiah(rs.getDouble("total"))
+                    });
+                }
+
             } else if (indexFilter == 1) {
-                query += " AND MONTH(p.tgl_pengeluaran) = MONTH(CURDATE()) AND YEAR(p.tgl_pengeluaran) = YEAR(CURDATE())";
-            } else {
-                query += " AND YEAR(p.tgl_pengeluaran) = YEAR(CURDATE())";
+                // Bulanan
+                tableModel.setColumnIdentifiers(new String[]{"Bulan", "Kategori", "Total Pengeluaran"});
+                query = "SELECT DATE_FORMAT(p.tgl_pengeluaran, '%Y-%m') AS bulan, "
+                        + "IF(dp.kode_bahanbaku IS NULL, 'Lainnya', 'Operasional') AS kategori, "
+                        + "SUM(dp.total) AS total_pengeluaran "
+                        + "FROM detail_pengeluaran dp "
+                        + "JOIN pengeluaran p ON p.kode_pengeluaran = dp.kode_pengeluaran "
+                        + "WHERE MONTH(p.tgl_pengeluaran) = MONTH(CURDATE()) AND YEAR(p.tgl_pengeluaran) = YEAR(CURDATE()) "
+                        + "GROUP BY kategori, bulan";
+                ps = con.prepareStatement(query);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    tableModel.addRow(new Object[]{
+                        rs.getString("bulan"),
+                        rs.getString("kategori"),
+                        formatRupiah(rs.getDouble("total_pengeluaran"))
+                    });
+                }
+
+            } else if (indexFilter == 2) {
+                // Tahunan
+                tableModel.setColumnIdentifiers(new String[]{"Tahun", "Total Pengeluaran", "Kategori"});
+                query = "SELECT YEAR(p.tgl_pengeluaran) AS tahun, "
+                        + "IF(dp.kode_bahanbaku IS NULL, 'Lainnya', 'Operasional') AS kategori, "
+                        + "SUM(dp.total) AS total_pengeluaran "
+                        + "FROM detail_pengeluaran dp "
+                        + "JOIN pengeluaran p ON p.kode_pengeluaran = dp.kode_pengeluaran "
+                        + "WHERE YEAR(p.tgl_pengeluaran) = YEAR(CURDATE()) "
+                        + "GROUP BY kategori, tahun";
+                ps = con.prepareStatement(query);
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    tableModel.addRow(new Object[]{
+                        rs.getInt("tahun"),
+                        rs.getString("kategori"),
+                        formatRupiah(rs.getDouble("total_pengeluaran"))
+                    });
+                }
             }
 
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                tableModel.addRow(new Object[]{
-                    rs.getDate("tgl_pengeluaran"),
-                    "Operasional",
-                    rs.getString("nama_pengeluaran"),
-                    rs.getInt("jumlah"),
-                    rs.getDouble("harga_satuan"),
-                    rs.getDouble("total")
-                });
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
