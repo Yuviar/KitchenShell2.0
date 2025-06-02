@@ -14,6 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import print.StrukManager;
 import print.model.ParameterStruk;
+import static config.Utilz.*;
 
 public class Form_Transaksi extends javax.swing.JPanel {
 
@@ -52,12 +53,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
         }
     }
 
-    public String convertRupiah(int intPrice) {
-        Locale localId = new Locale("in", "ID");
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(localId);
-        String strFormat = formatter.format(intPrice);
-        return strFormat;
-    }
 
     private void setModel() {
         String[] judul = {"Kode Menu", "Nama Menu", "Jumlah", "Harga", "Harga Total"};
@@ -127,13 +122,13 @@ public class Form_Transaksi extends javax.swing.JPanel {
                                 int qtySekarang = (Integer) tableModel.getValueAt(i, 2);
 
                                 // Cek apakah masih bisa ditambah
-                                if (qtySekarang < stokTersedia) {
+                                if (stokTersedia > 0) {
                                     // Update quantity dan total
                                     int qtyBaru = qtySekarang + jumlah;
                                     double totalBaru = qtyBaru * harga;
 
                                     tableModel.setValueAt(qtyBaru, i, 2);
-                                    tableModel.setValueAt(convertRupiah((int) totalBaru), i, 4);
+                                    tableModel.setValueAt(convertRupiah(totalBaru), i, 4);
 
                                     // Update total bayar
                                     totalBayar += harga;
@@ -154,7 +149,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                         // Jika menu belum ada, tambahkan baris baru
                         if (!menuSudahAda) {
                             double totalHarga = jumlah * harga;
-                            tableModel.addRow(new Object[]{kodeMenu, namaMenu, jumlah, convertRupiah((int) harga), convertRupiah((int) totalHarga)});
+                            tableModel.addRow(new Object[]{kodeMenu, namaMenu, jumlah, convertRupiah(harga), convertRupiah(totalHarga)});
 
                             // Update total bayar
                             totalBayar += totalHarga;
@@ -165,8 +160,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
                         }
 
                         // Update tampilan total
-                        txtTotal.setText(convertRupiah((int) totalBayar));
-                        inputSub.setText(convertRupiah((int) subTotal));
+                        txtTotal.setText(convertRupiah(totalBayar));
+                        inputSub.setText(convertRupiah(subTotal));
 
                     } else {
                         JOptionPane.showMessageDialog(this, "Stok Habis!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -287,8 +282,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
             if (bayar < totalSetelahDiskon) {
                 JOptionPane.showMessageDialog(this,
                         "Jumlah pembayaran kurang!\n"
-                        + "Total: " + convertRupiah((int) totalSetelahDiskon) + "\n"
-                        + "Bayar: " + convertRupiah((int) bayar),
+                        + "Total: " + convertRupiah(totalSetelahDiskon) + "\n"
+                        + "Bayar: " + convertRupiah(bayar),
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -355,22 +350,22 @@ public class Form_Transaksi extends javax.swing.JPanel {
             // Tampilkan pesan sukses dengan format rupiah
             String pesanSukses = "Transaksi berhasil!\n"
                     + "Kode Transaksi: " + kodeTransaksi + "\n"
-                    + "Total: " + convertRupiah((int) subTotal) + "\n";
+                    + "Total: " + convertRupiah(subTotal) + "\n";
 
             if (diskon > 0) {
-                pesanSukses += "Diskon Point: " + convertRupiah((int) diskon) + "\n";
+                pesanSukses += "Diskon Point: " + convertRupiah(diskon) + "\n";
                 if (totalSetelahDiskon == 0) {
                     pesanSukses += "Total Setelah Diskon: GRATIS\n";
                 } else {
-                    pesanSukses += "Total Setelah Diskon: " + convertRupiah((int) totalSetelahDiskon) + "\n";
+                    pesanSukses += "Total Setelah Diskon: " + convertRupiah(totalSetelahDiskon) + "\n";
                 }
             }
 
             if (totalSetelahDiskon == 0) {
                 pesanSukses += "Status: GRATIS";
             } else {
-                pesanSukses += "Bayar: " + convertRupiah((int) bayar) + "\n"
-                        + "Kembalian: " + convertRupiah((int) kembalian);
+                pesanSukses += "Bayar: " + convertRupiah(bayar) + "\n"
+                        + "Kembalian: " + convertRupiah(kembalian);
             }
 
             if (isMemberTransaction) {
@@ -558,9 +553,9 @@ public class Form_Transaksi extends javax.swing.JPanel {
             if (bayar < totalSetelahDiskon) {
                 JOptionPane.showMessageDialog(this,
                         "Jumlah pembayaran kurang!\n"
-                        + "Total: " + convertRupiah((int) subTotal) + "\n"
-                        + (totalSetelahDiskon != subTotal ? "Total Setelah Diskon: " + convertRupiah((int) totalSetelahDiskon) + "\n" : "")
-                        + "Bayar: " + convertRupiah((int) bayar),
+                        + "Total: " + convertRupiah(subTotal) + "\n"
+                        + (totalSetelahDiskon != subTotal ? "Total Setelah Diskon: " + convertRupiah(totalSetelahDiskon) + "\n" : "")
+                        + "Bayar: " + convertRupiah(bayar),
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
@@ -1017,16 +1012,16 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 if (totalBayar == 0) {
                     txtTotal.setText("GRATIS");
                 } else {
-                    txtTotal.setText(convertRupiah((int) totalBayar));
+                    txtTotal.setText(convertRupiah(totalBayar));
                 }
             } else {
                 // Tidak gunakan poin
                 totalBayar = subTotal;
-                txtTotal.setText(convertRupiah((int) totalBayar));
+                txtTotal.setText(convertRupiah(totalBayar));
             }
 
             // Update tampilan subtotal dengan format rupiah
-            inputSub.setText(convertRupiah((int) subTotal));
+            inputSub.setText(convertRupiah(subTotal));
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Format poin tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -1050,12 +1045,12 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 // Hitung kembalian
                 if (bayar >= totalBayar) {
                     double kembalian = bayar - totalBayar;
-                    inputKembalian.setText(convertRupiah((int) kembalian));
+                    inputKembalian.setText(convertRupiah(kembalian));
                 } else {
                     JOptionPane.showMessageDialog(this,
                             "Nominal tidak cukup!\n"
-                            + "Total: " + convertRupiah((int) totalBayar) + "\n"
-                            + "Bayar: " + convertRupiah((int) bayar),
+                            + "Total: " + convertRupiah(totalBayar) + "\n"
+                            + "Bayar: " + convertRupiah(bayar),
                             "Error", JOptionPane.ERROR_MESSAGE);
                     inputKembalian.setText("0");
                 }
@@ -1123,7 +1118,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                                 double totalBaru = qtyBaru * harga;
 
                                 tableModel.setValueAt(qtyBaru, i, 2);
-                                tableModel.setValueAt(convertRupiah((int) totalBaru), i, 4);
+                                tableModel.setValueAt(convertRupiah(totalBaru), i, 4);
 
                                 // Update total bayar
                                 double tambahan = qtyInput * harga;
@@ -1151,7 +1146,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                     if (!menuSudahAda) {
                         if (qtyInput <= stokTersedia) {
                             double totalHarga = qtyInput * harga;
-                            tableModel.addRow(new Object[]{kodeMenu, namaMenu, qtyInput, convertRupiah((int) harga), convertRupiah((int) totalHarga)});
+                            tableModel.addRow(new Object[]{kodeMenu, namaMenu, qtyInput, convertRupiah(harga), convertRupiah(totalHarga)});
 
                             // Update total bayar
                             totalBayar += totalHarga;
@@ -1170,8 +1165,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
                     }
 
                     // Update tampilan total
-                    txtTotal.setText(convertRupiah((int) totalBayar));
-                    inputSub.setText(convertRupiah((int) subTotal));
+                    txtTotal.setText(convertRupiah(totalBayar));
+                    inputSub.setText(convertRupiah(subTotal));
 
                     // Clear input
                     inputQty.setText("1");
@@ -1231,8 +1226,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 totalBayar = 0;
                 subTotal = 0;
             } else {
-                txtTotal.setText(convertRupiah((int) totalBayar));
-                inputSub.setText(convertRupiah((int) subTotal));
+                txtTotal.setText(convertRupiah(totalBayar));
+                inputSub.setText(convertRupiah(subTotal));
             }
 
             // Hapus row dari tabel

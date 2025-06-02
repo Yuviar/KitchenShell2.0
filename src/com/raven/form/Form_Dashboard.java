@@ -9,6 +9,8 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import javax.swing.JOptionPane;
 
+import static config.Utilz.*;
+
 public class Form_Dashboard extends javax.swing.JPanel {
 
     private Connection con;
@@ -74,7 +76,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
             try (PreparedStatement ps = con.prepareStatement(query)) {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
-                    pendapatanHari.setText("Rp. " + hasil.getInt(1));
+                    pendapatanHari.setText(convertRupiah((double) hasil.getInt(1)));
                 } else {
                     pendapatanHari.setText("Rp. 0");
 
@@ -85,7 +87,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
             try (PreparedStatement ps = con.prepareStatement(query)) {
                 ResultSet hasil = ps.executeQuery();
                 if (hasil.next()) {
-                    pendapatanBulan.setText("Rp. " + hasil.getInt(1));
+                    pendapatanBulan.setText(convertRupiah((double) hasil.getInt(1)));
                 } else {
                     pendapatanBulan.setText("Rp. 0");
 
@@ -238,7 +240,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jLabel3.setText("Jumlah Menu");
         card1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 190, -1));
 
-        jmlMenu.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        jmlMenu.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jmlMenu.setForeground(new java.awt.Color(255, 255, 255));
         jmlMenu.setText("20");
         card1.add(jmlMenu, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 190, 52));
@@ -258,7 +260,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jLabel7.setText("Pendapatan Bulan ini");
         card3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 190, -1));
 
-        pendapatanBulan.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        pendapatanBulan.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         pendapatanBulan.setForeground(new java.awt.Color(255, 255, 255));
         pendapatanBulan.setText("Rp 500.000");
         card3.add(pendapatanBulan, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 190, 52));
@@ -278,7 +280,7 @@ public class Form_Dashboard extends javax.swing.JPanel {
         jLabel5.setText("Pendapatan Hari ini");
         card2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 20, 190, -1));
 
-        pendapatanHari.setFont(new java.awt.Font("Segoe UI", 1, 30)); // NOI18N
+        pendapatanHari.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         pendapatanHari.setForeground(new java.awt.Color(255, 255, 255));
         pendapatanHari.setText("Rp 50.000");
         card2.add(pendapatanHari, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 30, 190, 52));

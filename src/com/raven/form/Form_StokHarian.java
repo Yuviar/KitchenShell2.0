@@ -11,6 +11,8 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import raven.glasspanepopup.GlassPanePopup;
 
+import static config.Utilz.*;
+
 /**
  *
  * @author Fazaa
@@ -46,7 +48,7 @@ public class Form_StokHarian extends javax.swing.JPanel {
                 ResultSet rs = ps.executeQuery();
                 tableModel.setRowCount(0);
                 while (rs.next()) {
-                    String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)};
+                    String[] data = {rs.getString(1), rs.getString(2), convertRupiah(rs.getDouble(3)), rs.getString(4)};
                     tableModel.addRow(data);
                 }
                 rs.close();
