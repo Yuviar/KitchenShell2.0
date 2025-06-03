@@ -50,11 +50,11 @@ public class Form_StokOpname extends javax.swing.JPanel {
 
     private void loadOpname() {
         try {
-            String q = "SELECT * FROM v_stok_opname";
+            String q = "select `bahanbaku`.`nama_bahanbaku` AS `nama_bahanbaku`,`user`.`nama` AS `nama`,`opname_stok`.`stok_sistem` AS `stok_sistem`,`opname_stok`.`stok_fisik` AS `stok_fisik`,`opname_stok`.`selisih` AS `selisih`,`opname_stok`.`keterangan` AS `keterangan`,`opname_stok`.`tgl_opname` AS `tgl_opname` from ((`opname_stok` join `bahanbaku` on((`opname_stok`.`kode_bahanbaku` = `bahanbaku`.`kode_bahanbaku`))) join `user` on((`opname_stok`.`id_user` = `user`.`id_user`))) order by `opname_stok`.`waktu_input` desc";
             PreparedStatement ps = con.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                String[] data = {rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7)};
+                String[] data = {rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7)};
                 tableModel.addRow(data);
             }
         } catch (SQLException e) {
