@@ -55,6 +55,19 @@ public class BahanBakuPopup extends javax.swing.JPanel {
         }
     }
 
+    public void resetForm() {
+        // Kosongkan semua TextField
+        txtNama.setText("");
+        isEditMode = false;
+        // Reset semua JComboBox
+        satuanCombo.setSelectedIndex(-1);   // Tidak ada yang dipilih
+
+        jLabel1.setText("TAMBAH BAHAN");
+        btnSelesai.setText("Selesai");
+        
+        txtNama.requestFocus();
+    }
+
     private void loadData() {
         items = new ArrayList<String>();
         if (con != null) {
@@ -80,15 +93,15 @@ public class BahanBakuPopup extends javax.swing.JPanel {
     public void setEditMode(String kode_bahan, String nama) {
         isEditMode = true;
         editKodeBahan = kode_bahan;
-        try{
-        PreparedStatement pst = con.prepareStatement("SELECT * FROM bahanbaku WHERE kode_bahanbaku=?");
+        try {
+            PreparedStatement pst = con.prepareStatement("SELECT * FROM bahanbaku WHERE kode_bahanbaku=?");
             pst.setString(1, kode_bahan);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
                 txtNama.setText(rs.getString("nama_bahanbaku"));
                 satuanCombo.setSelectedItem(rs.getString("kode_satuan"));
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -339,9 +352,9 @@ public class BahanBakuPopup extends javax.swing.JPanel {
                 }
 
                 GlassPanePopup.closePopupLast();
-                isEditMode =false;
+                isEditMode = false;
                 txtNama.setText("");
-                editKodeBahan=null;
+                editKodeBahan = null;
             } else {
                 throw new Exception("Semua data harus diisi!");
             }

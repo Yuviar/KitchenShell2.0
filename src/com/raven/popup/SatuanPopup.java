@@ -21,29 +21,39 @@ public class SatuanPopup extends javax.swing.JPanel {
     private boolean isEditMode = false;
     private String editKodeSatuan = null;
     private DataChangeListener dataChangeListener;
-    
+
     public SatuanPopup() {
         getCon();
         initComponents();
     }
-    
+
     public void setSatuanListener(DataChangeListener listener) {
         this.dataChangeListener = listener;
     }
 
-    
-     private void getCon() {
+    private void getCon() {
         try {
             con = DatabaseConfig.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-     
-      private void saveData() {
+
+    public void resetForm() {
+        // Kosongkan semua TextField
+        txtNama.setText("");
+        isEditMode = false;
+        
+        jLabel1.setText("TAMBAH SATUAN");
+        btnSubmit.setText("Selesai");
+        
+        txtNama.requestFocus();
+    }
+
+    private void saveData() {
         try {
             String nama = txtNama.getText().trim();
-            
+
             if (!nama.isEmpty()) {
                 if (isEditMode) {
                     // UPDATE 
@@ -69,9 +79,9 @@ public class SatuanPopup extends javax.swing.JPanel {
                 }
 
                 GlassPanePopup.closePopupLast();
-                isEditMode =false;
+                isEditMode = false;
                 txtNama.setText("");
-                editKodeSatuan=null;
+                editKodeSatuan = null;
             } else {
                 throw new Exception("Semua data harus diisi!");
             }
@@ -81,8 +91,8 @@ public class SatuanPopup extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
         }
     }
-      
-       public void setEditMode(String kode_satuan, String nama) {
+
+    public void setEditMode(String kode_satuan, String nama) {
         isEditMode = true;
         editKodeSatuan = kode_satuan;
 
@@ -90,7 +100,7 @@ public class SatuanPopup extends javax.swing.JPanel {
 
         jLabel1.setText("EDIT SATUAN");
         btnSubmit.setText("Update");
-       }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

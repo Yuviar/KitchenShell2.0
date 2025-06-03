@@ -43,6 +43,20 @@ public class AkunPopup extends javax.swing.JPanel {
         }
     }
 
+    public void resetForm() {
+        // Kosongkan semua TextField
+        txtNama.setText("");
+        txtRFID.setText("");
+        txtPassword.setText("");
+        txtUsername.setText("");
+        radioKaryawan.setSelected(true);
+        isEditMode = false;
+        jLabel1.setText("TAMBAH AKUN");
+        btnSubmit.setText("Selesai");
+        txtNama.requestFocus();
+    }
+
+    
     private void saveData() {
         try {
             int hak = -1;
@@ -103,7 +117,6 @@ public class AkunPopup extends javax.swing.JPanel {
         txtUsername.setText(username);
         txtPassword.setText(password);
         txtRFID.setText(uid);
-        txtRFID.setEditable(false);
 
         if (level == 1) {
             radioAdmin.setSelected(true);

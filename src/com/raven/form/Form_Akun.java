@@ -15,6 +15,7 @@ import raven.glasspanepopup.GlassPanePopup;
 import com.raven.event.DataChangeListener;
 import com.raven.popup.HapusDataPopup;
 import com.raven.popup.MemberPopup;
+import config.Session;
 import java.awt.Color;
 
 /**
@@ -36,7 +37,19 @@ public class Form_Akun extends javax.swing.JPanel {
         setOpaque(false);
         getCon();
         setModel();
+        
+        if(Session.getRole().equals("karyawan")){
+            indexTable = 1;
+            button1.setVisible(false);
+        }
+        
         popup.setAkunListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadData();
+            }
+        });
+        popupMember.setMemberListener(new DataChangeListener(){
             @Override
             public void onDataChanged() {
                 loadData();
@@ -351,9 +364,11 @@ public class Form_Akun extends javax.swing.JPanel {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
         if (indexTable == 0) {
-            GlassPanePopup.showPopup(new AkunPopup());
+            popup.resetForm();
+            GlassPanePopup.showPopup(popup);
         } else {
-            GlassPanePopup.showPopup(new MemberPopup());
+            popupMember.resetForm();
+            GlassPanePopup.showPopup(popupMember);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 

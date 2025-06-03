@@ -32,7 +32,7 @@ public class Form_StokHarian extends javax.swing.JPanel {
         initComponents();
         setModel();
         setOpaque(false);
-        popup.setMenuListener(new DataChangeListener() {
+        popup.setPorsiListener(new DataChangeListener() {
             @Override
             public void onDataChanged() {
                 loadData();
@@ -188,7 +188,7 @@ public class Form_StokHarian extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        GlassPanePopup.showPopup(new PorsiPopup());
+        GlassPanePopup.showPopup(popup);
     }//GEN-LAST:event_btnAddActionPerformed
 
 

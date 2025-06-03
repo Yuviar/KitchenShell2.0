@@ -21,13 +21,15 @@ public class KategoriPopup extends javax.swing.JPanel {
     private Connection con = null;
     private boolean isEditMode = false;
     private String editKodeKategori = null;
-    private DataChangeListener dataChangeListener;;
+    private DataChangeListener dataChangeListener;
+
+    ;
     
     public KategoriPopup() {
         getCon();
         initComponents();
     }
-    
+
     public void setKategoriListener(DataChangeListener listener) {
         this.dataChangeListener = listener;
     }
@@ -39,17 +41,28 @@ public class KategoriPopup extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-    
+
+    public void resetForm() {
+        // Kosongkan semua TextField
+        txtNama.setText("");
+        isEditMode = false;
+        jLabel1.setText("TAMBAH KATEGORI");
+        btnSubmit.setText("Selesai");
+        
+        txtNama.requestFocus();
+    }
+
     private void saveData() {
         try {
             String nama = txtNama.getText().trim();
-            
+
             if (!nama.isEmpty()) {
                 if (isEditMode) {
                     // UPDATE
-                    String query = "UPDATE kategori SET nama_kategori = ?, WHERE kode_kategori = ?";
+                    String query = "UPDATE kategori SET nama_kategori = ? WHERE kode_kategori = ?";
                     PreparedStatement ps = con.prepareStatement(query);
                     ps.setString(1, nama);
+                    ps.setString(2, editKodeKategori);
                     ps.executeUpdate();
 
                     JOptionPane.showMessageDialog(null, "Data berhasil diupdate!");
@@ -68,9 +81,9 @@ public class KategoriPopup extends javax.swing.JPanel {
                 if (dataChangeListener != null) {
                     dataChangeListener.onDataChanged();
                 }
-                isEditMode =false;
+                isEditMode = false;
                 txtNama.setText("");
-                editKodeKategori=null;
+                editKodeKategori = null;
                 GlassPanePopup.closePopupLast();
             } else {
                 throw new Exception("Semua data harus diisi!");
@@ -81,7 +94,7 @@ public class KategoriPopup extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan: " + e.getMessage());
         }
     }
-    
+
     public void setEditMode(String kode_kategori, String nama) {
         isEditMode = true;
         editKodeKategori = kode_kategori;
@@ -90,9 +103,9 @@ public class KategoriPopup extends javax.swing.JPanel {
 
         jLabel1.setText("EDIT KATEGORI");
         btnSubmit.setText("Update");
-       }
-        
-        private String generateKodeKategori() {
+    }
+
+    private String generateKodeKategori() {
         try {
             String sql = "SELECT RIGHT(kode_kategori, 3) AS nomor FROM kategori ORDER BY kode_kategori DESC LIMIT 1";
             PreparedStatement ps = con.prepareStatement(sql);
@@ -109,7 +122,7 @@ public class KategoriPopup extends javax.swing.JPanel {
             return "KTG001";
         }
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

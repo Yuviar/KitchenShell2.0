@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
@@ -49,6 +50,7 @@ public class PorsiPopup extends javax.swing.JPanel {
         setModel();
         loadData();
         styling(menuCombo, items);
+        menuCombo.setFocusable(true);
         setOpaque(false);
 
         btnBatalPorsi.setVisible(false);
@@ -66,6 +68,8 @@ public class PorsiPopup extends javax.swing.JPanel {
                 btnBatalPorsi.setVisible(tbl_menu.getSelectedRow() != -1);
             }
         });
+        
+        jScrollPane2.getVerticalScrollBar().setUI(new ModernScrollBarUI());
     }
 
     private void getCon() {
@@ -76,7 +80,7 @@ public class PorsiPopup extends javax.swing.JPanel {
         }
     }
 
-    public void setMenuListener(DataChangeListener listener) {
+    public void setPorsiListener(DataChangeListener listener) {
         this.dataChangeListener = listener;
     }
 
@@ -98,6 +102,7 @@ public class PorsiPopup extends javax.swing.JPanel {
                 String query = "SELECT * FROM menu";
                 PreparedStatement ps = con.prepareStatement(query);
                 ResultSet rs = ps.executeQuery();
+                menuCombo.addItem("");
                 while (rs.next()) {
                     String kode_menu = rs.getString("kode_menu");
                     String nama_menu = rs.getString("nama_menu");
@@ -112,6 +117,7 @@ public class PorsiPopup extends javax.swing.JPanel {
         }
 
     }
+    boolean dicek = false;
 
     private void styling(JComboBox combo, List<String> items) {
         // Ganti font & warna
@@ -158,8 +164,11 @@ public class PorsiPopup extends javax.swing.JPanel {
 
         JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
         editor.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+
+        SwingUtilities.invokeLater(() -> editor.requestFocusInWindow());
+
         editor.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent e) {
+            public void keyPressed(KeyEvent e) {
                 String input = editor.getText();
                 combo.hidePopup();
                 combo.removeAllItems();
@@ -169,11 +178,23 @@ public class PorsiPopup extends javax.swing.JPanel {
                         combo.addItem(item);
                     }
                 }
-                if(combo.getItemCount() <= 0)
+                if (combo.getItemCount() <= 0) {
                     return;
+                }
                 editor.setText(input); // keep the text
                 combo.showPopup();
+                
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && !dicek) {
+                    dicek = true;
+                    combo.setSelectedIndex(0); // Pilih item pertama
+                    editor.setText(combo.getSelectedItem().toString()); // keep the text
+                    combo.hidePopup();
+                    tambahPorsi();
+                    editor.setText("");
+                    combo.setSelectedIndex(-1);
+                }
             }
+
         });
 
     }
@@ -428,11 +449,11 @@ public class PorsiPopup extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnBatalPorsiActionPerformed
 
-    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+    private void tambahPorsi() {
         String[] kodeMenu = menuCombo.getSelectedItem().toString().split(" - ");
         String jumlahStr = JOptionPane.showInputDialog(this, "Masukkan jumlah Porsi:");
-
-        if (jumlahStr == null || jumlahStr.isEmpty() || Integer.parseInt(jumlahStr) <=0) {
+        if (jumlahStr == null || jumlahStr.isEmpty() || Integer.parseInt(jumlahStr) <= 0) {
+            dicek = false;
             return;
         }
         if (con != null) {
@@ -460,6 +481,7 @@ public class PorsiPopup extends javax.swing.JPanel {
                         }
                         if (!cekKode) {
                             tableModel.addRow(new Object[]{kodeMenu[0].trim(), namaMenu, Integer.parseInt(jumlahStr)});
+
                         }
 
                     }
@@ -470,6 +492,11 @@ public class PorsiPopup extends javax.swing.JPanel {
                 e.printStackTrace();
             }
         }
+        dicek = false;
+    }
+
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        tambahPorsi();
     }//GEN-LAST:event_btnTambahActionPerformed
 
 

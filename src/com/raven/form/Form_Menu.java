@@ -363,12 +363,17 @@ public class Form_Menu extends javax.swing.JPanel {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         if (indexTable == 0) {
+            menuPopup.resetForm();
+            menuPopup.prepareTambah();
             GlassPanePopup.showPopup(menuPopup);
         } else if (indexTable == 1) {
+            bahanPopup.resetForm();
             GlassPanePopup.showPopup(bahanPopup);
         } else if (indexTable == 2) {
+            satuanPopup.resetForm();
             GlassPanePopup.showPopup(satuanPopup);
         } else if (indexTable == 3) {
+            kategPopup.resetForm();
             GlassPanePopup.showPopup(kategPopup);
         }
     }//GEN-LAST:event_btnAddActionPerformed

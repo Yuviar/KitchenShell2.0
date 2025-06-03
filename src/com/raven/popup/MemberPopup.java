@@ -30,6 +30,17 @@ public class MemberPopup extends javax.swing.JPanel {
     public void setMemberListener(DataChangeListener listener) {
         this.dataChangeListener = listener;
     }
+    
+    public void resetForm() {
+        // Kosongkan semua TextField
+        txtNama.setText("");
+        txtRFID.setText("");
+        txtTelpon.setText("");
+        isEditMode = false;
+        jLabel1.setText("TAMBAH MEMBER");
+        btnSubmit.setText("Selesai");
+        txtRFID.requestFocus();
+    }
 
     private void getCon() {
         try {
@@ -149,7 +160,7 @@ public class MemberPopup extends javax.swing.JPanel {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("DAFTAR MEMBER");
+        jLabel1.setText("TAMBAH MEMBER");
         jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
         jLabel1.setFocusable(false);

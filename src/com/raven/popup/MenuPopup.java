@@ -65,6 +65,8 @@ public class MenuPopup extends javax.swing.JPanel {
                 btnBatalResep.setVisible(tblBahan.getSelectedRow() != -1);
             }
         });
+        
+        jScrollPane2.getVerticalScrollBar().setUI(new ModernScrollBarUI());
 
     }
 
@@ -80,7 +82,7 @@ public class MenuPopup extends javax.swing.JPanel {
         }
     }
 
-    private void prepareTambah() {
+    public void prepareTambah() {
         isEditMode = false;
         txtKodeMenu.setText(generateKodeMenu());
         txtKodeMenu.setEnabled(false);
@@ -193,6 +195,26 @@ public class MenuPopup extends javax.swing.JPanel {
         }
     }
 
+    public void resetForm() {
+        // Kosongkan semua TextField
+        txtNamaMenu.setText("");
+        txtKodeMenu.setText("");
+        txtHargaBikin.setText("");
+
+        // Reset semua JComboBox
+        cmbBahan.setSelectedIndex(-1);   // Tidak ada yang dipilih
+        cmbKategori.setSelectedIndex(-1);
+        
+        // Kosongkan isi tabel
+        DefaultTableModel model = (DefaultTableModel) tblBahan.getModel();
+        model.setRowCount(0); // Menghapus semua baris
+        
+        lblTitle.setText("TAMBAH MENU");
+        btnSubmit.setText("Selesai");
+        // Opsional: Set fokus kembali ke komponen awal (misalnya txtNamaMenu)
+        txtNamaMenu.requestFocus();
+    }
+
     private void styling(JComboBox combo, List<String> items) {
         // Ganti font & warna
         // styling dasar
@@ -249,10 +271,19 @@ public class MenuPopup extends javax.swing.JPanel {
                         combo.addItem(item);
                     }
                 }
-                if(combo.getItemCount() <= 0)
+                if (combo.getItemCount() <= 0) {
                     return;
+                }
                 editor.setText(input); // keep the text
                 combo.showPopup();
+
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    combo.setSelectedIndex(0); // Pilih item pertama
+                    editor.setText(combo.getSelectedItem().toString()); // keep the text
+                    combo.hidePopup();
+                    editor.setText("");
+                    combo.setSelectedIndex(-1);
+                }
             }
         });
 
