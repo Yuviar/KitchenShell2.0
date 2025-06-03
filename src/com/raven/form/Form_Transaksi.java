@@ -1,6 +1,7 @@
 package com.raven.form;
 
 import com.raven.swing.ModernScrollBarUI;
+import com.raven.util.InputFilter;
 import config.DatabaseConfig;
 import config.Session;
 import java.sql.*;
@@ -15,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import print.StrukManager;
 import print.model.ParameterStruk;
 import static config.Utilz.*;
+import javax.swing.text.AbstractDocument;
 
 public class Form_Transaksi extends javax.swing.JPanel {
 
@@ -22,7 +24,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
     DefaultTableModel tableModel;
     DefaultTableModel tableModelMenu;
     private static double totalBayar = 0;
-    private static int stokGlobal = 0;
     private static double subTotal = 0;
     private String kodeMember = "";
     private boolean isMember = false;
@@ -43,6 +44,9 @@ public class Form_Transaksi extends javax.swing.JPanel {
         clearAll();
         jScrollPane3.getVerticalScrollBar().setUI(new ModernScrollBarUI());
         btnDelete.setVisible(false);
+        
+        InputFilter.setInputFilter(inputQty, InputFilter.FilterType.ONLY_NUMBERS);
+        InputFilter.setInputFilter(member, InputFilter.FilterType.LETTERS_NUMBERS_SPACE);
     }
 
     private void getCon() {
@@ -52,7 +56,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
             e.printStackTrace();
         }
     }
-
 
     private void setModel() {
         String[] judul = {"Kode Menu", "Nama Menu", "Jumlah", "Harga", "Harga Total"};
@@ -74,6 +77,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
     }
 
     private void loadData() {
+        tableModelMenu.setRowCount(0);
         try {
             StrukManager.getIntance().compileStruk();
         } catch (Exception e) {
@@ -191,6 +195,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
         poin.setVisible(false);
         member.setText("");
         inputMenu.setText("");
+        isMember = false;
 
         // Reset stok menu ke kondisi awal
         tableModelMenu.setRowCount(0);
@@ -377,6 +382,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
             }
 
             JOptionPane.showMessageDialog(this, pesanSukses, "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            printStruk();
 
             clearAll();
             loadData(); // Refresh data menu
@@ -1199,7 +1205,6 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             prosesTransaksi();
-            printStruk();
         }
     }//GEN-LAST:event_btnSelesaiActionPerformed
 
@@ -1221,8 +1226,8 @@ public class Form_Transaksi extends javax.swing.JPanel {
 
             // Update tampilan dengan format rupiah
             if (totalBayar <= 0) {
-                txtTotal.setText("0");
-                inputSub.setText("0");
+                txtTotal.setText(totalBayar+"");
+                inputSub.setText(subTotal+"");
                 totalBayar = 0;
                 subTotal = 0;
             } else {
