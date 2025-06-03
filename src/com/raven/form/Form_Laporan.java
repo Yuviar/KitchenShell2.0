@@ -7,7 +7,6 @@ package com.raven.form;
 import config.DatabaseConfig;
 import java.awt.Color;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import javax.swing.table.DefaultTableModel;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -29,7 +28,6 @@ public class Form_Laporan extends javax.swing.JPanel {
         loadData();
         btnTambahPengeluaran.setVisible(false); // default hidden
     }
-
 
     private String getNamaBulan(int bulan) {
         String[] bulanIndo = {"Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -269,7 +267,7 @@ public class Form_Laporan extends javax.swing.JPanel {
                     String namaBulan = getNamaBulan(bulan);
                     tableModel.addRow(new Object[]{
                         namaBulan,
-                        formatRupiah(rs.getDouble("total_pengeluaran"))
+                        convertRupiah(rs.getDouble("total_pengeluaran"))
                     });
                 }
 
@@ -287,7 +285,7 @@ public class Form_Laporan extends javax.swing.JPanel {
                 while (rs.next()) {
                     tableModel.addRow(new Object[]{
                         rs.getInt("tahun"),
-                        formatRupiah(rs.getDouble("total_pengeluaran"))
+                        convertRupiah(rs.getDouble("total_pengeluaran"))
                     });
                 }
             }
