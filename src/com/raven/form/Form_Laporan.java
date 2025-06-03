@@ -11,6 +11,8 @@ import java.text.SimpleDateFormat;
 import javax.swing.table.DefaultTableModel;
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import static config.Utilz.*;
 import raven.glasspanepopup.GlassPanePopup;
 
 public class Form_Laporan extends javax.swing.JPanel {
@@ -28,11 +30,6 @@ public class Form_Laporan extends javax.swing.JPanel {
         btnTambahPengeluaran.setVisible(false); // default hidden
     }
 
-    private String formatRupiah(double amount) {
-        Locale indonesia = new Locale("id", "ID");
-        NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(indonesia);
-        return rupiahFormat.format(amount);
-    }
 
     private String getNamaBulan(int bulan) {
         String[] bulanIndo = {"Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -136,9 +133,9 @@ public class Form_Laporan extends javax.swing.JPanel {
 
                 tableModel.addRow(new Object[]{
                     waktu,
-                    formatRupiah(penjualan),
-                    formatRupiah(pengeluaran),
-                    formatRupiah(profit),
+                    convertRupiah(penjualan),
+                    convertRupiah(pengeluaran),
+                    convertRupiah(profit),
                     minus
                 });
             }
@@ -171,7 +168,7 @@ public class Form_Laporan extends javax.swing.JPanel {
                         rs.getString("nama_pelanggan"),
                         rs.getString("nama_menu"),
                         rs.getInt("jumlah"),
-                        formatRupiah(rs.getDouble("total"))
+                        convertRupiah(rs.getDouble("total"))
                     });
                 }
 
@@ -193,8 +190,8 @@ public class Form_Laporan extends javax.swing.JPanel {
                 while (rs.next()) {
                     tableModel.addRow(new Object[]{
                         rs.getString("bulan"),
-                        formatRupiah(rs.getDouble("total")),
-                        formatRupiah(rs.getDouble("rata_rata")),
+                        convertRupiah(rs.getDouble("total")),
+                        convertRupiah(rs.getDouble("rata_rata")),
                         rs.getString("menu_terlaris")
                     });
                 }
@@ -217,8 +214,8 @@ public class Form_Laporan extends javax.swing.JPanel {
                 while (rs.next()) {
                     tableModel.addRow(new Object[]{
                         rs.getInt("tahun"),
-                        formatRupiah(rs.getDouble("total")),
-                        formatRupiah(rs.getDouble("rata_rata")),
+                        convertRupiah(rs.getDouble("total")),
+                        convertRupiah(rs.getDouble("rata_rata")),
                         rs.getString("menu_terlaris")
                     });
                 }
@@ -251,8 +248,8 @@ public class Form_Laporan extends javax.swing.JPanel {
                         kategori,
                         rs.getString("nama_pengeluaran"),
                         rs.getDouble("jumlah"),
-                        formatRupiah(rs.getDouble("harga_satuan")),
-                        formatRupiah(rs.getDouble("total"))
+                        convertRupiah(rs.getDouble("harga_satuan")),
+                        convertRupiah(rs.getDouble("total"))
                     });
                 }
 

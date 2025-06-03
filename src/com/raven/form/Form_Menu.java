@@ -18,6 +18,8 @@ import com.raven.swing.ModernScrollBarUI;
 import java.awt.Color;
 import javax.swing.JOptionPane;
 
+import static config.Utilz.*;
+
 /**
  *
  * @author Fazaa
@@ -116,7 +118,7 @@ public class Form_Menu extends javax.swing.JPanel {
                             rs.getString("kode_menu"),
                             rs.getString("kategori"),
                             rs.getString("nama_menu"),
-                            rs.getString("harga")
+                            convertRupiah(rs.getDouble("harga"))
                         };
                     } else if (indexTable == 1) {
                         double stok = rs.getDouble("stok_bahanbaku");

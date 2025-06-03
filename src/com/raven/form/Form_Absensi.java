@@ -168,7 +168,7 @@ public class Form_Absensi extends javax.swing.JPanel {
 
         judul.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         judul.setForeground(new java.awt.Color(33, 53, 85));
-        judul.setText("ABSENSI");
+        judul.setText("PRESENSI");
         judul.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         judul.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 1, 1));
         judul.setFocusable(false);
