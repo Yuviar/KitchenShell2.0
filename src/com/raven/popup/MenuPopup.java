@@ -408,7 +408,7 @@ public class MenuPopup extends javax.swing.JPanel {
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Kategori");
 
-        btnBatal.setBackground(new java.awt.Color(97, 131, 175));
+        btnBatal.setBackground(new java.awt.Color(208, 90, 90));
         btnBatal.setForeground(new java.awt.Color(255, 255, 255));
         btnBatal.setText("Batal");
         btnBatal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -477,7 +477,7 @@ public class MenuPopup extends javax.swing.JPanel {
 
         btnBatalResep.setBackground(new java.awt.Color(97, 131, 175));
         btnBatalResep.setForeground(new java.awt.Color(255, 255, 255));
-        btnBatalResep.setText("Batal");
+        btnBatalResep.setText("Clear");
         btnBatalResep.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnBatalResep.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -536,7 +536,7 @@ public class MenuPopup extends javax.swing.JPanel {
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
                 .addComponent(lblTitle)
-                .addGap(12, 12, 12)
+                .addGap(25, 25, 25)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
@@ -564,11 +564,11 @@ public class MenuPopup extends javax.swing.JPanel {
                 .addComponent(jLabel6)
                 .addGap(0, 0, 0)
                 .addComponent(cmbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
+                .addGap(15, 15, 15)
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnBatal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -582,7 +582,7 @@ public class MenuPopup extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 6, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents

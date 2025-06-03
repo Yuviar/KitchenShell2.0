@@ -883,7 +883,7 @@ public class Form_Transaksi extends javax.swing.JPanel {
                 btnDeleteActionPerformed(evt);
             }
         });
-        panelRound1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 490, -1, -1));
+        panelRound1.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 500, -1, 40));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(33, 53, 85));
