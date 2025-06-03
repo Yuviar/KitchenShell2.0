@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import javax.swing.table.DefaultTableModel;
 import java.text.NumberFormat;
 import java.util.Locale;
+import raven.glasspanepopup.GlassPanePopup;
 
 public class Form_Laporan extends javax.swing.JPanel {
 
@@ -24,6 +25,7 @@ public class Form_Laporan extends javax.swing.JPanel {
         getCon();
         setTableModelDynamic();
         loadData();
+        btnTambahPengeluaran.setVisible(false); // default hidden
     }
 
     private String formatRupiah(double amount) {
@@ -82,6 +84,7 @@ public class Form_Laporan extends javax.swing.JPanel {
         } else if (indexLaporan == 2) {
             loadLaporanPengeluaran();
         }
+        btnTambahPengeluaran.setVisible(indexLaporan == 2 && indexFilter == 0);
     }
 
     private void loadLaporanProfit() {
@@ -255,40 +258,38 @@ public class Form_Laporan extends javax.swing.JPanel {
 
             } else if (indexFilter == 1) {
                 // Bulanan
-                tableModel.setColumnIdentifiers(new String[]{"Bulan", "Kategori", "Total Pengeluaran"});
-                query = "SELECT DATE_FORMAT(p.tgl_pengeluaran, '%Y-%m') AS bulan, "
-                        + "IF(dp.kode_bahanbaku IS NULL, 'Lainnya', 'Operasional') AS kategori, "
+                tableModel.setColumnIdentifiers(new String[]{"Bulan", "Total Pengeluaran"});
+                query = "SELECT MONTH(p.tgl_pengeluaran) AS bulan, "
                         + "SUM(dp.total) AS total_pengeluaran "
                         + "FROM detail_pengeluaran dp "
                         + "JOIN pengeluaran p ON p.kode_pengeluaran = dp.kode_pengeluaran "
                         + "WHERE MONTH(p.tgl_pengeluaran) = MONTH(CURDATE()) AND YEAR(p.tgl_pengeluaran) = YEAR(CURDATE()) "
-                        + "GROUP BY kategori, bulan";
+                        + "GROUP BY MONTH(p.tgl_pengeluaran)";
                 ps = con.prepareStatement(query);
                 rs = ps.executeQuery();
                 while (rs.next()) {
+                    int bulan = rs.getInt("bulan");
+                    String namaBulan = getNamaBulan(bulan);
                     tableModel.addRow(new Object[]{
-                        rs.getString("bulan"),
-                        rs.getString("kategori"),
+                        namaBulan,
                         formatRupiah(rs.getDouble("total_pengeluaran"))
                     });
                 }
 
             } else if (indexFilter == 2) {
                 // Tahunan
-                tableModel.setColumnIdentifiers(new String[]{"Tahun", "Total Pengeluaran", "Kategori"});
+                tableModel.setColumnIdentifiers(new String[]{"Tahun", "Total Pengeluaran"});
                 query = "SELECT YEAR(p.tgl_pengeluaran) AS tahun, "
-                        + "IF(dp.kode_bahanbaku IS NULL, 'Lainnya', 'Operasional') AS kategori, "
                         + "SUM(dp.total) AS total_pengeluaran "
                         + "FROM detail_pengeluaran dp "
                         + "JOIN pengeluaran p ON p.kode_pengeluaran = dp.kode_pengeluaran "
                         + "WHERE YEAR(p.tgl_pengeluaran) = YEAR(CURDATE()) "
-                        + "GROUP BY kategori, tahun";
+                        + "GROUP BY YEAR(p.tgl_pengeluaran)";
                 ps = con.prepareStatement(query);
                 rs = ps.executeQuery();
                 while (rs.next()) {
                     tableModel.addRow(new Object[]{
                         rs.getInt("tahun"),
-                        rs.getString("kategori"),
                         formatRupiah(rs.getDouble("total_pengeluaran"))
                     });
                 }
@@ -318,6 +319,7 @@ public class Form_Laporan extends javax.swing.JPanel {
         btnTahun = new com.raven.util.Button();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblLaporan = new com.raven.swing.TableColumn();
+        btnTambahPengeluaran = new com.raven.util.Button();
 
         setOpaque(false);
 
@@ -394,6 +396,16 @@ public class Form_Laporan extends javax.swing.JPanel {
         });
         jScrollPane2.setViewportView(tblLaporan);
 
+        btnTambahPengeluaran.setBackground(new java.awt.Color(97, 131, 175));
+        btnTambahPengeluaran.setForeground(new java.awt.Color(255, 255, 255));
+        btnTambahPengeluaran.setText("TAMBAH");
+        btnTambahPengeluaran.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnTambahPengeluaran.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahPengeluaranActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelRound2Layout = new javax.swing.GroupLayout(panelRound2);
         panelRound2.setLayout(panelRound2Layout);
         panelRound2Layout.setHorizontalGroup(
@@ -407,13 +419,16 @@ public class Form_Laporan extends javax.swing.JPanel {
                         .addComponent(btnPemasukan, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(15, 15, 15)
                         .addComponent(btnPengeluaran, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelRound2Layout.createSequentialGroup()
-                        .addComponent(btnHari, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addComponent(btnBulan, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addComponent(btnTahun, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(panelRound2Layout.createSequentialGroup()
+                            .addComponent(btnHari, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(10, 10, 10)
+                            .addComponent(btnBulan, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(10, 10, 10)
+                            .addComponent(btnTahun, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnTambahPengeluaran, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         panelRound2Layout.setVerticalGroup(
@@ -428,7 +443,9 @@ public class Form_Laporan extends javax.swing.JPanel {
                 .addGroup(panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnHari, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBulan, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnTahun, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnTahun, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnTambahPengeluaran, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20))
@@ -511,6 +528,10 @@ public class Form_Laporan extends javax.swing.JPanel {
         loadData();
     }//GEN-LAST:event_btnTahunActionPerformed
 
+    private void btnTambahPengeluaranActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPengeluaranActionPerformed
+        GlassPanePopup.showPopup(new com.raven.popup.PengeluaranPopup());
+    }//GEN-LAST:event_btnTambahPengeluaranActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.util.Button btnBulan;
@@ -519,6 +540,7 @@ public class Form_Laporan extends javax.swing.JPanel {
     private com.raven.util.Button btnPengeluaran;
     private com.raven.util.Button btnProfit;
     private com.raven.util.Button btnTahun;
+    private com.raven.util.Button btnTambahPengeluaran;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane2;
     private com.raven.swing.PanelRound panelRound2;
