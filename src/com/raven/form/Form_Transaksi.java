@@ -5,18 +5,13 @@ import com.raven.util.InputFilter;
 import config.DatabaseConfig;
 import config.Session;
 import java.sql.*;
-import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import print.StrukManager;
 import print.model.ParameterStruk;
 import static config.Utilz.*;
-import javax.swing.text.AbstractDocument;
 
 public class Form_Transaksi extends javax.swing.JPanel {
 
