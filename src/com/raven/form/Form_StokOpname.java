@@ -4,17 +4,62 @@
  */
 package com.raven.form;
 
+import com.raven.popup.OpnamePopup;
+import config.DatabaseConfig;
+import raven.glasspanepopup.GlassPanePopup;
+import java.sql.*;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author MI TA
  */
 public class Form_StokOpname extends javax.swing.JPanel {
 
+    Connection con = null;
+    DefaultTableModel tableModel;
+
     /**
      * Creates new form Form_StokOpname
      */
     public Form_StokOpname() {
         initComponents();
+        getCon();
+        setTableModel();
+        loadOpname();
+    }
+
+    private void getCon() {
+        try {
+            con = DatabaseConfig.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setTableModel() {
+        String[] judul = {"Nama Bahan", "Nama admin", "Stok Sistem", "Stok Fisik", "Selisih", "Keterangan", "Tanggal"};
+        tableModel = new DefaultTableModel(judul, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tblOpname.setModel(tableModel);
+    }
+
+    private void loadOpname() {
+        try {
+            String q = "SELECT * FROM v_stok_opname";
+            PreparedStatement ps = con.prepareStatement(q);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String[] data = {rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7)};
+                tableModel.addRow(data);
+            }
+        } catch (SQLException e) {
+            e.getNextException();
+        }
     }
 
     /**
@@ -30,8 +75,6 @@ public class Form_StokOpname extends javax.swing.JPanel {
         panelRound1 = new com.raven.swing.PanelRound();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblOpname = new com.raven.swing.TableColumn();
-        btnUpdate = new com.raven.util.Button();
-        btnDelete = new com.raven.util.Button();
         btnAdd = new com.raven.util.Button();
 
         setOpaque(false);
@@ -73,26 +116,6 @@ public class Form_StokOpname extends javax.swing.JPanel {
         tblOpname.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tblOpname);
 
-        btnUpdate.setBackground(new java.awt.Color(255, 157, 35));
-        btnUpdate.setForeground(new java.awt.Color(255, 255, 255));
-        btnUpdate.setText("UPDATE");
-        btnUpdate.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUpdateActionPerformed(evt);
-            }
-        });
-
-        btnDelete.setBackground(new java.awt.Color(208, 90, 90));
-        btnDelete.setForeground(new java.awt.Color(255, 255, 255));
-        btnDelete.setText("DELETE");
-        btnDelete.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
-
         btnAdd.setBackground(new java.awt.Color(97, 131, 175));
         btnAdd.setForeground(new java.awt.Color(255, 255, 255));
         btnAdd.setText("ADD");
@@ -112,10 +135,7 @@ public class Form_StokOpname extends javax.swing.JPanel {
                 .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 807, Short.MAX_VALUE)
                     .addGroup(panelRound1Layout.createSequentialGroup()
-                        .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 557, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(20, 20, 20))
         );
@@ -123,10 +143,7 @@ public class Form_StokOpname extends javax.swing.JPanel {
             panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelRound1Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
-                .addGroup(panelRound1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(20, Short.MAX_VALUE))
@@ -154,72 +171,14 @@ public class Form_StokOpname extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
-//        int selectedRow = tblOpname.getSelectedRow();
-//        if (selectedRow != -1) {
-//            if (indexTable == 0) {
-//                int role = -1;
-//                String getRole = tblOpname.getValueAt(selectedRow, 4).toString();
-//                if (getRole == "Admin") {
-//                    role = 1;
-//                } else {
-//                    role = 0;
-//                }
-//                String uid = tblOpname.getValueAt(selectedRow, 0).toString();
-//                String nama = tblOpname.getValueAt(selectedRow, 1).toString();
-//                String username = tblOpname.getValueAt(selectedRow, 2).toString();
-//                String password = tblOpname.getValueAt(selectedRow, 3).toString();
-//
-//                popup.setEditMode(uid, nama, username, password, role);
-//                GlassPanePopup.showPopup(popup);
-//            } else {
-//                String kode_member = tblOpname.getValueAt(selectedRow, 0).toString();
-//                String uid = tblOpname.getValueAt(selectedRow, 1).toString();
-//                String nama = tblOpname.getValueAt(selectedRow, 2).toString();
-//                String noTelp = tblOpname.getValueAt(selectedRow, 3).toString();
-//
-//                popupMember.setEditMode(kode_member, uid, nama, noTelp);
-//                GlassPanePopup.showPopup(popupMember);
-//            }
-//        } else {
-//            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin diedit!");
-//        }
-    }//GEN-LAST:event_btnUpdateActionPerformed
-
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-//        int selectedRow = tblOpname.getSelectedRow();
-//        if (selectedRow != -1) {
-//            if (indexTable == 0) {
-//                String uid = tblOpname.getValueAt(selectedRow, 0).toString();
-//                hapusPopup.setData("user", "uid", uid);
-//                hapusPopup.setDataChangeListener(() -> loadAkunKaryawan());
-//                GlassPanePopup.showPopup(hapusPopup);
-//            } else {
-//                String kodeMember = tblOpname.getValueAt(selectedRow, 0).toString();
-//                hapusPopup.setData("member", "kode_member", kodeMember);
-//                hapusPopup.setDataChangeListener(() -> loadData());
-//                GlassPanePopup.showPopup(hapusPopup);
-//            }
-//        } else {
-//            JOptionPane.showMessageDialog(null, "Silakan pilih data yang ingin dihapus!");
-//        }
-    }//GEN-LAST:event_btnDeleteActionPerformed
-
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        // TODO add your handling code here:
-//        if (indexTable == 0) {
-//            GlassPanePopup.showPopup(new AkunPopup());
-//        } else {
-//            GlassPanePopup.showPopup(new MemberPopup());
-//        }
+        OpnamePopup opnamePopup = new OpnamePopup();
+        GlassPanePopup.showPopup(opnamePopup);
     }//GEN-LAST:event_btnAddActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.raven.util.Button btnAdd;
-    private com.raven.util.Button btnDelete;
-    private com.raven.util.Button btnUpdate;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel judul;
     private com.raven.swing.PanelRound panelRound1;
