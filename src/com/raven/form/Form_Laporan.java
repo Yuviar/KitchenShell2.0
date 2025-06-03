@@ -4,6 +4,8 @@
  */
 package com.raven.form;
 
+import com.raven.event.DataChangeListener;
+import com.raven.popup.PengeluaranPopup;
 import config.DatabaseConfig;
 import java.awt.Color;
 import java.sql.*;
@@ -20,13 +22,28 @@ public class Form_Laporan extends javax.swing.JPanel {
     DefaultTableModel tableModel;
     int indexLaporan = 0; // 0 = Profit, 1 = Pemasukan, 2 = Pengeluaran
     int indexFilter = 0;  // 0 = Hari, 1 = Bulan, 2 = Tahun
+    PengeluaranPopup popup = new PengeluaranPopup();
 
     public Form_Laporan() {
         initComponents();
         getCon();
         setTableModelDynamic();
         loadData();
+        popup.setOutListener(new DataChangeListener() {
+            @Override
+            public void onDataChanged() {
+                loadData();
+            }
+        });
         btnTambahPengeluaran.setVisible(false); // default hidden
+        
+        btnProfit.setBackground(Color.WHITE);
+        btnPemasukan.setBackground(new Color(144, 154, 170));
+        btnPengeluaran.setBackground(new Color(144, 154, 170));
+        
+        btnHari.setBackground(Color.WHITE);
+        btnBulan.setBackground(new Color(144, 154, 170));
+        btnTahun.setBackground(new Color(144, 154, 170));
     }
 
     private String getNamaBulan(int bulan) {
@@ -524,7 +541,7 @@ public class Form_Laporan extends javax.swing.JPanel {
     }//GEN-LAST:event_btnTahunActionPerformed
 
     private void btnTambahPengeluaranActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahPengeluaranActionPerformed
-        GlassPanePopup.showPopup(new com.raven.popup.PengeluaranPopup());
+        GlassPanePopup.showPopup(popup);
     }//GEN-LAST:event_btnTambahPengeluaranActionPerformed
 
 

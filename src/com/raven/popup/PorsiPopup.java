@@ -194,9 +194,7 @@ public class PorsiPopup extends javax.swing.JPanel {
                     combo.setSelectedIndex(-1);
                 }
             }
-
         });
-
     }
 
     /**
